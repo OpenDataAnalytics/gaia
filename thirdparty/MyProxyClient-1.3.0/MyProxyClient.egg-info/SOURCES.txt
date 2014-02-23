@@ -1,0 +1,17 @@
+README
+setup.cfg
+setup.py
+MyProxyClient.egg-info/PKG-INFO
+MyProxyClient.egg-info/SOURCES.txt
+MyProxyClient.egg-info/dependency_links.txt
+MyProxyClient.egg-info/entry_points.txt
+MyProxyClient.egg-info/not-zip-safe
+MyProxyClient.egg-info/requires.txt
+MyProxyClient.egg-info/top_level.txt
+myproxy/__init__.py
+myproxy/client.py
+myproxy/script.py
+myproxy/test/__init__.py
+myproxy/test/test_myproxyclient.py
+myproxy/utils/__init__.py
+myproxy/utils/openssl.py

@@ -1,0 +1,50 @@
+Metadata-Version: 1.0
+Name: MyProxyClient
+Version: 1.3.0
+Summary: MyProxy Client
+Home-page: http://proj.badc.rl.ac.uk/ndg/wiki/Security/MyProxyClient
+Author: Philip Kershaw
+Author-email: Philip.Kershaw@stfc.ac.uk
+License: BSD - See LICENSE file in top-level directory
+
+Software adapted from myproxy_logon.  - For myproxy_logon see Access Grid
+Toolkit Public License (AGTPL)
+
+This product includes software developed by and/or derived from the Access
+Grid Project (http://www.accessgrid.org) to which the U.S. Government retains
+certain rights.
+Description: Python implementation of the client interface to the MyProxy credential
+        management service (http://grid.ncsa.illinois.edu/myproxy/).
+
+        The code has been extended from an original program myproxy_logon by Tom Uram of
+        ANL.
+
+        1.3.0
+        =====
+        * Added capability for SSL-client cert based authentication for logon without
+        pass-phrase.  This enables authorised retrievers to get a new delegation for
+        credentials belonging to another user.
+        * Also add support for credential name along with user name.
+        * Fix to script credential lifetime setting for script invocation.
+
+Platform: POSIX
+Platform: Linux
+Platform: Windows
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU Library or Lesser General Public License (BSD)
+Classifier: Natural Language :: English
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Topic :: Security
+Classifier: Topic :: Internet
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: System :: Distributed Computing
+Classifier: Topic :: System :: Systems Administration :: Authentication/Directory
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

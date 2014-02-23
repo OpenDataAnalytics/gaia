@@ -1,0 +1,2 @@
+[console_scripts]
+myproxyclient = myproxy.script:main
