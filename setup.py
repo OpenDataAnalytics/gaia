@@ -72,5 +72,4 @@ setup(name='pygeo',
       platforms=['all'],
       packages=packages,
       package_dir=package_dir,
-      cmdclass={'uninstall':UninstallCommand}
-      )
+      cmdclass={'uninstall':UninstallCommand})
