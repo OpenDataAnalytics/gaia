@@ -1,11 +1,19 @@
 import cherrypy
 import os
-from myproxy.client import MyProxyClient
-from myproxy.client import MyProxyClientError
+import sys
+
 from urlparse import urlparse
 import geocelery_conf
 import socket
 import utils
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+myproxyclient_dir = os.path.join(current_dir, "../", "thirdparty", "myproxyclient")
+
+sys.path.append(myproxyclient_dir)
+
+from myproxy.client import MyProxyClient
+from myproxy.client import MyProxyClientError
 
 def authenticate(openid_uri, password):
     try:

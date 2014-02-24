@@ -4,21 +4,24 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 import pymongo
 import os
-import esgf.authentication
+
+import pygeo.esgf.authentication
 import traceback
 from urlparse import urlparse
 
 from myproxy.client import MyProxyClientError
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-template_dir = os.path.join(current_dir, "../")
+
+# Aashish: Is there a better way for finding the path?
+template_dir = os.path.join(current_dir, "../../../../../")
 lookup = TemplateLookup(directories=[template_dir])
 
 class ESGFSessionAuth(cptools.SessionAuth):
 
     def check_username_and_password(self, username, password):
         try:
-            esgf.authentication.authenticate(username, password)
+            pygeo.esgf.authentication.authenticate(username, password)
         except MyProxyClientError as myex:
             return "ESGF authentication error: %s" % myex.message
         except Exception as ex:
