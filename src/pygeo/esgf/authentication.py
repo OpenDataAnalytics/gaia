@@ -3,7 +3,7 @@ import os
 import sys
 
 from urlparse import urlparse
-import geocelery_conf
+import pygeo.geocelery_conf
 import socket
 import utils
 

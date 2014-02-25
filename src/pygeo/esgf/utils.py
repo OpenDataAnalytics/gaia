@@ -1,4 +1,4 @@
-import geocelery_conf
+import pygeo.geocelery_conf
 
 def url_to_download_filepath(user_url, url):
     user_filepath = user_url_to_filepath(user_url)
@@ -8,7 +8,7 @@ def url_to_download_filepath(user_url, url):
     return filepath
 
 def download_dir():
-    return "%s/esgf" % geocelery_conf.DOWNLOAD_DIR
+    return "%s/esgf" % pygeo.geocelery_conf.DOWNLOAD_DIR
 
 def user_url_to_filepath(user_url):
     user_url = user_url.replace('https://', '')
