@@ -26,9 +26,13 @@ set(BUILD_TESTING OFF CACHE BOOL "Enable testing")
 set(PYGEO_DEPLOY_DIR "${CMAKE_CURRENT_BINARY_DIR}/deploy"
     CACHE PATH "PATH to deployment directory")
 
+if (NOT PYGEO_BUILD_BASE)
+  set(PYGEO_BUILD_BASE "${${PROJECT_NAME}_BINARY_DIR}")
+endif()
+
 # Install PyGeo
 add_custom_target(pygeo ALL
-  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${${PROJECT_NAME}_BINARY_DIR}" install
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${PYGEO_BUILD_BASE}" install
           --prefix="${PYGEO_DEPLOY_DIR}"
   WORKING_DIRECTORY "${pygeo_SOURCE_DIR}"
 )
