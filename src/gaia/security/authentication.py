@@ -5,7 +5,7 @@ from mako.lookup import TemplateLookup
 import pymongo
 import os
 
-import pygeo.esgf.authentication
+import gaia.esgf.authentication
 import traceback
 from urlparse import urlparse
 
@@ -21,7 +21,7 @@ class ESGFSessionAuth(cptools.SessionAuth):
 
     def check_username_and_password(self, username, password):
         try:
-            pygeo.esgf.authentication.authenticate(username, password)
+            gaia.esgf.authentication.authenticate(username, password)
         except MyProxyClientError as myex:
             return "ESGF authentication error: %s" % myex.message
         except Exception as ex:

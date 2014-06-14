@@ -7,11 +7,11 @@ import os
 import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-pygeo_dir = os.path.join(current_dir, "../../")
-sys.path.append(pygeo_dir)
+gaia_dir = os.path.join(current_dir, "../../")
+sys.path.append(gaia_dir)
 
-import pygeo
-from pygeo.time.standardtime import attrib_to_converters
+import gaia
+from gaia.time.standardtime import attrib_to_converters
 
 class mongo_import:
     def __init__(self, server, database):

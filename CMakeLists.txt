@@ -5,7 +5,7 @@
 #/////////////////////////////////////////////////////////////////////////////
 
 cmake_minimum_required(VERSION 2.8)
-project(pygeo)
+project(gaia)
 
 include(FindPythonInterp)
 find_package(PythonInterp 2.7)
@@ -31,10 +31,10 @@ if (NOT PYGEO_BUILD_BASE)
 endif()
 
 # Install PyGeo
-add_custom_target(pygeo ALL
+add_custom_target(gaia ALL
   COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${PYGEO_BUILD_BASE}" install
           --prefix="${PYGEO_DEPLOY_DIR}"
-  WORKING_DIRECTORY "${pygeo_SOURCE_DIR}"
+  WORKING_DIRECTORY "${gaia_SOURCE_DIR}"
 )
 
 #/////////////////////////////////////////////////////////////////////////////

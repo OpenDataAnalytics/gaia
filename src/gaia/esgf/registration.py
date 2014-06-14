@@ -5,7 +5,7 @@ import requests
 import cherrypy
 from bs4 import BeautifulSoup
 
-from pygeo.esgf.utils import user_cert_file
+from gaia.esgf.utils import user_cert_file
 
 mongo_url='mongodb://localhost/celery'
 celery = Celery('download', broker=mongo_url, backend=mongo_url)

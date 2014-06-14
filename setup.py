@@ -23,8 +23,8 @@ class UninstallCommand(Command):
 
     def run(self):
         try:
-            import pygeo
-            print('To uninstall, manually remove the Python package folder located here: {0}'.format(os.path.split(pygeo.__file__)[0]))
+            import gaia
+            print('To uninstall, manually remove the Python package folder located here: {0}'.format(os.path.split(gaia.__file__)[0]))
         except ImportError:
             raise(ImportError("Either PyGeo is not installed or not available on the Python path."))
 ## check python version
@@ -55,7 +55,7 @@ def _get_dot_(path,root='src'):
     ret.reverse()
     return('.'.join(ret))
 package_dir = {'':'src'}
-src_path = os.path.join(package_dir.keys()[0],package_dir.values()[0],'pygeo')
+src_path = os.path.join(package_dir.keys()[0],package_dir.values()[0],'gaia')
 packages = []
 for dirpath,dirnames,filenames in os.walk(src_path):
     if '__init__.py' in filenames:
@@ -63,7 +63,7 @@ for dirpath,dirnames,filenames in os.walk(src_path):
         packages.append(package)
 
 ## run the installation
-setup(name='pygeo',
+setup(name='gaia',
       version=VERSION,
       author='Kitware',
       author_email='aashish.chaudhary@kitware.com',
