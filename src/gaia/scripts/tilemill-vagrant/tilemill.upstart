@@ -1,0 +1,11 @@
+description "TileMill"
+author      "MapBox - http://mapbox.com"
+
+stop on shutdown
+
+respawn
+
+script
+  su -s /bin/sh -c '/usr/bin/node /home/vagrant/tilemill/index.js core --listenHost=0.0.0.0 --files=/vagrant/mapbox >> /var/log/tilemill-core.log 2>&1' &
+  su -s /bin/sh -c '/usr/bin/node /home/vagrant/tilemill/index.js tile --files=/vagrant/mapbox  >> /var/log/tilemill-tile.log 2>&1'
+end script
