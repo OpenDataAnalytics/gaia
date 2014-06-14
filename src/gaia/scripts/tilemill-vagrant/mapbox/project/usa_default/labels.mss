@@ -23,8 +23,8 @@
 #city[SOV_A3='USA'][SCALERANK=5][zoom>4],
 #city[SOV_A3='USA'][SCALERANK>=6][zoom>5] {
   text-name:"[NAME]";
-  text-face-name: 'Droid Sans Regular';
-  text-size: 14;
+  text-face-name:@sans-bold;
+  text-size: 9;
   text-fill:#e87b45;    
 }
 

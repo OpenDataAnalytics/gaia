@@ -10,7 +10,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get -y update
 apt-get -y upgrade
 
-# Install some utilities 
+# Install some utilities
 apt-get install -y software-properties-common python-software-properties
 
 # add new ppa's
@@ -46,10 +46,14 @@ sudo -E -u postgres psql -d template_postgis -f $POSTGIS_PATH/postgis.sql
 sudo -E -u postgres psql -d template_postgis -f $POSTGIS_PATH/spatial_ref_sys.sql
 
 # build tilemill
-
 sudo -u vagrant git clone https://github.com/mapbox/tilemill.git /home/vagrant/tilemill
 cd /home/vagrant/tilemill
 npm install
+
+# copy startup script
+cp /vagrant/tilemill.upstart /etc/init/tilemill.conf 2> /dev/null
+sudo initctl reload-configuration
+sudo start tilemill
 
 # then start it...
 # if you are running a desktop server then just boot using all the defaults

@@ -127,4 +127,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     file.source      = 'mapbox'
     file.destination = '/home/vagrant/MapBox'
   end
+
+  config.vm.synced_folder ".", "/vagrant", id: "vagrant-root",
+    owner: "vagrant",
+    group: "vagrant"
 end
