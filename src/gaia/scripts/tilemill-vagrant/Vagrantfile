@@ -122,4 +122,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # chef-validator, unless you changed the configuration.
   #
   #   chef.validation_client_name = "ORGNAME-validator"
+
+  config.vm.provision :file do |file|
+    file.source      = 'mapbox'
+    file.destination = '/home/vagrant/MapBox'
+  end
 end
