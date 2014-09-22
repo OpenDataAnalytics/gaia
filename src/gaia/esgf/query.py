@@ -83,7 +83,11 @@ def query(site_url, query, start=None, end=None, bbox=None):
                        for x in context.xpathEval('./ns:variables/ns:variable[@name]')]
 
           size = context.xpathEval('./ns:property[@name="size"]/@value')[0].get_content()
-          checksum = context.xpathEval('./ns:property[@name="checksum"]/@value')[0].get_content()
+
+          checksum = ''
+          checksum_list = context.xpathEval('./ns:property[@name="checksum"]/@value')
+          if checksum_list:
+              checksum = checksum_list[0].get_content()
 
           file = dict()
           file['url'] = "%s%s%s" % (server_url, base, url)
