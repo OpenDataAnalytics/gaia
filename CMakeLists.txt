@@ -23,17 +23,17 @@ set(BUILD_TESTING OFF CACHE BOOL "Enable testing")
 # Internal variables
 #
 #/////////////////////////////////////////////////////////////////////////////
-set(PYGEO_DEPLOY_DIR "${CMAKE_CURRENT_BINARY_DIR}/deploy"
+set(GAIA_DEPLOY_DIR "${CMAKE_CURRENT_BINARY_DIR}/deploy"
     CACHE PATH "PATH to deployment directory")
 
-if (NOT PYGEO_BUILD_BASE)
-  set(PYGEO_BUILD_BASE "${${PROJECT_NAME}_BINARY_DIR}")
+if (NOT GAIA_BUILD_BASE)
+  set(GAIA_BUILD_BASE "${${PROJECT_NAME}_BINARY_DIR}")
 endif()
 
 # Install PyGeo
 add_custom_target(gaia ALL
-  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${PYGEO_BUILD_BASE}" install
-          --prefix="${PYGEO_DEPLOY_DIR}"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${GAIA_BUILD_BASE}" install
+          --prefix="${GAIA_DEPLOY_DIR}"
   WORKING_DIRECTORY "${gaia_SOURCE_DIR}"
 )
 
