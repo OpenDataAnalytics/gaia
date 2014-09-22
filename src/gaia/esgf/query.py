@@ -58,7 +58,7 @@ def query(site_url, query, start=None, end=None, bbox=None):
     parts = urlparse.urlparse(url)
     server_url = "%s://%s" % (parts.scheme, parts.netloc)
 
-    r = requests.get(url)
+    r = requests.get(url, verify=False)
 
     if r.status_code != 200:
       cherrypy.log( "Error getting catalogue: "+url)
