@@ -36,7 +36,7 @@ def authenticate(openid_uri, password):
             os.makedirs(dir)
 
         with open(cert_filepath, 'w') as fd:
-            fd.write(credentials[0])
-            fd.write(credentials[1])
+            for cred in credentials:
+                fd.write(cred)
     except socket.gaierror:
         raise MyProxyClientError('Invalid OpenID identifier')

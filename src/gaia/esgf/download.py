@@ -21,7 +21,7 @@ def download(url, size, checksum, user_url):
     try:
         cert_filepath = utils.user_cert_file(user_url)
         request = requests.get(url,
-                               cert=(cert_filepath, cert_filepath), verify=False, stream=True)
+                               cert=cert_filepath, verify=False, stream=True)
 
         # Registration is required
         if request.status_code == 403:

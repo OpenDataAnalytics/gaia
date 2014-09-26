@@ -45,7 +45,7 @@ def register_with_group(url, group, role):
                                role if role else "", user_url)}
 
     r = requests.post(url, data=post_data,
-                      cert=(cert_filepath, cert_filepath), verify=False)
+                      cert=cert_filepath, verify=False)
 
     result = True
 
