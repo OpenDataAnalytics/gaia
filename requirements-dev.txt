@@ -1,9 +1,14 @@
 coverage==3.7.1
+coveralls==0.5
+docopt==0.6.2
 flake8==2.3.0
 flake8-docstrings==0.2.1.post1
 joblib==0.8.4
 mccabe==0.3
 pep257==0.4.1
 pep8==1.6.2
+pep8-naming==0.2.2
 pyflakes==0.8.1
+PyYAML==3.11
+requests==2.5.1
 virtualenv==12.0.7

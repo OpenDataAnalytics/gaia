@@ -1,0 +1,3 @@
+[run]
+branch = @_py_branch_cov@
+parallel = True
