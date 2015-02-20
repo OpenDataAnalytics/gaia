@@ -6,4 +6,4 @@ add_python_style_test(python_static_analysis "${PROJECT_SOURCE_DIR}/gaia")
 add_python_style_test(python_test_static_analysis "${PROJECT_SOURCE_DIR}/tests")
 
 
-# add_python_test(name RESOURCE_LOCKS ...)
+add_python_test(version)
