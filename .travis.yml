@@ -13,6 +13,8 @@ before_install:
   - cd cmake-*/bin && export PATH="${PWD}:${PATH}"
   - popd
   - cmake --version
+  - export CMAKE_PYTHON_VERSION=$(python -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
+  - env
 
 install: "pip install -r requirements.txt -r requirements-dev.txt"
 
