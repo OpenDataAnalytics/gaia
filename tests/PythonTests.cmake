@@ -1,6 +1,6 @@
 include(CMakeParseArguments)
 
-set(py_coverage_rc "${PROJECT_BINARY_DIR}/.coveragerc")
+set(py_coverage_rc "${PROJECT_SOURCE_DIR}/tests/cases/.coveragerc")
 set(flake8_config "${PROJECT_SOURCE_DIR}/tests/flake8.cfg")
 set(coverage_html_dir "${PROJECT_BINARY_DIR}/www/coverage")
 set(_py_testdir "${PROJECT_SOURCE_DIR}/tests/cases")
@@ -28,28 +28,28 @@ function(python_tests_init)
     add_test(
       NAME py_coverage_reset
       WORKING_DIRECTORY "${_py_testdir}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" erase "--rcfile=${py_coverage_rc}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" erase
     )
     add_test(
       NAME py_coverage_combine
       WORKING_DIRECTORY "${_py_testdir}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" combine "--rcfile=${py_coverage_rc}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" combine
     )
     add_test(
       NAME py_coverage
       WORKING_DIRECTORY "${_py_testdir}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" report --fail-under=${COVERAGE_MINIMUM_PASS} "--rcfile=${py_coverage_rc}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" report --fail-under=${COVERAGE_MINIMUM_PASS}
     )
     add_test(
       NAME py_coverage_html
       WORKING_DIRECTORY "${_py_testdir}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" html -d "${coverage_html_dir}" "--rcfile=${py_coverage_rc}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" html -d "${coverage_html_dir}"
               "--title=Gaia Coverage Report"
     )
     add_test(
       NAME py_coverage_xml
       WORKING_DIRECTORY "${_py_testdir}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" xml -o "${PROJECT_BINARY_DIR}/coverage.xml" "--rcfile=${py_coverage_rc}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" xml -o "${PROJECT_BINARY_DIR}/coverage.xml"
     )
     set_property(TEST py_coverage PROPERTY DEPENDS py_coverage_combine)
     set_property(TEST py_coverage_html PROPERTY DEPENDS py_coverage)
@@ -81,7 +81,7 @@ function(add_python_test case)
     add_test(
       NAME ${name}
       WORKING_DIRECTORY "${_py_testdir}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" run -p --append "--rcfile=${py_coverage_rc}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" run -p --append
               "--source=${PROJECT_SOURCE_DIR}/gaia"
               -m unittest -v ${module}
     )

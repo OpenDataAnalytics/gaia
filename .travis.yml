@@ -24,7 +24,9 @@ script:
   - pushd _build
   - cmake ..
   - ctest -VV -S ../cmake/travis_continuous.cmake || true
+  - pushd ../tests/cases
   - coveralls
+  - popd
   - if [ -f test_failed ] ; then false ; fi
   - popd
 
