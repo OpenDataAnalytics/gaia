@@ -1,7 +1,6 @@
 import re
 
 from base import TestCase
-import gaia
 
 
 class VersionTest(TestCase):
@@ -10,9 +9,9 @@ class VersionTest(TestCase):
 
     def test_version_present(self):
         """Make sure the version is defined."""
-        self.assertIn('version', gaia.__dict__)
+        self.assertIn('version', self.gaia.__dict__)
 
     def test_version_format(self):
         """Make sure the version is formatted correctly."""
         r = re.compile(r'^\d\.\d\.\d(-[^-.]+)?$')
-        self.assertRegexpMatches(gaia.version, r)
+        self.assertRegexpMatches(self.gaia.version, r)

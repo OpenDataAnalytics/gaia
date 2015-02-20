@@ -3,6 +3,7 @@ include(CMakeParseArguments)
 set(py_coverage_rc "${PROJECT_BINARY_DIR}/.coveragerc")
 set(flake8_config "${PROJECT_SOURCE_DIR}/tests/flake8.cfg")
 set(coverage_html_dir "${PROJECT_BINARY_DIR}/www/coverage")
+set(_py_testdir "${PROJECT_SOURCE_DIR}/tests/cases")
 
 if(PYTHON_BRANCH_COVERAGE)
   set(_py_branch_cov True)
@@ -26,29 +27,29 @@ function(python_tests_init)
   if(PYTHON_COVERAGE)
     add_test(
       NAME py_coverage_reset
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+      WORKING_DIRECTORY "${_py_testdir}"
       COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" erase "--rcfile=${py_coverage_rc}"
     )
     add_test(
       NAME py_coverage_combine
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" combine
+      WORKING_DIRECTORY "${_py_testdir}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" combine "--rcfile=${py_coverage_rc}"
     )
     add_test(
       NAME py_coverage
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" report --fail-under=${COVERAGE_MINIMUM_PASS}
+      WORKING_DIRECTORY "${_py_testdir}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" report --fail-under=${COVERAGE_MINIMUM_PASS} "--rcfile=${py_coverage_rc}"
     )
     add_test(
       NAME py_coverage_html
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" html -d "${coverage_html_dir}"
+      WORKING_DIRECTORY "${_py_testdir}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" html -d "${coverage_html_dir}" "--rcfile=${py_coverage_rc}"
               "--title=Gaia Coverage Report"
     )
     add_test(
       NAME py_coverage_xml
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" xml -o "${PROJECT_BINARY_DIR}/coverage.xml"
+      WORKING_DIRECTORY "${_py_testdir}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" xml -o "${PROJECT_BINARY_DIR}/coverage.xml" "--rcfile=${py_coverage_rc}"
     )
     set_property(TEST py_coverage PROPERTY DEPENDS py_coverage_combine)
     set_property(TEST py_coverage_html PROPERTY DEPENDS py_coverage)
@@ -72,22 +73,22 @@ function(add_python_test case)
   set(_multival_args RESOURCE_LOCKS TIMEOUT)
   cmake_parse_arguments(fn "${_options}" "${_args}" "${_multival_args}" ${ARGN})
 
-  set(module tests.cases.${case}_test)
+  set(module ${case}_test)
   set(pythonpath "")
   set(other_covg "")
 
   if(PYTHON_COVERAGE)
     add_test(
       NAME ${name}
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+      WORKING_DIRECTORY "${_py_testdir}"
       COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" run -p --append "--rcfile=${py_coverage_rc}"
-              "--source=gaia"
+              "--source=${PROJECT_SOURCE_DIR}/gaia"
               -m unittest -v ${module}
     )
   else()
     add_test(
       NAME ${name}
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+      WORKING_DIRECTORY "${_py_testdir}"
       COMMAND "${PYTHON_EXECUTABLE}" -m unittest -v ${module}
     )
   endif()
