@@ -7,3 +7,8 @@ add_python_style_test(python_test_static_analysis "${PROJECT_SOURCE_DIR}/tests")
 
 
 add_python_test(version)
+add_python_test(factory)
+add_python_test(gaiaObject)
+add_python_test(message)
+add_python_test(stream)
+add_python_test(port)

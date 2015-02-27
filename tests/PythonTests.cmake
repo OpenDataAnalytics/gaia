@@ -11,6 +11,8 @@ else()
   set(_py_branch_cov False)
 endif()
 
+set(_py_package_dir "${PROJECT_SOURCE_DIR}/gaia")
+
 configure_file(
   "${PROJECT_SOURCE_DIR}/tests/coveragerc.in"
   "${py_coverage_rc}"
@@ -82,7 +84,6 @@ function(add_python_test case)
       NAME ${name}
       WORKING_DIRECTORY "${_py_testdir}"
       COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" run -p --append
-              "--source=${PROJECT_SOURCE_DIR}/gaia"
               -m unittest -v ${module}
     )
   else()
