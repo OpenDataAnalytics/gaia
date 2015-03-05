@@ -60,16 +60,16 @@ class TestStream(Stream):
         task1 = Task1()
         task2 = Task2()
 
-        task2.set_input('input port', task1.get_output('output port'))
+        self.obj = obj
+        self.obj['nclose'] = 0
+        self.obj['nflush'] = 0
 
         super(TestStream, self).__init__(
             task1.get_output('output port'),
             task2.get_input('input port')
         )
 
-        self.obj = obj
-        self.obj['nclose'] = 0
-        self.obj['nflush'] = 0
+        task2.set_input('input port', task1.get_output('output port'))
 
     def flush(self):
         """Flush the stream."""
