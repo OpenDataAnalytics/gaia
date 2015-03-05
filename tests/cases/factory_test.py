@@ -1,4 +1,6 @@
 
+from six import add_metaclass
+
 from base import TestCase
 from gaia.core import factory
 
@@ -7,21 +9,23 @@ TestRegistry = factory.create_registry()
 Registry2 = factory.create_registry()
 
 
+@add_metaclass(TestRegistry)
 class TestMainClass(object):
 
     """A toplevel class for registry testing."""
 
-    __metaclass__ = TestRegistry
+    pass
 
 
 registry = TestRegistry.registry()
 
 
-class Secondary(Registry2):
+@add_metaclass(Registry2)
+class Secondary(object):
 
     """A second toplevel class."""
 
-    __metaclass__ = Registry2
+    pass
 
 
 class FactoryTest(TestCase):
