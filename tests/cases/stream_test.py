@@ -1,6 +1,6 @@
 
 from base import TestCase
-from gaia.core import stream, task, port
+from gaia.core import stream, Task, InputPort, OutputPort
 
 Stream = stream.registry['Stream']
 
@@ -14,7 +14,7 @@ class ZeroStream(Stream):
         return 0
 
 
-class IPort(port.InputPort):
+class IPort(InputPort):
 
     """Test input port."""
 
@@ -25,7 +25,7 @@ class IPort(port.InputPort):
         return set((ZeroStream,))
 
 
-class OPort(port.OutputPort):
+class OPort(OutputPort):
 
     """Test output port."""
 
@@ -36,14 +36,14 @@ class OPort(port.OutputPort):
         return set((ZeroStream,))
 
 
-class Task1(task.Task):
+class Task1(Task):
 
     """A task with an output port."""
 
     output_ports = [OPort]
 
 
-class Task2(task.Task):
+class Task2(Task):
 
     """A task with an input port."""
 

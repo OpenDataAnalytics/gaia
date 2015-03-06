@@ -1,9 +1,9 @@
 
 from base import TestCase
-from gaia.core import port, task
+from gaia.core import InputPort, OutputPort, Task
 
 
-class IPortBase(port.InputPort):
+class IPortBase(InputPort):
 
     """Subclass of InputPort."""
 
@@ -28,7 +28,7 @@ class IPort2(IPortBase):
     description = 'This is the second input'
 
 
-class OPortBase(port.OutputPort):
+class OPortBase(OutputPort):
 
     """Subclass of OutputPort."""
 
@@ -53,7 +53,7 @@ class OPort2(OPortBase):
     description = 'This is the second output'
 
 
-class TTask(task.Task):
+class TTask(Task):
 
     """A generic task containing our ports."""
 

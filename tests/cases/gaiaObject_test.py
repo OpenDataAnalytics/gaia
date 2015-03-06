@@ -1,6 +1,6 @@
 
 from base import TestCase
-from gaia.core.base import GaiaObject
+from gaia.core import GaiaObject
 
 
 class ASubClass(GaiaObject):
