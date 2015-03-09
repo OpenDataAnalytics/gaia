@@ -17,3 +17,11 @@ class TestCase(_TestCase):
 
     # provide gaia import as a class variable to take care of import issues
     gaia = _gaia
+
+    def data_path(self, filename=None):
+        """Return an absolute path to a data file or directory."""
+        pth = os.path.dirname(os.path.abspath(__file__))
+        pth = os.path.join(os.path.dirname(pth), 'data')
+        if filename is not None:
+            pth = os.path.join(pth, filename)
+        return pth

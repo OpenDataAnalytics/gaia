@@ -1,4 +1,4 @@
-set(COVERAGE_MINIMUM_PASS 90)
+set(COVERAGE_MINIMUM_PASS 75)
 
 python_tests_init()
 
@@ -12,5 +12,6 @@ add_python_test(gaiaObject)
 add_python_test(message)
 add_python_test(stream)
 add_python_test(port)
+add_python_test(geopandas_reader)
 
 add_docstring_test(gaia.core.base)
