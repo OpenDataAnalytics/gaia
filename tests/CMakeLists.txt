@@ -12,4 +12,5 @@ add_python_test(gaiaObject)
 add_python_test(message)
 add_python_test(stream)
 add_python_test(port)
-add_python_test(docstring)
+
+add_docstring_test(gaia.core.base)

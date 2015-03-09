@@ -107,3 +107,25 @@ function(add_python_test case)
     set_property(TEST py_coverage_combine APPEND PROPERTY DEPENDS ${name})
   endif()
 endfunction()
+
+function(add_docstring_test module)
+  set(name doctest:${module})
+  if(PYTHON_COVERAGE)
+    add_test(
+      NAME ${name}
+      WORKING_DIRECTORY "${_py_testdir}"
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" run -p --append
+              docstring_test.py -v ${module}
+    )
+  else()
+    add_test(
+      NAME ${name}
+      WORKING_DIRECTORY "${_py_testdir}"
+      COMMAND "${PYTHON_EXECUTABLE}" docstring_test.py -v ${module}
+    )
+  endif()
+  if(PYTHON_COVERAGE)
+    set_property(TEST ${name} APPEND PROPERTY DEPENDS py_coverage_reset)
+    set_property(TEST py_coverage_combine APPEND PROPERTY DEPENDS ${name})
+  endif()
+endfunction()
