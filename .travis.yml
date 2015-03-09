@@ -1,11 +1,11 @@
 language: python
 
 python:
-  - "2.6"
   - "2.7"
   - "3.2"
   - "3.3"
   - "3.4"
+  - "2.6"
 
 before_install:
   - pushd "${HOME}"
@@ -26,7 +26,7 @@ script:
   - cmake ..
   - ctest -VV -S ../cmake/travis_continuous.cmake || true
   - pushd ../tests/cases
-  - coveralls
+  - if [ "${CMAKE_PYTHON_VERSION}" != "2.6" ] ; then coveralls ; fi
   - popd
   - if [ -f test_failed ] ; then false ; fi
   - popd

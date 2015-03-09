@@ -7,7 +7,12 @@ set(CTEST_BUILD_NAME "Linux-$ENV{TRAVIS_BRANCH}-$ENV{CMAKE_PYTHON_VERSION}")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 
 ctest_start("Continuous")
-ctest_configure()
+if(ENV{CMAKE_PYTHON_VERSION} STREQUAL 2.6)
+  # pycoverage seems broken on 2.6
+  ctest_configure(OPTIONS "-DPYTHON_COVERAGE=OFF")
+else()
+  ctest_configure()
+endif()
 ctest_build()
 ctest_test(PARALLEL_LEVEL 4 RETURN_VALUE res)
 ctest_coverage()
