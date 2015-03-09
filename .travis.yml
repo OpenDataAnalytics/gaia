@@ -13,8 +13,9 @@ before_install:
   - cd cmake-*/bin && export PATH="${PWD}:${PATH}"
   - popd
   - cmake --version
-  - export CMAKE_PYTHON_VERSION=$(python -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
+  - export CMAKE_PYTHON_VERSION=$(python -c 'import sys; print("{0}.{1}".format(sys.version_info.major, sys.version_info.minor))')
   - env
+  - if [ -z "${CMAKE_PYTHON_VERSION}" ] ; then export CMAKE_PYTHON_VERSION="2.6" ; pip install importlib ; fi
 
 install: "pip install -r requirements.txt -r requirements-dev.txt"
 

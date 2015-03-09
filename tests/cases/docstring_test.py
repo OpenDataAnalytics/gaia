@@ -16,14 +16,14 @@ if __name__ == '__main__':
             mod = importlib.import_module(module)
         except ImportError:
             error += 1
-            print('Could not import {}.'.format(module))
+            print('Could not import {0}.'.format(module))
             continue
         result = doctest.testmod(mod)
         fail += result[0]
         total += result[1]
 
     if error:
-        print('{} modules failed to import'.format(error))
-    print('{} tests failed out of {}'.format(fail, total))
+        print('{0} modules failed to import'.format(error))
+    print('{0} tests failed out of {1}'.format(fail, total))
     if error or fail:
         sys.exit(1)
