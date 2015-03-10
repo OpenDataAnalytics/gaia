@@ -50,7 +50,3 @@ class GeopandasPlotTest(TestCase):
     def test_plot_geojson_pdf(self):
         """Create a pdf image."""
         self._plot_geojson('pdf')
-
-    def test_plot_geojson_jpg(self):
-        """Create a jpg image."""
-        self._plot_geojson('jpg')
