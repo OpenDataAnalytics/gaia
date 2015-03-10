@@ -18,6 +18,8 @@ before_install:
   - if [ -z "${CMAKE_PYTHON_VERSION}" ] ; then export CMAKE_PYTHON_VERSION="2.6" ; pip install importlib ; fi
 
 install:
+  - sudo apt-get update
+  - sudo apt-get install -y libgdal-dev
   - pip install -r requirements.txt -r requirements-dev.txt
   - pip install geopandas==0.1.1
 
@@ -32,5 +34,3 @@ script:
   - popd
   - if [ -f test_failed ] ; then false ; fi
   - popd
-
-sudo: False
