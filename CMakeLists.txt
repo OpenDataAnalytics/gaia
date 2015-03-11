@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(Gaia)
+project(Gaia NONE)
 
 include(CTest)
 enable_testing()
