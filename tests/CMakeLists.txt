@@ -15,3 +15,4 @@ add_python_test(port)
 add_python_test(geopandas)
 
 add_docstring_test(gaia.core.base)
+add_docstring_test(gaia.esgf.search)
