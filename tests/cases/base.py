@@ -12,6 +12,8 @@ except Exception:
     sys.path.append(os.path.abspath(os.path.join('..', '..')))
     import gaia as _gaia
 
+_modpath = os.path.dirname(os.path.abspath(__file__))
+
 
 class TestCase(_TestCase):
 
@@ -19,8 +21,8 @@ class TestCase(_TestCase):
 
     # provide gaia import as a class variable to take care of import issues
     gaia = _gaia
-    modpath = os.path.dirname(os.path.abspath(__file__))
     outpath = os.environ.get('CTEST_BINARY_DIRECTORY')
+    modpath = _modpath
 
     def setUp(self):  # noqa
         """Create output directory if necessary."""
@@ -39,9 +41,10 @@ class TestCase(_TestCase):
             except Exception:
                 pass
 
-    def data_path(self, filename=None):
+    @staticmethod
+    def data_path(filename=None):
         """Return an absolute path to a data file or directory."""
-        pth = os.path.join(os.path.dirname(self.modpath), 'data')
+        pth = os.path.join(os.path.dirname(_modpath), 'data')
         if filename is not None:
             pth = os.path.join(pth, filename)
         return pth
