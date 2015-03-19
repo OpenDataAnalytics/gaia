@@ -14,7 +14,7 @@ before_install:
   - cmake --version
   - export CMAKE_PYTHON_VERSION=$(python -c 'import sys; print("{0}.{1}".format(sys.version_info.major, sys.version_info.minor))')
   - env
-  - if [ -z "${CMAKE_PYTHON_VERSION}" ] ; then export CMAKE_PYTHON_VERSION="2.6" ; pip install importlib ; fi
+  - if [ -z "${CMAKE_PYTHON_VERSION}" ] ; then export CMAKE_PYTHON_VERSION="2.6" ; pip install -r requirements-2.6.txt ; fi
 
 install:
   - sudo apt-get update
