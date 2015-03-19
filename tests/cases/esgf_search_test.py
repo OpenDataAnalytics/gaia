@@ -32,6 +32,9 @@ def esgf_mock(url, request):
         else:
             content = open(TestCase.data_path('esgf_search_fields.json')).read()
 
+    if six.PY3 and content is not None:
+        content = bytes(content, 'utf-8')
+
     if content is not None:
         return {
             'content': content,
@@ -85,7 +88,7 @@ class SearchESGF(TestCase):
         """Test sizeof formatting for CLI."""
         self.assertEqual(_sizeof_fmt(1), '1.0B')
         self.assertEqual(_sizeof_fmt(1024), '1.0KB')
-        self.assertEqual(_sizeof_fmt(1024*1024), '1.0MB')
+        self.assertEqual(_sizeof_fmt(1024 * 1024), '1.0MB')
         self.assertEqual(_sizeof_fmt(2**80), '1.0YB')
 
 
