@@ -2,3 +2,7 @@
 branch = @_py_branch_cov@
 parallel = True
 source = @_py_package_dir@
+
+[report]
+omit = ../../gaia/esgf/proxy.py
+       ../../gaia/esgf/openssl.py

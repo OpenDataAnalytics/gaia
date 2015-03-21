@@ -7,6 +7,7 @@ add_python_style_test(python_test_static_analysis "${PROJECT_SOURCE_DIR}/tests")
 
 
 add_docstring_test(gaia.core.base)
+add_docstring_test(gaia.esgf.auth)
 add_docstring_test(gaia.esgf.search)
 
 add_python_test(version)

@@ -6,7 +6,7 @@ from six.moves.urllib import parse
 
 from base import TestCase
 from gaia import esgf
-from gaia.esgf.search import _sizeof_fmt
+from gaia.esgf.__main__ import _sizeof_fmt
 
 last_host = None
 last_query = {}
