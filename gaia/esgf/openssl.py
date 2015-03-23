@@ -15,7 +15,11 @@ __date__ = "08/02/07"
 __copyright__ = "(C) 2009 Science and Technology Facilities Council"
 __license__ = """BSD - See LICENSE file in top-level directory"""
 
-SafeConfigParser = configparser.SafeConfigParser
+
+if six.PY3:
+    SafeConfigParser = configparser.ConfigParser
+else:
+    SafeConfigParser = configparser.SafeConfigParser
 
 
 class OpenSSLConfigError(Exception):

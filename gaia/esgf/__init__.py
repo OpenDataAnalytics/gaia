@@ -1,1 +1,1 @@
-from gaia.esgf import search
+from gaia.esgf import search, proxy, auth

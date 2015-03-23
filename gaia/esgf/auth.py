@@ -8,6 +8,7 @@ import os
 
 import six
 from six.moves import input
+from six import print_
 
 from gaia.esgf.proxy import MyProxyClient, MyProxyClientGetError
 
@@ -49,7 +50,7 @@ class OpenID(object):
 
         Examples:
         >>> id = OpenID()
-        >>> id.login()     # non-interactive by default
+        >>> id.login() # doctest: +IGNORE_EXCEPTION_DETAIL
         Traceback (most recent call last):
             ...
         MyProxyClientGetError: invalid password
@@ -97,7 +98,9 @@ class OpenID(object):
             except Exception:
                 pass
 
-        s = open(self._cache_file, 'r').read()
+        s = '{}'
+        with open(self._cache_file, 'r') as f:
+            s = f.read()
 
         try:
             self._cache = json.loads(s)
@@ -133,9 +136,8 @@ class OpenID(object):
 
     def _write_cache(self):
         """Write in memory cache to disk."""
-        open(self._cache_file, 'w').write(
-            json.dumps(self._cache)
-        )
+        with open(self._cache_file, 'w') as f:
+            f.write(json.dumps(self._cache))
 
     def login(self, proxyargs={}, logonargs={}):
         """Login to the ESGF server and cache/return the credentials.
@@ -165,14 +167,14 @@ class OpenID(object):
                 if not self.interactive or i >= self.maxtries:
                     raise
                 if i:
-                    print('Could not log in with provided credentials.')
+                    print_('Could not log in with provided credentials.')
                 self.interact()
                 i += 1
                 continue
             break
         return certs
 
-    def invalidate(self, allusers=False, allhosts=False):
+    def invalidate(self, allhosts=False):
         """Invalidate the cached certificates.
 
         :param allusers: Invalidate the cache for all users
@@ -183,10 +185,7 @@ class OpenID(object):
         else:
             h = self._cache.get(self.host)
             if h:
-                if allusers:
-                    h = {}
-                elif h.get(self.user):
-                    del h[self.user]
+                del self._cache[self.host]
         self._write_cache()
 
     def credentials(self):
@@ -204,7 +203,7 @@ class OpenID(object):
 
         return certs
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
 
     # force reload the credentials
     cache = os.path.join(

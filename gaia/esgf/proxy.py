@@ -674,10 +674,12 @@ TRUSTED_CERTS=1"""
         :param val: directory path'''
 
         if isinstance(val, six.string_types):
-            if val == '':
+            if not val:
                 self.__caCertDir = None
             else:
                 self.__caCertDir = os.path.expandvars(val)
+                if six.PY3:
+                    self.__caCertDir = bytes(self.__caCertDir, encoding='utf-8')
 
         elif isinstance(val, None):
             self.__caCertDir = val
@@ -821,6 +823,8 @@ all the fields parsed.  fields is a list of two element, field name, field \
 value tuples.
         :rtype: tuple
         """
+        if six.PY3:
+            msg = str(msg, encoding='utf-8')
         lines = msg.split('\n')
         fields = [tuple(line.split('=', 1)) for line in lines][:-1]
 
@@ -1075,7 +1079,7 @@ private key is not password protected.
         conn.connect((self.hostname, self.port))
 
         # send globus compatibility stuff
-        conn.write('0')
+        conn.write(b'0')
 
         # send info command - ensure conversion from unicode before writing
         cmd = MyProxyClient.INFO_CMD % username
@@ -1465,12 +1469,15 @@ private key is not password protected.
         conn.connect((self.hostname, self.port))
 
         # send globus compatibility stuff
-        conn.write('0')
+        conn.write(b'0')
 
         # send get command - ensure conversion from unicode before writing
         cmd = MyProxyClient.GET_CMD % (userid, passphrase, lifetime)
 
-        conn.write(str(cmd))
+        if six.PY3:
+            conn.write(bytes(cmd, encoding='utf-8'))
+        else:
+            conn.write(str(cmd.encode('utf-8')))
         # process server response
         dat = conn.recv(MyProxyClient.SERVER_RESP_BLK_SIZE)
 

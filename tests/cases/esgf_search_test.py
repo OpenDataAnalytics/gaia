@@ -28,9 +28,11 @@ def esgf_mock(url, request):
         content = '{}'
     elif last_query.get('fields') is not None:
         if last_query['fields'][0] == 'variable':
-            content = open(TestCase.data_path('esgf_search_variables.json')).read()
+            with open(TestCase.data_path('esgf_search_variables.json')) as f:
+                content = f.read()
         else:
-            content = open(TestCase.data_path('esgf_search_fields.json')).read()
+            with open(TestCase.data_path('esgf_search_fields.json')) as f:
+                content = f.read()
 
     if six.PY3 and content is not None:
         content = bytes(content, 'utf-8')
