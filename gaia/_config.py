@@ -5,7 +5,10 @@ in this object (in a unique section).
 """
 
 from six.moves import configparser
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 ConfigParser = configparser.ConfigParser
 if hasattr(configparser, 'SafeConfigParser'):  # pragma: nocover
