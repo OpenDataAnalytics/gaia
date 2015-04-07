@@ -90,3 +90,25 @@ class Time(datetime):
                 )
 
         return datetime.__new__(cls, *arg, **kw)
+
+    @classmethod
+    def format(cls, time, fmt=None):
+        """Return a date/time string given by fmt.
+
+        Supports inputs accepted by Time.__init__ and format
+        strings from datetime.strftime.  Defaults to output
+        iso format.
+
+        :param time: A datetime/string/number
+        :param fmt str: strftime format string
+
+        >>> Time.format('February 1, 2001', '%m/%d/%Y')
+        '02/01/2001'
+        >>> Time.format(981000000000)
+        '2001-02-01T04:00:00+00:00'
+        """
+        t = cls(time)
+        if fmt is None:
+            return t.isoformat()
+        else:
+            return t.strftime(fmt)
