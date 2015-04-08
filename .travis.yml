@@ -20,7 +20,6 @@ install:
   - sudo apt-get update
   - sudo apt-get install -y libgdal-dev
   - pip install -r requirements.txt -r requirements-dev.txt
-  - pip install geopandas==0.1.1 matplotlib==1.4.3
 
 script:
   - rm -fr _build || true
