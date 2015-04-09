@@ -34,4 +34,4 @@ script:
   - popd
 
 after_success:
-  - if [ "${TRAVIS_PYTHON_VERSION}" != "2.6" ] ; then coveralls ; fi
+  - if [ "${TRAVIS_PYTHON_VERSION}" != "2.6" ] ; then cd tests/cases; coveralls ; fi
