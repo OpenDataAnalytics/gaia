@@ -8,6 +8,7 @@ add_python_style_test(python_test_static_analysis "${PROJECT_SOURCE_DIR}/tests")
 
 add_docstring_test(gaia.core.base)
 add_docstring_test(gaia.esgf.search)
+add_docstring_test(gaia.pandas.geopandas_writer)
 
 add_python_test(version)
 add_python_test(factory)
