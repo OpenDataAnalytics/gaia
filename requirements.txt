@@ -1,5 +1,23 @@
+# This requirments file is parsed by setup.py, it should be formatted
+# as follows:
+#   * only lines beginning with `#` are counted as comments
+#   * lines starting with `# optional:` indicate the begining
+#     of an extra_requires block
+#   * lines ending in `python_version < '2.7'` are recognized,
+#     but all other python_version requirents are ignored
+
+# needed to support this requirement file format
+pip>=6.0
+
+# base requirements
 six==1.9.0
 requests==2.5.1
+argparse==1.3.0; python_version < '2.7'
+importlib==1.0.3; python_version < '2.7'
+
+# optional: esgf
 tabulate==0.7.4
+
+# optional: pandas
 geopandas==0.1.1
 matplotlib==1.4.3
