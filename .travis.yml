@@ -12,15 +12,12 @@ before_install:
   - cd cmake-*/bin && export PATH="${PWD}:${PATH}"
   - popd
   - cmake --version
-  - export CMAKE_PYTHON_VERSION=$(python -c 'import sys; print("{0}.{1}".format(sys.version_info.major, sys.version_info.minor))')
   - env
-  - if [ -z "${CMAKE_PYTHON_VERSION}" ] ; then export CMAKE_PYTHON_VERSION="2.6" ; pip install -r requirements-2.6.txt ; fi
 
 install:
   - sudo apt-get update
   - sudo apt-get install -y libgdal-dev
   - pip install -r requirements.txt -r requirements-dev.txt
-  - pip install geopandas==0.1.1 matplotlib==1.4.3
 
 script:
   - rm -fr _build || true
@@ -28,8 +25,13 @@ script:
   - pushd _build
   - cmake ..
   - ctest -VV -S ../cmake/travis_continuous.cmake || true
-  - pushd ../tests/cases
-  - if [ "${CMAKE_PYTHON_VERSION}" != "2.6" ] ; then coveralls ; fi
-  - popd
   - if [ -f test_failed ] ; then false ; fi
   - popd
+  - python setup.py develop
+  - rm -fr tmp; mkdir tmp
+  - pushd tmp
+  - python -c "import gaia; print(gaia.__version__)"
+  - popd
+
+after_success:
+  - if [ "${TRAVIS_PYTHON_VERSION}" != "2.6" ] ; then cd tests/cases; coveralls ; fi

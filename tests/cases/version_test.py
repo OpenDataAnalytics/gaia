@@ -14,5 +14,5 @@ class VersionTest(TestCase):
 
     def test_version_format(self):
         """Make sure the version is formatted correctly."""
-        r = re.compile(r'^\d\.\d\.\d(-[^-.]+)?$')
+        r = re.compile(r'^\d+\.\d+\.\d+([0-9a-zA-Z]+)?$')
         self.assertRegexpMatches(gaia.__version__, r)

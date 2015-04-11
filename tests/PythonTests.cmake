@@ -40,7 +40,7 @@ function(python_tests_init)
     add_test(
       NAME py_coverage
       WORKING_DIRECTORY "${_py_testdir}"
-      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" report --fail-under=${COVERAGE_MINIMUM_PASS}
+      COMMAND "${PYTHON_COVERAGE_EXECUTABLE}" report
     )
     add_test(
       NAME py_coverage_html

@@ -1,16 +1,50 @@
 """Main builder script for Gaia."""
 
+import sys
+import re
 from setuptools import setup, find_packages
 
 from gaia import __version__
+
+
+with open('README.md') as f:
+    desc = f.read()
+
+# parse requirements file
+with open('requirements.txt') as f:
+    requires = []       # main requirements
+    extras = {}         # optional requirements
+    current = requires  # current section
+
+    comment = re.compile('(^#.*$|\s+#.*$)')
+    v26 = re.compile(r'\s*;\s*python_version\s*<\s*[\'"]2.7[\'"]\s*')
+    for line in f.readlines():
+        line = line.strip()
+
+        # detect a new optional package section
+        if line.startswith('# optional:'):
+            package = line.split(':')[1].strip()
+            extras[package] = []
+            current = extras[package]
+
+        line = comment.sub('', line)
+        if not line:
+            continue
+
+        if v26.search(line):
+            # version 2.6 only
+            if sys.version_info[:2] == (2, 6):
+                line = v26.sub('', line)
+                current.append(line)
+        else:
+            # all other versions
+            current.append(line)
 
 setup(
     name='gaia',
     version=__version__,
     description='A flexible geospatial workflow framework.',
-
-    # long_description from description.rst
-
+    long_description=desc,
     author='Gaia developers',
     author_email='kitware@kitware.com',
     license='Apache 2.0',
@@ -32,5 +66,6 @@ setup(
     packages=find_packages(exclude=['tests*', 'docs']),
     require_python='>=2.6',
     url='https://github.com/OpenGeoscience/gaia',
-    install_requires=['six', 'requests', 'tabulate']
+    install_requires=requires,
+    extras_require=extras
 )
