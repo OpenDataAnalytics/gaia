@@ -65,7 +65,7 @@ def get_task(inputs, outputs):
 I_D1D2 = get_input_port('D1D2', (D1, D2))
 I_D1 = get_input_port('D1', (D1,))
 I_S1 = get_input_port('S1', (S1,))
-I_D1S2 = get_input_port('S1S2', (S1, S2))
+I_D1S2 = get_input_port('D1S2', (D1, S2))
 
 O_D1 = get_output_port('D1', D1)
 O_D2 = get_output_port('D2', D2)
@@ -76,6 +76,16 @@ O_S2 = get_output_port('S2', S2)
 class TestCasePort(TestCase):
 
     """Main port test class."""
+
+    def can_connect(self, i, o):
+        """Assert that the two ports can be connected."""
+        o.connect(i)
+        i.connect(o)
+
+    def cannot_connect(self, i, o):
+        """Assert that the two ports cannot be connected."""
+        self.assertRaises(TypeError, o.connect, i)
+        self.assertRaises(TypeError, i.connect, o)
 
     def test_port_creation(self):
         """Test creating a port from a task."""
@@ -88,7 +98,7 @@ class TestCasePort(TestCase):
         self.assertTrue(isinstance(o1, O_D1))
 
     def test_port_connection_1to1(self):
-        """Test connecting to compatible ports."""
+        """Test connecting ports."""
         T = get_task((I_D1,), (O_D1,))
 
         t1 = T()
@@ -97,10 +107,81 @@ class TestCasePort(TestCase):
         i = t1.inputs['D1']
         o = t2.outputs['D1']
 
-        self.assertTrue(o.compat(i))
+        self.can_connect(i, o)
 
-        # connect the ports
-        o.connect(i)
+    def test_port_connection_2to1(self):
+        """Test connecting ports."""
+        T = get_task((I_D1,), (O_D2,))
+
+        t1 = T()
+        t2 = T()
+
+        i = t1.inputs['D1']
+        o = t2.outputs['D2']
+
+        self.cannot_connect(i, o)
+
+    def test_port_connection_1tosubclass(self):
+        """Test connecting ports."""
+        T = get_task((I_S1,), (O_D1,))
+
+        t1 = T()
+        t2 = T()
+
+        i = t1.inputs['S1']
+        o = t2.outputs['D1']
+
+        self.cannot_connect(i, o)
+
+    def test_port_connection_subclassto1(self):
+        """Test connecting ports."""
+        T = get_task((I_D1,), (O_S1,))
+
+        t1 = T()
+        t2 = T()
+
+        i = t1.inputs['D1']
+        o = t2.outputs['S1']
+
+        self.can_connect(i, o)
+
+    def test_port_connection_manyto1(self):
+        """Test connecting ports."""
+        T = get_task((I_D1D2,), (O_D1,))
+
+        t1 = T()
+        t2 = T()
+
+        i = t1.inputs['D1D2']
+        o = t2.outputs['D1']
+
+        self.can_connect(i, o)
+
+    def test_port_connection_manytosubclass(self):
+        """Test connecting ports."""
+        T1 = get_task((I_D1D2,), ())
+        T2 = get_task((), (O_S1,))
+
+        t1 = T1()
+        t2 = T2()
+
+        i = t1.inputs['D1D2']
+        o = t2.outputs['S1']
+
+        self.can_connect(i, o)
+
+    def test_port_connection_subclassesto1(self):
+        """Test connecting ports."""
+        T1 = get_task((I_D1S2,), ())
+        T2 = get_task((), (O_D2,))
+
+        t1 = T1()
+        t2 = T2()
+
+        i = t1.inputs['D1S2']
+        o = t2.outputs['D2']
+
+        self.cannot_connect(i, o)
 
     def test_port_error(self):
         """Test various error conditions when connecting ports."""
