@@ -4,62 +4,73 @@ from base import TestCase
 from gaia.core import InputPort, OutputPort, Task
 
 
-class IPortBase(InputPort):
+class D1(object):
 
-    """Subclass of InputPort."""
-
-    def accepts(self):
-        """Accept a string."""
-        return (str, dict)
+    """A datatype for testing ports."""
 
 
-class IPort1(IPortBase):
+class D2(object):
 
-    """Define input1."""
-
-    name = 'input1'
-    description = 'This is the first input'
+    """A datatype for testing ports."""
 
 
-class IPort2(IPortBase):
+class S1(D1):
 
-    """Define input2."""
-
-    name = 'input2'
-    description = 'This is the second input'
+    """A subclass of D1."""
 
 
-class OPortBase(OutputPort):
+class S2(D2):
 
-    """Subclass of OutputPort."""
-
-    def emits(self):
-        """Emit a string."""
-        return str
+    """A subclass of D2."""
 
 
-class OPort1(OPortBase):
+def get_input_port(named, datatypes):
+    """Return an input port class that accepts the given datatypes."""
+    class IPort(InputPort):
 
-    """Define output1."""
+        """An input port accepting `datatypes`."""
 
-    name = 'output1'
-    description = 'This is the first output'
+        name = named
 
-
-class OPort2(OPortBase):
-
-    """Define output2."""
-
-    name = 'output2'
-    description = 'This is the second output'
+        def accepts(self):
+            return datatypes
+    return IPort
 
 
-class TTask(Task):
+def get_output_port(named, datatype):
+    """Return an output port class that emits the given datatype."""
+    class IPort(OutputPort):
 
-    """A generic task containing our ports."""
+        """An input port emitting `datatype`."""
 
-    input_ports = [IPort1, IPort2]
-    output_ports = [OPort1, OPort2]
+        name = named
+
+        def emits(self):
+            return datatype
+    return IPort
+
+
+def get_task(inputs, outputs):
+    """Return a task with the given ports."""
+    class T(Task):
+
+        """A test task."""
+
+        input_ports = inputs
+        output_ports = outputs
+    return T
+
+
+# define some classes used in testing
+I_D1D2 = get_input_port('D1D2', (D1, D2))
+I_D1 = get_input_port('D1', (D1,))
+I_S1 = get_input_port('S1', (S1,))
+I_D1S2 = get_input_port('S1S2', (S1, S2))
+
+O_D1 = get_output_port('D1', D1)
+O_D2 = get_output_port('D2', D2)
+O_S1 = get_output_port('S1', S1)
+O_S2 = get_output_port('S2', S2)
 
 
 class TestCasePort(TestCase):
@@ -68,29 +79,40 @@ class TestCasePort(TestCase):
 
     def test_port_creation(self):
         """Test creating a port from a task."""
-        t = TTask()
-        i1 = t.inputs.get('input1')
-        self.assertTrue(isinstance(i1, IPort1))
+        T = get_task((I_D1,), (O_D1,))
+        t = T()
+        i1 = t.inputs.get('D1')
+        self.assertTrue(isinstance(i1, I_D1))
 
-    def test_port_connection(self):
+        o1 = t.outputs.get('D1')
+        self.assertTrue(isinstance(o1, O_D1))
+
+    def test_port_connection_1to1(self):
         """Test connecting to compatible ports."""
-        t1 = TTask()
-        t2 = TTask()
+        T = get_task((I_D1,), (O_D1,))
 
-        i = t1.inputs['input1']
-        o = t2.outputs['output1']
+        t1 = T()
+        t2 = T()
 
+        i = t1.inputs['D1']
+        o = t2.outputs['D1']
+
+        self.assertTrue(o.compat(i))
+
+        # connect the ports
         o.connect(i)
 
     def test_port_error(self):
         """Test various error conditions when connecting ports."""
-        t1 = TTask()
+        T = get_task((I_D1,), (O_D2,))
+        t1 = T()
+        t2 = T()
 
-        i = t1.inputs['input1']
-        o = t1.outputs['output1']
+        i = t2.inputs['D1']
+        o = t1.outputs['D2']
 
-        self.assertRaises(ValueError, i.connect, o)
-        self.assertRaises(ValueError, o.connect, i)
+        self.assertRaises(TypeError, i.connect, o)
+        self.assertRaises(TypeError, o.connect, i)
 
         self.assertRaises(TypeError, i.connect, i)
         self.assertRaises(TypeError, o.connect, o)
