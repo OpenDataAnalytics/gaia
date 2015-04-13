@@ -1,3 +1,4 @@
+"""Tests for the core port classes."""
 
 from base import TestCase
 from gaia.core import InputPort, OutputPort, Task
@@ -9,7 +10,7 @@ class IPortBase(InputPort):
 
     def accepts(self):
         """Accept a string."""
-        return set((str,))
+        return (str, dict)
 
 
 class IPort1(IPortBase):
@@ -34,7 +35,7 @@ class OPortBase(OutputPort):
 
     def emits(self):
         """Emit a string."""
-        return set((str,))
+        return str
 
 
 class OPort1(OPortBase):
@@ -73,7 +74,6 @@ class TestCasePort(TestCase):
 
     def test_port_connection(self):
         """Test connecting to compatible ports."""
-
         t1 = TTask()
         t2 = TTask()
 
@@ -84,7 +84,6 @@ class TestCasePort(TestCase):
 
     def test_port_error(self):
         """Test various error conditions when connecting ports."""
-
         t1 = TTask()
 
         i = t1.inputs['input1']
