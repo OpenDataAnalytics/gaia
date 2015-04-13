@@ -1,15 +1,17 @@
-# This requirments file is parsed by setup.py, it should be formatted
-# as follows:
+# This requirements file is parsed by setup.py, it should be
+# formatted as follows:
+#
 #   * only lines beginning with `#` are counted as comments
 #   * lines starting with `# optional:` indicate the begining
 #     of an extra_requires block
 #   * lines ending in `python_version < '2.7'` are recognized,
-#     but all other python_version requirents are ignored
+#     but all other python_version requirements are ignored
 
-# needed to support this requirement file format
+# This is needed to support `; python_version` conditionals.
 pip>=6.0
 
-# base requirements
+# All main requirements must go here, optional sections
+# last until the next optional tag or to the end of the file.
 six==1.9.0
 requests==2.5.1
 argparse==1.3.0; python_version < '2.7'
