@@ -1,6 +1,4 @@
-"""This package contains interface adapters for IO.
-
-"""
+"""This package contains interface adapters for IO."""
 
 __all__ = ()
 

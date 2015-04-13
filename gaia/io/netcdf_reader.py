@@ -4,8 +4,11 @@ from gaia.core import Task
 from gaia.core import data
 
 import netCDF4 as nc
+import numpy as np
 
 import os
+import json
+
 
 class NetCDFReader(Task):
 
@@ -22,10 +25,6 @@ class NetCDFReader(Task):
 
     def run(self, *args, **kw):
         """Read and cache file data using netCDF4."""
-
-        import numpy as np
-        import json
-
         super(NetCDFReader, self).run(*args, **kw)
 
         # Currently we are ignoring the metadata but that could
