@@ -1,5 +1,12 @@
 language: python
 
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - libgdal1-dev
+
 python:
   - "2.7"
   - "3.3"
@@ -15,8 +22,6 @@ before_install:
   - env
 
 install:
-  - sudo apt-get update
-  - sudo apt-get install -y libgdal-dev
   - pip install -r requirements.txt -r requirements-dev.txt
 
 script:
