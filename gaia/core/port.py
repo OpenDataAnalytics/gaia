@@ -25,7 +25,6 @@ class Port(GaiaObject):
 
         :param :py:class:task.Task task: The associated task.
         """
-
         self._task = task
         self._other = None
 
@@ -51,10 +50,9 @@ class Port(GaiaObject):
         :returns: self
         :rtype: :py:class:Port
         """
-
         # We can relax this if support for cyclic graphs is added
         if self.task is other.task:
-            raise ValueError('Cannot connect a task to itself.')
+            raise TypeError('Cannot connect a task to itself.')
 
         self._connect(other)
         other._connect(self)
@@ -83,23 +81,30 @@ class InputPort(Port):
     def accepts(self):
         """Return the data types that this port can accept.
 
-        :returns: a set of types
-        :rtype: set
+        :returns: a tuple of types
+        :rtype: tuple
         """
-        return set()
+        return ()
 
     def connect(self, other):
-        """Negotiate a common format and connect two tasks together.
+        """Check for a common format and connect two tasks together.
 
         Calls connect on the output port.
         """
         if not isinstance(other, OutputPort):
             raise TypeError("Invalid connection with {0}".format(other))
-        return super(InputPort, self).connect(other)
+        other.connect(self)
+        return self
 
     def describe(self, tab=''):
         """Return a string describing the port."""
         return self._describe('input', tab)
+
+    def compat(self, output_port):
+        """Check compatibility with the given output port."""
+        if not issubclass(output_port, OutputPort):
+            return False
+        return output_port.compat(self)
 
 
 class OutputPort(Port):
@@ -113,23 +118,27 @@ class OutputPort(Port):
     def compat(self, input_port):
         """Check compatibility for data passed between to classes.
 
+        This check asserts that the data type emitted by this port is
+        the same class or a subclass of the types accepted by the input
+        port.
+
         :param input_port: Data sink
         :type input_port: :py:class:InputPort
         :returns: If connection can be made to the given input class.
         :rtype: bool
         """
-        return len(self.emits().intersection(input_port.accepts())) > 0
+        return issubclass(self.emits(), input_port.accepts())
 
     def emits(self):
-        """Return the types that this port can emit.
+        """Return the type that this port can emit.
 
-        :returns: set of types the port can emit
-        :rtype: set
+        :returns: a data type subclass
+        :rtype: gaia.core.data.Data
         """
-        return set()
+        return type
 
     def connect(self, other):
-        """Negotiate a common format and connect two tasks together.
+        """Assert a common format and connect two tasks together.
 
         :param  other: The input port on another task to connect to.
         :type other: :py:class:InputPort
@@ -145,7 +154,6 @@ class OutputPort(Port):
                 " -> " + str(other)
             )
 
-        # need to set the common format in the object somehow
         return super(OutputPort, self).connect(other)
 
     def describe(self, tab=''):

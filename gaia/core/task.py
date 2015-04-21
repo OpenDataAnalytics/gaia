@@ -1,6 +1,7 @@
 """This module defines tasks executed in the pipeline."""
 
 from gaia.core.base import GaiaObject
+from gaia.core.port import OutputPort
 
 
 class Task(GaiaObject):
@@ -18,7 +19,6 @@ class Task(GaiaObject):
 
     def __init__(self, *arg, **kw):
         """Initialize an abstract task."""
-
         #: Input connection mapping
         self._inputs = {}
         for p in self.input_ports:
@@ -49,7 +49,6 @@ class Task(GaiaObject):
         :param str name: An input port name
         :param :py:class:OutputPort port: The output port on the other task to use
         """
-
         if name not in self._inputs:
             raise ValueError("Invalid port name '{0}'".format(name))
 
@@ -105,7 +104,6 @@ class Task(GaiaObject):
 
     def get_output_data(self, name=''):
         """Return the data for the given port."""
-
         if self.dirty:
             self.run()
 
@@ -120,7 +118,6 @@ class Task(GaiaObject):
         the input ports are all connected and raises an error if they
         aren't.
         """
-
         for port in self.input_ports:
             itask = self.get_input_task(port.name)
             iport = self.get_input(port.name)
@@ -132,9 +129,58 @@ class Task(GaiaObject):
         """Set dirty state for the task."""
         self.dirty = True
 
+    def _reset_downstream(self, _, isdirty, *args):
+        """Set dirty state on all downstream tasks."""
+        if isdirty:
+            for name in self.outputs:
+                task = self.get_output_task(name=name)
+                if task:
+                    task.dirty = True
+
+    @classmethod
+    def create_source(cls, data):
+        """Generate a task that supplies the given data as output.
+
+        This class method is useful to generate source tasks quickly
+        from arbitrary python objects.  For example:
+
+        >>> data = "some arbitrary data"
+        >>> source = Task.create_source(data)
+        >>> source.get_output_data()
+        'some arbitrary data'
+        """
+        class SourceOutput(OutputPort):
+
+            """A port attached to a source task."""
+
+            name = ''
+            description = str(data)
+
+            def emits(self):
+                """Return the type of the provided datum."""
+                return type(data)
+
+        class Source(Task):
+
+            """Generated source task."""
+
+            output_ports = [SourceOutput]
+
+            def __init__(self, *arg, **kw):
+                """Initialize a source task."""
+                super(Source, self).__init__(*arg, **kw)
+                self._output_data[''] = data
+
+            def run(self, *arg, **kw):
+                """Do nothing."""
+                self.dirty = False
+
+        return Source()
+
 
 Task.add_property(
     'dirty',
     doc='Stores the current cache state of the Task',
-    default=True
+    default=True,
+    on_change=Task._reset_downstream
 )

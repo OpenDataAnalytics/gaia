@@ -33,26 +33,28 @@ class Data(GaiaObject):
         return type(type_name, (kind,), d)
 
     @classmethod
-    def make_input_port(cls, name='', description='input', type_name=None):
+    def make_input_port(cls, name='', description='input', type_name=None, others=()):
         """Generate an input port that accepts this data type."""
-
         if type_name is None:
             type_name = cls.__name__ + 'InputPort'
 
+        # append this class into the list of accepted class if not already present
+        if cls not in others:
+            others = others + (cls,)
+
         port = cls.make_port(InputPort, type_name, name, description)
-        port.accepts = lambda self: set((cls,))
+        port.accepts = lambda self: others
 
         return port
 
     @classmethod
     def make_output_port(cls, name='', description='output', type_name=None):
         """Generate an output port that emits this data type."""
-
         if type_name is None:
             type_name = cls.__name__ + 'OutputPort'
 
         port = cls.make_port(OutputPort, type_name, name, description)
-        port.emits = lambda self: set((cls,))
+        port.emits = lambda self: cls
 
         return port
 

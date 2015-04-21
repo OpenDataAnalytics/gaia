@@ -1,3 +1,4 @@
+"""Test cases for the core stream class."""
 
 from base import TestCase
 from gaia.core import stream, Task, InputPort, OutputPort
@@ -22,7 +23,7 @@ class IPort(InputPort):
 
     def accepts(self):
         """Return ZeroStream accepted."""
-        return set((ZeroStream,))
+        return (ZeroStream,)
 
 
 class OPort(OutputPort):
@@ -33,7 +34,7 @@ class OPort(OutputPort):
 
     def emits(self):
         """Return ZeroStream emitted."""
-        return set((ZeroStream,))
+        return ZeroStream
 
 
 class Task1(Task):
@@ -56,7 +57,6 @@ class TestStream(Stream):
 
     def __init__(self, obj, *arg, **kw):
         """Initialize the streamer."""
-
         task1 = Task1()
         task2 = Task2()
 
@@ -91,7 +91,6 @@ class TestStreamCase(TestCase):
 
     def test_stream_registry(self):
         """Test the stream registry."""
-
         self.assertEquals(
             stream.registry.get('ZeroStream'),
             ZeroStream
@@ -99,7 +98,6 @@ class TestStreamCase(TestCase):
 
     def test_default_stream(self):
         """Test the default streaming behavior."""
-
         s = TestStream({})
         d = {}
         self.assertTrue(
