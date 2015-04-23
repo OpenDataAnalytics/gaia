@@ -4,16 +4,15 @@ import six
 
 from base import TestCase
 from gaia.core import Task
-from gaia.core.data import Data
 
 
 # Define data types used by the tests
-class D1(Data):
+class D1(object):
 
     """A datatype for testing ports."""
 
 
-class D2(Data):
+class D2(object):
 
     """A datatype for testing ports."""
 
