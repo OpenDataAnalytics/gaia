@@ -56,8 +56,13 @@ def get_task(inputs, outputs):
 
         """A test task."""
 
-        input_ports = inputs
-        output_ports = outputs
+        input_ports = {}
+        for i in inputs:
+            input_ports[i.name] = i
+
+        output_ports = {}
+        for o in outputs:
+            output_ports[o.name] = o
     return T
 
 
