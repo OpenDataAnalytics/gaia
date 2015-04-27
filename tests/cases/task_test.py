@@ -4,16 +4,15 @@ import six
 
 from base import TestCase
 from gaia.core import Task
-from gaia.core.data import Data
 
 
 # Define data types used by the tests
-class D1(Data):
+class D1(object):
 
     """A datatype for testing ports."""
 
 
-class D2(Data):
+class D2(object):
 
     """A datatype for testing ports."""
 
@@ -32,18 +31,20 @@ class SourceTask(Task):
 
     """A task with no inputs to use as a source."""
 
-    output_ports = [D1.make_output_port()]
+    output_ports = {
+        '': Task.make_output_port(D1)
+    }
 
 
 class SimpleTask(Task):
 
     """A task that counts the number of times it has executed."""
 
-    input_ports = [D1.make_input_port()]
-    output_ports = [
-        D1.make_output_port(name="O1"),
-        D1.make_output_port(name="O2")
-    ]
+    input_ports = {'': Task.make_input_port(D1)}
+    output_ports = {
+        'O1': Task.make_output_port(D1),
+        'O2': Task.make_output_port(D1)
+    }
 
     def __init__(self, *arg, **kw):
         """Create the task."""
@@ -61,12 +62,13 @@ def make_task(input_types, output_types):
     """Generate a task with the given inputs and outputs."""
     class T(Task):
 
-        output_ports = [
-            p.make_output_port(name=n) for n, p in six.iteritems(output_types)
-        ]
-        input_ports = [
-            p.make_input_port(name=n) for n, p in six.iteritems(input_types)
-        ]
+        output_ports = {}
+        for n, p in six.iteritems(output_types):
+            output_ports[n] = Task.make_output_port(p)
+
+        input_ports = {}
+        for n, p in six.iteritems(input_types):
+            input_ports[n] = Task.make_input_port(p)
     return T
 
 

@@ -1,7 +1,7 @@
 """Test cases for the core stream class."""
 
 from base import TestCase
-from gaia.core import stream, Task, InputPort, OutputPort
+from gaia.core import stream, Task
 
 Stream = stream.registry['Stream']
 
@@ -15,40 +15,22 @@ class ZeroStream(Stream):
         return 0
 
 
-class IPort(InputPort):
-
-    """Test input port."""
-
-    name = 'input port'
-
-    def accepts(self):
-        """Return ZeroStream accepted."""
-        return (ZeroStream,)
-
-
-class OPort(OutputPort):
-
-    """Test output port."""
-
-    name = 'output port'
-
-    def emits(self):
-        """Return ZeroStream emitted."""
-        return ZeroStream
-
-
 class Task1(Task):
 
     """A task with an output port."""
 
-    output_ports = [OPort]
+    output_ports = {
+        'output port': Task.make_output_port(ZeroStream)
+    }
 
 
 class Task2(Task):
 
     """A task with an input port."""
 
-    input_ports = [IPort]
+    input_ports = {
+        'input port': Task.make_input_port(ZeroStream)
+    }
 
 
 class TestStream(Stream):
