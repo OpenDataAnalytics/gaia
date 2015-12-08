@@ -11,22 +11,32 @@ import cherrypy
 
 
 class SimpleWPS(Resource):
+    """
+    Simplifies WPS requests by accepting a minimal JSON object of parameters
+    and from that creates the necessary XML to send to a WPS server, sends the
+    request to the WPS server; and passes on the WPS response.
+    A default WPS server url and authentication string is provided in the
+    gaia configuration file.
+    """
+
     def __init__(self):
         self.resourceName = 'simplewps'
         self.config = config.getConfig()
         self.route('GET', (), self.getCapabilities)
         self.route('POST', (':process',), self.processTask)
 
-        # self.route('PUT', (':id',), self.updateCat)
-        # self.route('DELETE', (':id',), self.deleteCat)
-
     @access.public
     def getCapabilities(self, params):
+        """
+        Make a GetCapabilities request
+        """
         url = params.get('url', self.config['gaia']['wps_default_url'])
         auth = params.get('auth', self.config['gaia']['wps_default_auth'])
         params = {'request': 'GetCapabilities'}
-        content =  proxy(url, credentials=auth, method='GET', params=params)
-        return xmldict.parse(content)
+        content, ctype = proxy(url, credentials=auth,
+                                method='GET', params=params)
+        cherrypy.response.headers['Content-Type'] = ctype
+        return content
     getCapabilities.description = (
         Description('Fetch the GetCapabilities doc of a WPS service.')
         .param('url', 'The url of the wps source', required=False)
@@ -36,6 +46,10 @@ class SimpleWPS(Resource):
 
     @access.public
     def processTask(self, process, params):
+        """
+        Based on the process name in the URL and JSON in the request body,
+        create & send a WPS request and pass on the response.
+        """
         json_body = self.getBodyJson()
         url = json_body.get('url', self.config['gaia']['wps_default_url'])
         auth = json_body.get('auth', self.config['gaia']['wps_default_auth'])
@@ -56,14 +70,17 @@ class SimpleWPS(Resource):
             else:
                 return content
     processTask.description = (
-        Description('Fetch the GetCapabilities doc of a WPS service.')
+        Description('Make a WPS request and return the response')
         .param('process', 'The process to run', paramType='path')
         .param('body', 'A JSON object containing the wps parameters to add.',
                paramType='body')
-        .errorResponse('Read permission denied on the Item.', 403))
+        .errorResponse('An error occurred making the WPS request', 500))
 
 
 class WPSProcess(object):
+    """
+    Abstract class representing the XML body of a WPS request
+    """
     output_format = 'application/json'
     output_result = 'result'
 
@@ -177,6 +194,13 @@ class WPSProcess(object):
         </wps:Reference>"""
 
     def __init__(self, request_json, by_reference=False):
+        """
+        Create attributes for the class based on JSON input
+        :param request_json: the JSON body of the request
+        :param by_reference: True if the process is not the outermost
+        process to run in a chained request.  False by default.
+        :return:
+        """
         self.json = request_json
         for key, value in request_json.items():
             setattr(self, key, value)
@@ -184,19 +208,39 @@ class WPSProcess(object):
             self.xml_container = self.xml_reference
 
     def generateInputs(self, **kwargs):
+        """
+        Create & append the various required inputs for the request
+        :param kwargs:
+        :return:
+        """
         raise NotImplementedError
 
     def generateOutputFormat(self, **kwargs):
+        """
+        Create/return the 'RawDataOutput' element of a WPS request
+        :param kwargs:
+        :return:
+        """
         return self.output_format_xml.format(
             output_format=self.output_format,
             result=self.output_result)
 
     def generateRasterInput(self, **kwargs):
+        """
+        Create/return the InputData element for raster data of a WPS request
+        :param kwargs:
+        :return:
+        """
         return self.raster_layer_xml.format(
             raster=kwargs['layer'],
             identifier=kwargs.get('identifier') or 'data')
 
     def generateVectorInput(self, **kwargs):
+        """
+        Create/return the InputData element for vector data of a WPS request
+        :param kwargs:
+        :return:
+        """
         data = kwargs['layer']
         if isinstance(data, dict):
             reference = self.vector_data_reference
@@ -211,6 +255,11 @@ class WPSProcess(object):
             vector=data)
 
     def generateXml(self):
+        """
+        Create/return the XML body for a WPS request
+        :param kwargs:
+        :return:
+        """
         return self.xml_container.format(
             execute_process=self.process_name,
             data_inputs=self.generateInputs(),
@@ -218,6 +267,9 @@ class WPSProcess(object):
 
 
 class ras_RasterZonalStatistics(WPSProcess):
+    """
+    Implements a ras:RasterZonalStatistics WPS call
+    """
     process_name = 'ras:RasterZonalStatistics'
     output_result = 'statistics'
     json_help = {
@@ -232,6 +284,9 @@ class ras_RasterZonalStatistics(WPSProcess):
         return raster_in + vector_in
 
 class vec_Clip(WPSProcess):
+    """
+    Implements a vec:Clip WPS call
+    """
     process_name = 'vec:Clip'
     json_help = {
         "features": "<vector layer typename>",
@@ -253,6 +308,9 @@ class vec_Clip(WPSProcess):
 
 
 class gs_CollectGeometries(WPSProcess):
+    """
+    Implements a gs:CollectGeometries WPS call
+    """
     process_name = 'gs:CollectGeometries'
     json_help={
         "features": "<vector layer typename>",
@@ -270,6 +328,9 @@ class gs_CollectGeometries(WPSProcess):
 
 
 class vec_Query(WPSProcess):
+    """
+    Implements a vec:Query WPS call
+    """
     process_name = 'vec:Query'
     json_help={
         "features": "<vector layer typename>",
@@ -285,6 +346,9 @@ class vec_Query(WPSProcess):
 
 
 class gs_CropCoverage(WPSProcess):
+    """
+    Implements a gs:CropCoverage WPS call
+    """
     process_name = 'gs:CropCoverage'
     json_help = {
         "coverage": "<raster layer typename>",
@@ -307,6 +371,15 @@ class gs_CropCoverage(WPSProcess):
 
 
 def proxy(url, credentials=None, method='POST', params=None, body=None):
+    """
+    Function for sending a request to and response from a WPS server
+    :param url: The URL of the WPS server
+    :param credentials: Basic authentication string for the WPS server
+    :param method: GET or POST
+    :param params: URL parameters to send if any
+    :param body: XML body of a WPS POST request
+    :return: WPS server response
+    """
     headers = None
     if credentials:
         headers = {'Authorization': credentials}
