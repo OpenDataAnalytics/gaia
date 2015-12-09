@@ -1,6 +1,6 @@
 import json
 import xmldict as xmldict
-from girder.api.rest import Resource
+from girder.api.rest import Resource, setRawResponse
 from girder.api import access
 from girder.api.describe import Description
 from girder.api.rest import Resource
@@ -15,6 +15,10 @@ class SimpleWPS(Resource):
     Simplifies WPS requests by accepting a minimal JSON object of parameters
     and from that creates the necessary XML to send to a WPS server, sends the
     request to the WPS server; and passes on the WPS response.
+
+    If the JSON object is empty, the response will be a JSON object
+    demonstrating the expected format/content of the request body.
+
     A default WPS server url and authentication string is provided in the
     gaia configuration file.
     """
@@ -36,6 +40,7 @@ class SimpleWPS(Resource):
         content, ctype = proxy(url, credentials=auth,
                                 method='GET', params=params)
         cherrypy.response.headers['Content-Type'] = ctype
+        setRawResponse(True)
         return content
     getCapabilities.description = (
         Description('Fetch the GetCapabilities doc of a WPS service.')
@@ -53,6 +58,7 @@ class SimpleWPS(Resource):
         json_body = self.getBodyJson()
         url = json_body.get('url', self.config['gaia']['wps_default_url'])
         auth = json_body.get('auth', self.config['gaia']['wps_default_auth'])
+        return_xml = params.get('return_xml')
         wpsProcessClass = globals()[process]
         wpsProcess = wpsProcessClass(json_body)
         if not json_body:
@@ -62,12 +68,16 @@ class SimpleWPS(Resource):
             #Is the XML valid?
             wps_xml = et.fromstring(xml_body)
             xml_body = et.tostring(wps_xml, encoding='utf8', method='xml')
+            if return_xml and return_xml.lower() == 'true':
+                setRawResponse(True)
+                return xml_body
             content, ctype = proxy(url, credentials=auth,
                                    method='POST', body=xml_body)
-            cherrypy.response.headers['Content-Type'] = ctype
             if ctype =='application/json':
                 return json.loads(content)
             else:
+                cherrypy.response.headers['Content-Type'] = ctype
+                setRawResponse(True)
                 return content
     processTask.description = (
         Description('Make a WPS request and return the response')
