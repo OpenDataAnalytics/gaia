@@ -1,9 +1,7 @@
 import json
-import xmldict as xmldict
 from girder.api.rest import Resource, setRawResponse
 from girder.api import access
 from girder.api.describe import Description
-from girder.api.rest import Resource
 from girder.utility import config
 import xml.etree.ElementTree as et
 import requests
