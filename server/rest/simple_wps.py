@@ -36,7 +36,7 @@ class SimpleWPS(Resource):
         auth = params.get('auth', self.config['gaia']['wps_default_auth'])
         params = {'request': 'GetCapabilities'}
         content, ctype = proxy(url, credentials=auth,
-                                method='GET', params=params)
+                               method='GET', params=params)
         cherrypy.response.headers['Content-Type'] = ctype
         setRawResponse(True)
         return content
@@ -56,27 +56,29 @@ class SimpleWPS(Resource):
         json_body = self.getBodyJson()
         url = json_body.get('url', self.config['gaia']['wps_default_url'])
         auth = json_body.get('auth', self.config['gaia']['wps_default_auth'])
-        return_xml = params.get('return_xml')
-        wpsProcessClass = globals()[process]
+        return_xml = json_body.get('return_xml', False)
+        wps_process = (process[0].upper() + process[1:]).replace('_', '')
+        wpsProcessClass = globals()[wps_process]
         wpsProcess = wpsProcessClass(json_body)
         if not json_body:
             return wpsProcess.json_help
         else:
             xml_body = wpsProcess.generateXml()
-            #Is the XML valid?
+            # Is the XML valid?
             wps_xml = et.fromstring(xml_body)
             xml_body = et.tostring(wps_xml, encoding='utf8', method='xml')
-            if return_xml and return_xml.lower() == 'true':
+            if return_xml:
                 setRawResponse(True)
                 return xml_body
-            content, ctype = proxy(url, credentials=auth,
-                                   method='POST', body=xml_body)
-            if ctype =='application/json':
-                return json.loads(content)
             else:
-                cherrypy.response.headers['Content-Type'] = ctype
-                setRawResponse(True)
-                return content
+                content, ctype = proxy(url, credentials=auth,
+                                       method='POST', body=xml_body)
+                if ctype == 'application/json':
+                    return json.loads(content)
+                else:
+                    cherrypy.response.headers['Content-Type'] = ctype
+                    setRawResponse(True)
+                    return content
     processTask.description = (
         Description('Make a WPS request and return the response')
         .param('process', 'The process to run', paramType='path')
@@ -92,7 +94,7 @@ class WPSProcess(object):
     output_format = 'application/json'
     output_result = 'result'
 
-    xml_container="""<?xml version="1.0" encoding="UTF-8"?>
+    xml_container = """<?xml version="1.0" encoding="UTF-8"?>
         <wps:Execute version="1.0.0" service="WPS"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.opengis.net/wps/1.0.0"
@@ -114,7 +116,7 @@ class WPSProcess(object):
           </wps:ResponseForm>
         </wps:Execute>"""
 
-    raster_layer_xml="""
+    raster_layer_xml = """
         <wps:Input>
           <ows:Identifier>{identifier}</ows:Identifier>
           <wps:Reference mimeType="image/tiff"
@@ -135,20 +137,22 @@ class WPSProcess(object):
           </wps:Reference>
         </wps:Input>"""
 
-    vector_layer_xml="""
+    vector_layer_xml = """
         <wps:Input>
           <ows:Identifier>{identifier}</ows:Identifier>
           {reference}
         </wps:Input>
     """
 
-    vector_data_reference="""
+    vector_data_reference = """
       <wps:Data>
-        <wps:ComplexData mimeType="application/json"><![CDATA[{vector}]]></wps:ComplexData>
+        <wps:ComplexData mimeType="application/json">
+            <![CDATA[{vector}]]>
+        </wps:ComplexData>
       </wps:Data>
     """
 
-    vector_layer_reference="""
+    vector_layer_reference = """
       <wps:Reference mimeType="text/xml"
       xlink:href="http://geoserver/wfs" method="POST">
         <wps:Body>
@@ -177,7 +181,7 @@ class WPSProcess(object):
           </wps:Data>
         </wps:Input>"""
 
-    output_format_xml="""
+    output_format_xml = """
         <wps:RawDataOutput mimeType="{output_format}">
           <ows:Identifier>{result}</ows:Identifier>
         </wps:RawDataOutput>"""
@@ -274,7 +278,7 @@ class WPSProcess(object):
             output_form=self.generateOutputFormat())
 
 
-class ras_RasterZonalStatistics(WPSProcess):
+class RasRasterZonalStatistics(WPSProcess):
     """
     Implements a ras:RasterZonalStatistics WPS call
     """
@@ -291,7 +295,8 @@ class ras_RasterZonalStatistics(WPSProcess):
                                              identifier='zones')
         return raster_in + vector_in
 
-class vec_Clip(WPSProcess):
+
+class VecClip(WPSProcess):
     """
     Implements a vec:Clip WPS call
     """
@@ -300,7 +305,7 @@ class vec_Clip(WPSProcess):
         "features": "<vector layer typename>",
         "clip": {
             "features": "<clip layer typename>",
-            "attribute": "<name of layer geometry attribute, default is the_geom>",
+            "attribute": "<name of geometry attribute, default is the_geom>",
             "filter": "<CQL query to filter clip layer by>"
         }
     }
@@ -308,26 +313,26 @@ class vec_Clip(WPSProcess):
     def generateInputs(self):
         layer_input = self.generateVectorInput(layer=self.features)
         clip_json = self.json['clip']
-        sub_process = gs_CollectGeometries(clip_json, by_reference=True)
+        sub_process = GsCollectGeometries(clip_json, by_reference=True)
         clip_input = self.vector_layer_xml.format(
             reference=sub_process.generateXml(),
             identifier='clip')
         return layer_input + clip_input
 
 
-class gs_CollectGeometries(WPSProcess):
+class GsCollectGeometries(WPSProcess):
     """
     Implements a gs:CollectGeometries WPS call
     """
     process_name = 'gs:CollectGeometries'
-    json_help={
+    json_help = {
         "features": "<vector layer typename>",
         "attribute": "<name of layer geometry attribute, default is the_geom>",
         "filter": "<CQL query to filter clip layer by>"
     }
 
     def generateInputs(self):
-        vec_query = vec_Query(self.json, by_reference=True)
+        vec_query = VecQuery(self.json, by_reference=True)
         input = self.vector_layer_xml.format(
             reference=vec_query.generateXml(),
             identifier='features'
@@ -335,12 +340,12 @@ class gs_CollectGeometries(WPSProcess):
         return input
 
 
-class vec_Query(WPSProcess):
+class VecQuery(WPSProcess):
     """
     Implements a vec:Query WPS call
     """
     process_name = 'vec:Query'
-    json_help={
+    json_help = {
         "features": "<vector layer typename>",
         "attribute": "<name of layer geometry attribute, default is the_geom>",
         "filter": "<CQL query to filter clip layer by>"
@@ -348,12 +353,13 @@ class vec_Query(WPSProcess):
 
     def generateInputs(self):
         feature_input = self.generateVectorInput(layer=self.features)
-        attribute_input = self.attribute_xml.format(attribute_field=self.attribute)
+        attribute_input = self.attribute_xml.format(
+            attribute_field=self.attribute)
         filter_input = self.complex_filter_xml.format(filter=self.filter)
         return feature_input + attribute_input + filter_input
 
 
-class gs_CropCoverage(WPSProcess):
+class GsCropCoverage(WPSProcess):
     """
     Implements a gs:CropCoverage WPS call
     """
@@ -362,7 +368,7 @@ class gs_CropCoverage(WPSProcess):
         "coverage": "<raster layer typename>",
         "cropShape": {
             "features": "<crop layer typename>",
-            "attribute": "<name of layer geometry attribute, default is the_geom>",
+            "attribute": "<name of geometry attribute, default is the_geom>",
             "filter": "<CQL query to filter clip layer by>"
         }
     }
@@ -371,7 +377,7 @@ class gs_CropCoverage(WPSProcess):
         layer_input = self.generateRasterInput(
             layer=self.coverage, identifier='coverage')
         crop_json = self.json['cropShape']
-        sub_process = gs_CollectGeometries(crop_json, by_reference=True)
+        sub_process = GsCollectGeometries(crop_json, by_reference=True)
         clip_input = self.vector_layer_xml.format(
             reference=sub_process.generateXml(),
             identifier='cropShape')

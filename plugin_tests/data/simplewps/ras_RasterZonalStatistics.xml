@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf8'?>
+<ns0:Execute xmlns:ns0="http://www.opengis.net/wps/1.0.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.opengis.net/wcs/1.1.1" xmlns:ns5="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" service="WPS" version="1.0.0" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0         http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+    <ns2:Identifier>ras:RasterZonalStatistics</ns2:Identifier>
+    <ns0:DataInputs>
+        <ns0:Input>
+            <ns2:Identifier>data</ns2:Identifier>
+            <ns0:Reference method="POST" mimeType="image/tiff" ns3:href="http://geoserver/wcs">
+                <ns0:Body>
+                    <ns4:GetCoverage service="WCS" version="1.1.1">
+                        <ns2:Identifier>geonode:forecast_io_airtemp</ns2:Identifier>
+                        <ns4:DomainSubset>
+                            <ns5:BoundingBox crs="http://www.opengis.net/gml/srs/epsg.xml#4326">
+                                <ns2:LowerCorner>-180.0 -90.0</ns2:LowerCorner>
+                                <ns2:UpperCorner>180.0 90.0</ns2:UpperCorner>
+                            </ns5:BoundingBox>
+                        </ns4:DomainSubset>
+                        <ns4:Output format="image/tiff" />
+                    </ns4:GetCoverage>
+                </ns0:Body>
+            </ns0:Reference>
+        </ns0:Input>
+        <ns0:Input>
+            <ns2:Identifier>zones</ns2:Identifier>
+            <ns0:Data>
+                <ns0:ComplexData mimeType="application/json">{"crs": {"type": "EPSG", "properties": {"code": "4326"}}, "type": "SimpleFeatureCollection", "features": [{"geometry": {"type": "Polygon", "coordinates": [[[-108.80859373485288, 40.780541427145], [-108.80859373485288, 37.09023979863171], [-101.4257812358789, 37.09023979863171], [-101.4257812358789, 40.780541427145], [-108.80859373485288, 40.780541427145]]]}, "type": "Feature"}]}</ns0:ComplexData>
+            </ns0:Data>
+        </ns0:Input>
+    </ns0:DataInputs>
+    <ns0:ResponseForm>
+        <ns0:RawDataOutput mimeType="application/json">
+            <ns2:Identifier>statistics</ns2:Identifier>
+        </ns0:RawDataOutput>
+    </ns0:ResponseForm>
+</ns0:Execute>

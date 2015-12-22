@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf8'?>
+<ns0:Execute xmlns:ns0="http://www.opengis.net/wps/1.0.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.opengis.net/wfs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" service="WPS" version="1.0.0" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0         http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+    <ns2:Identifier>vec:Clip</ns2:Identifier>
+    <ns0:DataInputs>
+        <ns0:Input>
+            <ns2:Identifier>features</ns2:Identifier>
+            <ns0:Reference method="POST" mimeType="text/xml" ns3:href="http://geoserver/wfs">
+                <ns0:Body>
+                    <ns4:GetFeature outputFormat="GML2" service="WFS" version="1.0.0">
+                        <ns4:Query typeName="geonode:gdacs_alerts" />
+                    </ns4:GetFeature>
+                </ns0:Body>
+            </ns0:Reference>
+        </ns0:Input>
+        <ns0:Input>
+            <ns2:Identifier>clip</ns2:Identifier>
+            <ns0:Reference method="POST" mimeType="text/xml; subtype=wfs-collection/1.0" ns3:href="http://geoserver/wps">
+                <ns0:Body>
+                    <ns0:Execute service="WPS" version="1.0.0">
+                        <ns2:Identifier>gs:CollectGeometries</ns2:Identifier>
+                        <ns0:DataInputs>
+                            <ns0:Input>
+                                <ns2:Identifier>features</ns2:Identifier>
+                                <ns0:Reference method="POST" mimeType="text/xml; subtype=wfs-collection/1.0" ns3:href="http://geoserver/wps">
+                                    <ns0:Body>
+                                        <ns0:Execute service="WPS" version="1.0.0">
+                                            <ns2:Identifier>vec:Query</ns2:Identifier>
+                                            <ns0:DataInputs>
+                                                <ns0:Input>
+                                                    <ns2:Identifier>features</ns2:Identifier>
+                                                    <ns0:Reference method="POST" mimeType="text/xml" ns3:href="http://geoserver/wfs">
+                                                        <ns0:Body>
+                                                            <ns4:GetFeature outputFormat="GML2" service="WFS" version="1.0.0">
+                                                                <ns4:Query typeName="geonode:ne_10m_admin_0_countries" />
+                                                            </ns4:GetFeature>
+                                                        </ns0:Body>
+                                                    </ns0:Reference>
+                                                </ns0:Input>
+                                                <ns0:Input>
+                                                    <ns2:Identifier>attribute</ns2:Identifier>
+                                                    <ns0:Data>
+                                                        <ns0:LiteralData>the_geom</ns0:LiteralData>
+                                                    </ns0:Data>
+                                                </ns0:Input>
+                                                <ns0:Input>
+                                                    <ns2:Identifier>filter</ns2:Identifier>
+                                                    <ns0:Data>
+                                                        <ns0:ComplexData mimeType="text/plain; subtype=cql">
+                ADM0_A3='USA'
+            </ns0:ComplexData>
+                                                    </ns0:Data>
+                                                </ns0:Input>
+                                            </ns0:DataInputs>
+                                            <ns0:ResponseForm>
+                                                <ns0:RawDataOutput mimeType="application/json">
+                                                    <ns2:Identifier>result</ns2:Identifier>
+                                                </ns0:RawDataOutput>
+                                            </ns0:ResponseForm>
+                                        </ns0:Execute>
+                                    </ns0:Body>
+                                </ns0:Reference>
+                            </ns0:Input>
+                        </ns0:DataInputs>
+                        <ns0:ResponseForm>
+                            <ns0:RawDataOutput mimeType="application/json">
+                                <ns2:Identifier>result</ns2:Identifier>
+                            </ns0:RawDataOutput>
+                        </ns0:ResponseForm>
+                    </ns0:Execute>
+                </ns0:Body>
+            </ns0:Reference>
+        </ns0:Input>
+    </ns0:DataInputs>
+    <ns0:ResponseForm>
+        <ns0:RawDataOutput mimeType="application/json">
+            <ns2:Identifier>result</ns2:Identifier>
+        </ns0:RawDataOutput>
+    </ns0:ResponseForm>
+</ns0:Execute>

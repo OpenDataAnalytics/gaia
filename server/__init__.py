@@ -32,4 +32,3 @@ for f in _cfgs:
 
 def load(info):
     info['apiRoot'].simplewps = simple_wps.SimpleWPS()
-

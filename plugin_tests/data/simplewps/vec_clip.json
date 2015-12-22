@@ -1,0 +1,85 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          -97.7643,
+          36.9039
+        ],
+        "type": "Point"
+      },
+      "id": "gdacs_alerts.496",
+      "properties": {
+        "dc_subject": "EQ1",
+        "description": "On 11/20/2015 10:40:40 PM, an earthquake occurred in United States potentially affecting 629385 people within 100km. The earthquake had Magnitude 4.6M, Depth:3.05km.",
+        "enclosure_length": 1,
+        "enclosure_type": "image/png",
+        "enclosure_url": "http://dma.gdacs.org/saved/gdacs/eq/eq1107699_1.png",
+        "gdacs_alertlevel": "Green",
+        "gdacs_calculationtype": "earthquakeonly",
+        "gdacs_cap": "http://www.gdacs.org/cap.aspx?eventtype=EQ&eventid=1073031",
+        "gdacs_country": "United States",
+        "gdacs_episodeid": 1107699,
+        "gdacs_eventid": 1073031,
+        "gdacs_eventtype": "EQ",
+        "gdacs_fromdate": "Fri, 20 Nov 2015 22:40:40 GMT",
+        "gdacs_population": "629385 people within 100km",
+        "gdacs_population_unit": "Pop100",
+        "gdacs_population_value": 629385,
+        "gdacs_severity": "Magnitude 4.6M, Depth:3.05km",
+        "gdacs_severity_unit": "M",
+        "gdacs_severity_value": 4.6,
+        "gdacs_todate": "Fri, 20 Nov 2015 22:40:40 GMT",
+        "gdacs_version": 1,
+        "gdacs_vulnerability_value": 0,
+        "guid": "EQ1073031",
+        "guid_ispermalink": "false",
+        "link": "http://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1073031",
+        "pubdate": "2015-11-20T22:40:40.000+0000",
+        "title": "Green earthquake alert (Magnitude 4.6M, Depth:3.05km) in United States 20/11/2015 22:40 UTC, 629385 people within 100km."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -98.4612,
+          36.661
+        ],
+        "type": "Point"
+      },
+      "id": "gdacs_alerts.520",
+      "properties": {
+        "dc_subject": "EQ1",
+        "description": "On 11/19/2015 7:42:12 AM, an earthquake occurred in United States potentially affecting 138395 people within 100km. The earthquake had Magnitude 4.7M, Depth:6.23km.",
+        "enclosure_length": 1,
+        "enclosure_type": "image/png",
+        "enclosure_url": "http://dma.gdacs.org/saved/gdacs/eq/eq1107301_1.png",
+        "gdacs_alertlevel": "Green",
+        "gdacs_calculationtype": "earthquakeonly",
+        "gdacs_cap": "http://www.gdacs.org/cap.aspx?eventtype=EQ&eventid=1072820",
+        "gdacs_country": "United States",
+        "gdacs_episodeid": 1107301,
+        "gdacs_eventid": 1072820,
+        "gdacs_eventtype": "EQ",
+        "gdacs_fromdate": "Thu, 19 Nov 2015 07:42:12 GMT",
+        "gdacs_population": "138395 people within 100km",
+        "gdacs_population_unit": "Pop100",
+        "gdacs_population_value": 138395,
+        "gdacs_severity": "Magnitude 4.7M, Depth:6.23km",
+        "gdacs_severity_unit": "M",
+        "gdacs_severity_value": 4.7,
+        "gdacs_todate": "Thu, 19 Nov 2015 07:42:12 GMT",
+        "gdacs_version": 1,
+        "gdacs_vulnerability_value": 0,
+        "guid": "EQ1072820",
+        "guid_ispermalink": "false",
+        "link": "http://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1072820",
+        "pubdate": "2015-11-19T07:42:12.000+0000",
+        "title": "Green earthquake alert (Magnitude 4.7M, Depth:6.23km) in United States 19/11/2015 07:42 UTC, 138395 people within 100km."
+      },
+      "type": "Feature"
+    }
+  ],
+  "type": "FeatureCollection"
+}
