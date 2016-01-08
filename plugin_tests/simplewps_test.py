@@ -20,12 +20,11 @@
 import json
 import os
 from lxml import etree as et
-
-# Need to set the environment variable before importing girder
 from requests import Response
 import requests
 import xmltodict
 
+# Need to set the environment variable before importing girder
 os.environ['GIRDER_PORT'] = os.environ.get('GIRDER_TEST_PORT', '20200')
 testfile_path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), 'data/simplewps')
