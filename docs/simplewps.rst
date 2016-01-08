@@ -41,15 +41,15 @@ The base URL for SimpleWPS calls is::
 
     http://<girder_url>/api/v1/simplewps/<wpsProcess>
 
-where <wpsProcess> is the WPS process you wish to execute, minus the colon.
+where <wpsProcess> is the WPS process you wish to execute, substituting '_' for ':'.
 For example::
 
-    http://localhost:8080/api/v1/simplewps/vecClip
-    http://localhost:8080/api/v1/simplewps/rasRasterZonalStatistics
-    http://localhost:8080/api/v1/simplewps/gsCollectGeometries
+    http://localhost:8080/api/v1/simplewps/vec_Clip
+    http://localhost:8080/api/v1/simplewps/ras_RasterZonalStatistics
+    http://localhost:8080/api/v1/simplewps/gs_CollectGeometries
 
 Sending blank JSON in the POST request body will bring back a JSON body
-example for that process.  For instance, gsCollectGeometries::
+example for that process.  For instance, gs_CollectGeometries::
 
     {
       "attribute": "<name of layer geometry attribute, default is the_geom>",
