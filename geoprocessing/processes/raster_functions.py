@@ -7,7 +7,7 @@ from rasterio import crs
 from rasterio.transform import Affine
 from rasterio.warp import (reproject, calculate_default_transform,
    transform_bounds)
-from gaia.core import GaiaException
+from geoprocess.core import GaiaException
 
 __author__ = 'mbertrand'
 

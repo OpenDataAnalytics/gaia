@@ -1,8 +1,8 @@
 import os
 import geopandas
 import rasterio as rasterio
-from gaia.core import GaiaException, GaiaRequestParser, getConfig
-from gaia.inputs import datatypes, formats
+from geoprocessing.core import GaiaException, GaiaRequestParser, getConfig
+from geoprocessing.inputs import datatypes, formats
 
 
 

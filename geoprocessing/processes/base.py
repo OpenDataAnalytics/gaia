@@ -1,8 +1,8 @@
 import importlib
 import traceback
-import gaia.core
-import gaia.inputs
-from gaia.inputs import formats
+import geoprocessing.core
+import geoprocessing.inputs
+from geoprocessing.inputs import formats
 import logging
 
 __author__ = 'mbertrand'
@@ -92,9 +92,9 @@ def create_process(name):
     :param name:
     :return:
     """
-    m = importlib.import_module('gaia.processes.base')
+    m = importlib.import_module('geoprocessing.processes.base')
     try:
         class_name = '{}Process'.format(name.capitalize())
         return getattr(m, class_name)()
     except AttributeError as e:
-        raise gaia.core.GaiaException(traceback.format_exc())
+        raise geoprocessing.core.GaiaException(traceback.format_exc())

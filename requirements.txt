@@ -1,3 +1,4 @@
 requests==2.7.0
 six==1.9.0
 geopandas==0.1.1
+rasterio==0.31.0

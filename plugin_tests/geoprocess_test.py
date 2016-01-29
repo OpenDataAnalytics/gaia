@@ -16,8 +16,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ###############################################################################
+import json
 
 import os
+import sys
 
 # Need to set the environment variable before importing girder
 os.environ['GIRDER_PORT'] = os.environ.get('GIRDER_TEST_PORT', '20200')
@@ -54,13 +56,19 @@ class GeoprocessTestCase(base.TestCase):
         """
         super(GeoprocessTestCase, self).setUp()
 
+        """
+         TODO: Figure out the best way of making Gaia core functionality
+         independent of Girder while still being able to load it as a plugin.
+         For now, this path hack does the trick.
+        """
+
     def testFakeProcess(self):
         """
         Test the generated XML body for a vec:Query WPS request
         """
         with open(os.path.join(testfile_path,
                                 'within_nested_buffer_process.json')) as inf:
-            body_text = inf.open().replace('{basepath}', testfile_path)
+            body_text = inf.read().replace('{basepath}', testfile_path)
         path = '/geoprocess/within'
         response = self.request(
             isJson=False,
@@ -69,5 +77,6 @@ class GeoprocessTestCase(base.TestCase):
             body=body_text,
             type='application/json'
         )
-        self.assertEquals('fubar', response.body, response.body)
+        fake_value = 'Within; real output will be GeoJSON FeatureCollection'
+        self.assertEquals(fake_value, json.loads(response.body[0])['Process'])
 
