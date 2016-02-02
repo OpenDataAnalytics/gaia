@@ -1,70 +1,71 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""Main builder script for Gaia."""
 
-###############################################################################
-#  Copyright 2015 Kitware Inc.
-#
-#  Licensed under the Apache License, Version 2.0 ( the "License" );
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-###############################################################################
+import sys
+import re
+from setuptools import setup, find_packages
 
-import json
-import os
-import setuptools
-import shutil
+from gaia import __version__
 
-from pkg_resources import parse_requirements
-from setuptools.command.install import install
-
-# parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_reqs = []
-try:
-    with open('requirements.txt') as f:
-        install_reqs = parse_requirements(f.read())
-except Exception:
-    pass
-reqs = [str(req) for req in install_reqs]
 
 with open('README.md') as f:
-    readme = f.read()
+    desc = f.read()
 
-extras_require = None
+# parse requirements file
+with open('requirements.txt') as f:
+    requires = []       # main requirements
+    extras = {}         # optional requirements
+    current = requires  # current section
 
-# perform the install
-setuptools.setup(
+    comment = re.compile('(^#.*$|\s+#.*$)')
+    v26 = re.compile(r'\s*;\s*python_version\s*<\s*[\'"]2.7[\'"]\s*')
+    for line in f.readlines():
+        line = line.strip()
+
+        # detect a new optional package section
+        if line.startswith('# optional:'):
+            package = line.split(':')[1].strip()
+            extras[package] = []
+            current = extras[package]
+
+        line = comment.sub('', line)
+        if not line:
+            continue
+
+        if v26.search(line):
+            # version 2.6 only
+            if sys.version_info[:2] == (2, 6):
+                line = v26.sub('', line)
+                current.append(line)
+        else:
+            # all other versions
+            current.append(line)
+
+setup(
     name='gaia',
-    version='0.0.1',
-    description='Geoprocessing API',
-    long_description=readme,
-    author='Kitware, Inc. and Epidemico Inc.',
+    version=__version__,
+    description='A flexible geospatial workflow framework.',
+    long_description=desc,
+    author='Gaia developers',
     author_email='kitware@kitware.com',
-    url='http://gaia.readthedocs.org',
     license='Apache 2.0',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Environment :: Console',
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2'
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Topic :: Scientific/Engineering'
     ],
-    extras_require=extras_require,
-    packages=setuptools.find_packages(
-        exclude=('tests.*', 'tests', 'server.*', 'server')
-    ),
-    install_requires=reqs,
-    zip_safe=False,
-    entry_points={
-        'console_scripts': [
-            'gaia-process = gaia.core.__main__:main'
-        ]
-    }
+    keywords='geospatial GIS workflow data',
+    packages=find_packages(exclude=['tests*', 'server*', 'docs']),
+    require_python='>=2.6',
+    url='https://github.com/kitware/gaia',
+    install_requires=requires,
+    extras_require=extras
 )
