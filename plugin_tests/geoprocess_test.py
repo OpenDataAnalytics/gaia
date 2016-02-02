@@ -23,8 +23,8 @@ import sys
 
 # Need to set the environment variable before importing girder
 os.environ['GIRDER_PORT'] = os.environ.get('GIRDER_TEST_PORT', '20200')
-testfile_path = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), 'data/geoprocess')
+testfile_path = os.path.join(os.path.dirname(
+    os.path.realpath(__file__)), '../tests/data/geoprocess')
 
 
 from tests import base
@@ -77,6 +77,12 @@ class GeoprocessTestCase(base.TestCase):
             body=body_text,
             type='application/json'
         )
-        fake_value = 'Within; real output will be GeoJSON FeatureCollection'
-        self.assertEquals(fake_value, json.loads(response.body[0])['Process'])
+        output = json.loads(response.body[0])
+        with open(os.path.join(
+                testfile_path,
+                'within_nested_buffer_process_result.json')) as exp:
+            expected_json = json.load(exp)
+        self.assertIn('features', output)
+        self.assertEquals(len(expected_json['features']),
+                          len(output['features']))
 

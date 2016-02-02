@@ -1,9 +1,11 @@
 import importlib
 import traceback
-import geoprocessing.core
-import geoprocessing.inputs
-from geoprocessing.inputs import formats
+import gaia.core
+import gaia.inputs
+from gaia.inputs import formats
 import logging
+from geopandas import GeoDataFrame
+
 
 __author__ = 'mbertrand'
 
@@ -36,15 +38,18 @@ class GaiaProcess(object):
 
 class BufferProcess(GaiaProcess):
 
-    required_inputs = (('first', formats.VECTOR),
-                       ('second', formats.VECTOR))
+    required_inputs = (('input', formats.VECTOR),)
     required_args = ('buffer_size',)
 
     def calculate(self):
         super(BufferProcess, self).calculate()
-        self.output = {
-            "Process": "Buffer; real output will be GeoJSON FeatureCollection"
-        }
+        # TODO: Don't assume GeoPandas Dataframe. Could be PostGIS,Girder,etc.
+        first_df = self.inputs[0].data()
+        buffer = first_df.buffer(self.args['buffer_size'])
+        buffer_df = GeoDataFrame(geometry=buffer)
+        self.raw_output = buffer_df
+        self.output = gaia.inputs.GaiaOutput('result',
+                                             self.raw_output.to_json())
         logger.debug(self.output)
 
 
@@ -76,13 +81,20 @@ class SubsetRasterProcess(GaiaProcess):
 
 class WithinProcess(GaiaProcess):
 
-    required_inputs = (('input', formats.ALL),)
+    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
 
     def calculate(self):
         super(WithinProcess, self).calculate()
-        self.output = {
-            "Process": "Within; real output will be GeoJSON FeatureCollection"
-        }
+        # TODO: Don't assume GeoPandas Dataframe. Could be PostGIS,Girder,etc.
+        for input in self.inputs:
+            if input.name == 'first':
+                first_df = input.data()
+            elif input.name == 'second':
+                second_df = input.data()
+        first_within = first_df[first_df.geometry.within(
+            second_df.geometry.unary_union)]
+        self.raw_output = first_within
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
         logger.debug(self.output)
 
 
@@ -92,9 +104,9 @@ def create_process(name):
     :param name:
     :return:
     """
-    m = importlib.import_module('geoprocessing.processes.base')
+    m = importlib.import_module('gaia.processes.base')
     try:
         class_name = '{}Process'.format(name.capitalize())
         return getattr(m, class_name)()
     except AttributeError as e:
-        raise geoprocessing.core.GaiaException(traceback.format_exc())
+        raise gaia.core.GaiaException(traceback.format_exc())

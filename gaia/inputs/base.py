@@ -1,8 +1,8 @@
 import os
 import geopandas
 import rasterio as rasterio
-from geoprocessing.core import GaiaException, GaiaRequestParser, getConfig
-from geoprocessing.inputs import datatypes, formats
+from gaia.core import GaiaException, GaiaRequestParser, getConfig
+from gaia.inputs import datatypes, formats
 
 
 
@@ -23,17 +23,23 @@ class GaiaInput(object):
 
     def __init__(self, name, **kwargs):
         self.name = name
-        # self.rawjson = json_data
-        # self.inputs = get_io(json_data, is_vector=is_vector)
+        self.io = None
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    def data(self):
+        if self.io:
+            return self.io.data
+        return None
 
 
 class GaiaOutput(object):
     """
     Defines an output for a geospatial process
     """
-    def __init__(self, name, json_data, **kwargs):
+    def __init__(self, name, result, **kwargs):
         self.name = name
-        self.data = json_data
+        self.data = result
 
 
 class GaiaIO(object):
@@ -193,7 +199,8 @@ class ProcessIO(GaiaIO):
 
     def read(self, standardize=True):
         self.process.calculate()
-        return self.process.output
+        self.data = self.process.raw_output
+
 
 
 class GirderIO(GaiaIO):

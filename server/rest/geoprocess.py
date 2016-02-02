@@ -1,15 +1,14 @@
-import sys
-import os
 from girder.api.rest import Resource, setRawResponse
 from girder.api import access
 from girder.api.describe import Description
 from girder.utility import config
 import cherrypy
+from gaia.core import GaiaRequestParser
 
 
 class GeoProcess(Resource):
     """
-    Make various geoprocessing requests on Girder data.
+    Make various gaia requests on Girder data.
     """
 
     def __init__(self):
@@ -24,30 +23,21 @@ class GeoProcess(Resource):
         create & send a WPS request and pass on the response.
         """
 
-        """
-         TODO: Figure out the best way of making Gaia core functionality
-         independent of Girder while still being able to load it as a plugin.
-         For now, this path hack does the trick.
-        """
-        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                     '../../')))
-        import geoprocessing.core
-
         json_body = self.getBodyJson()
 
-        process = geoprocessing.core.GaiaRequestParser(
+        process = GaiaRequestParser(
             geoprocess, data=json_body, config=self.config).process
 
         # assume output is GeoJSON or GeoTIFF
         process.calculate()
-
-        if not isinstance(process.output, dict):
+        result = process.output.data
+        if not isinstance(result, dict):
             setRawResponse(True)
             cherrypy.response.headers['Content-Type'] = 'image/tiff'
-        return process.output
+        return result
 
     processTask.description = (
-        Description('Make a geoprocessing request and return the response')
+        Description('Make a gaia request and return the response')
         .param('geoprocess', 'The process to run', paramType='path')
         .param('body', 'A JSON object containing the process parameters',
                paramType='body')
