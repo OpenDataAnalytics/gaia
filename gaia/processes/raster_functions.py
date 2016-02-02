@@ -90,9 +90,10 @@ def warp(files, output, driver, like=None, dst_crs='EPSG:3857', dimensions=None,
                     dst_height = max(int(ceil((ymax - ymin) / res[1])), 1)
 
                 else:
-                    dst_transform, dst_width, dst_height = calculate_default_transform(
-                        src.crs, dst_crs, src.width, src.height, *src.bounds,
-                        resolution=res)
+                    dst_transform, dst_width, dst_height = \
+                        calculate_default_transform(
+                            src.crs, dst_crs, src.width, src.height,
+                            *src.bounds, resolution=res)
 
             elif dimensions:
                 # Same projection, different dimensions, calculate resolution.

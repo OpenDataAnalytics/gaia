@@ -12,6 +12,7 @@ base_dir = os.path.join(
 
 CONFIG = None
 
+
 class GaiaException(Exception):
     pass
 
@@ -68,7 +69,7 @@ def getConfig():
 
 def parse_request(process, request_json):
     parser  = GaiaRequestParser(process, data=request_json, parse=True)
-    parser.process.calculate()
+    parser.process.compute()
     return parser.process.output.data
 
 

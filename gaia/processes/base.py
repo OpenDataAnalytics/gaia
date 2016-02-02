@@ -30,7 +30,7 @@ class GaiaProcess(object):
         self.inputs = inputs
         self.args = args
 
-    def calculate(self):
+    def compute(self):
         for input in self.inputs:
             if not input.io.data:
                 input.io.read()
@@ -40,9 +40,10 @@ class BufferProcess(GaiaProcess):
 
     required_inputs = (('input', formats.VECTOR),)
     required_args = ('buffer_size',)
+    default_output = formats.JSON
 
-    def calculate(self):
-        super(BufferProcess, self).calculate()
+    def compute(self):
+        super(BufferProcess, self).compute()
         # TODO: Don't assume GeoPandas Dataframe. Could be PostGIS,Girder,etc.
         first_df = self.inputs[0].data()
         buffer = first_df.buffer(self.args['buffer_size'])
@@ -57,9 +58,10 @@ class SubsetVectorProcess(GaiaProcess):
 
     required_inputs = (('input', formats.ALL),)
     required_args = ('subset_area',)
+    default_output = formats.JSON
 
-    def calculate(self):
-        super(SubsetVectorProcess, self).calculate()
+    def compute(self):
+        super(SubsetVectorProcess, self).compute()
         self.output = {
             "Process": "Subset; real output will be GeoJSON FeatureCollection"
         }
@@ -70,9 +72,10 @@ class SubsetRasterProcess(GaiaProcess):
 
     required_inputs = (('input', formats.ALL),)
     required_args = ('subset_area',)
+    default_output = formats.RASTER
 
-    def calculate(self):
-        super(SubsetRasterProcess, self).calculate()
+    def compute(self):
+        super(SubsetRasterProcess, self).compute()
         self.output = {
             "Process": "Subset; real output will be GeoTIFF"
         }
@@ -82,9 +85,10 @@ class SubsetRasterProcess(GaiaProcess):
 class WithinProcess(GaiaProcess):
 
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    default_output = formats.JSON
 
-    def calculate(self):
-        super(WithinProcess, self).calculate()
+    def compute(self):
+        super(WithinProcess, self).compute()
         # TODO: Don't assume GeoPandas Dataframe. Could be PostGIS,Girder,etc.
         for input in self.inputs:
             if input.name == 'first':

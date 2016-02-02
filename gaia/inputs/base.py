@@ -196,20 +196,35 @@ class ProcessIO(GaiaIO):
     def __init__(self, process, **kwargs):
         super(ProcessIO, self).__init__(**kwargs)
         self.process = process
+        self.default_output = process.default_output
 
     def read(self, standardize=True):
-        self.process.calculate()
+        self.process.compute()
         self.data = self.process.raw_output
-
 
 
 class GirderIO(GaiaIO):
     """
     Read and write Girder files/items/metadata
     """
+
+    default_output = None
+
     def __init__(self, girder_uris, auth, **kwargs):
         super(ProcessIO, self).__init__(**kwargs)
         raise NotImplementedError
+
+
+class PostgisIO(GaiaIO):
+    """
+    Read and write PostGIS data
+    """
+    default_output = formats.JSON
+
+    def __init__(self, girder_uris, auth, **kwargs):
+        super(ProcessIO, self).__init__(**kwargs)
+        raise NotImplementedError
+
 
 def is_vector(filename):
     try:
@@ -235,5 +250,7 @@ def create_io(data):
     #     return WpsIO(**data)
     # elif data['type'] == 'raw':
     #     return GaiaIO(**data)
+    # elif data['type'] == 'pg':
+    #     return PostgisIO(**data)
     else:
         raise NotImplementedError()

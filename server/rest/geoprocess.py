@@ -29,7 +29,7 @@ class GeoProcess(Resource):
             geoprocess, data=json_body, config=self.config).process
 
         # assume output is GeoJSON or GeoTIFF
-        process.calculate()
+        process.compute()
         result = process.output.data
         if not isinstance(result, dict):
             setRawResponse(True)
