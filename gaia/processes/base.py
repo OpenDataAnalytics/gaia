@@ -112,5 +112,5 @@ def create_process(name):
     try:
         class_name = '{}Process'.format(name.capitalize())
         return getattr(m, class_name)()
-    except AttributeError as e:
+    except AttributeError:
         raise gaia.core.GaiaException(traceback.format_exc())

@@ -8,10 +8,10 @@ testfile_path = os.path.join(os.path.dirname(
 
 
 class TestGaiaRequestParser(unittest.TestCase):
-    """
-    Tests for the GaiaRequestParser class
-    """
+    """Tests for the GaiaRequestParser class"""
+
     def test_process_within(self):
+        """Test Within process with nested Buffer process"""
         with open(os.path.join(testfile_path,
                                'within_nested_buffer_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)

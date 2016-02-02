@@ -5,21 +5,23 @@ from gaia.core import GaiaException, GaiaRequestParser, getConfig
 from gaia.inputs import datatypes, formats
 
 
-
 class MissingParameterError(GaiaException):
+    """Raise when a required parameter is missing"""
     pass
+
 
 class MissingDataException(GaiaException):
+    """Raise when required data is missing"""
     pass
 
+
 class UnsupportedFormatException(GaiaException):
+    """Raise when an unsupported data format is used"""
     pass
 
 
 class GaiaInput(object):
-    """
-    Defines an input to be used for a geospatial process
-    """
+    """Defines an input to be used for a geospatial process"""
 
     def __init__(self, name, **kwargs):
         self.name = name
@@ -34,18 +36,14 @@ class GaiaInput(object):
 
 
 class GaiaOutput(object):
-    """
-    Defines an output for a geospatial process
-    """
+    """Defines an output for a geospatial process"""
     def __init__(self, name, result, **kwargs):
         self.name = name
         self.data = result
 
 
 class GaiaIO(object):
-    """
-    Abstract IO class for importing/exporting data from a certain source
-    """
+    """Abstract IO class for importing/exporting data from a certain source"""
     data = None
     default_projection = u'epsg:3857'
     filter = None
@@ -62,9 +60,7 @@ class GaiaIO(object):
 
 
 class FileIO(GaiaIO):
-    """
-    Read and write file data.
-    """
+    """Read and write file data."""
     type = datatypes.FILE
 
     def __init__(self, uri=None, filter=None, **kwargs):
@@ -102,9 +98,7 @@ class FileIO(GaiaIO):
 
 
 class VectorFileIO(FileIO):
-    """
-    Read and write vector file data (such as GeoJSON)
-    """
+    """Read and write vector file data (such as GeoJSON)"""
 
     default_output = formats.PANDAS
 
@@ -149,9 +143,7 @@ class VectorFileIO(FileIO):
 
 
 class RasterFileIO(FileIO):
-    """
-    Read and write raster data (GeoTIFF)
-    """
+    """Read and write raster data (GeoTIFF)"""
 
     default_output = formats.RASTER
 
@@ -190,9 +182,7 @@ class RasterFileIO(FileIO):
 
 
 class ProcessIO(GaiaIO):
-    """
-    IO for nested GaiaProcess objects
-    """
+    """IO for nested GaiaProcess objects"""
     def __init__(self, process, **kwargs):
         super(ProcessIO, self).__init__(**kwargs)
         self.process = process
@@ -204,9 +194,7 @@ class ProcessIO(GaiaIO):
 
 
 class GirderIO(GaiaIO):
-    """
-    Read and write Girder files/items/metadata
-    """
+    """Read and write Girder files/items/metadata"""
 
     default_output = None
 
@@ -216,9 +204,7 @@ class GirderIO(GaiaIO):
 
 
 class PostgisIO(GaiaIO):
-    """
-    Read and write PostGIS data
-    """
+    """Read and write PostGIS data"""
     default_output = formats.JSON
 
     def __init__(self, girder_uris, auth, **kwargs):

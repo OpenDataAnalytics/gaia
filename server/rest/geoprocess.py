@@ -7,9 +7,7 @@ from gaia.core import GaiaRequestParser
 
 
 class GeoProcess(Resource):
-    """
-    Make various gaia requests on Girder data.
-    """
+    """Make various gaia requests on Girder data."""
 
     def __init__(self):
         self.resourceName = 'geoprocess'

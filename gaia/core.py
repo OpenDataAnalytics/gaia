@@ -14,6 +14,9 @@ CONFIG = None
 
 
 class GaiaException(Exception):
+    """
+    Base Gaia exception class
+    """
     pass
 
 
@@ -27,6 +30,9 @@ class GaiaRequestParser(object):
     data = None
 
     def __init__(self, process_name, data=None, parse=True, config=None):
+        """
+        Create an instance of GaiaRequestParser
+        """
         if config:
             gaia.core.CONFIG = config
         self.process = gaia.processes.base.create_process(process_name)
@@ -34,6 +40,9 @@ class GaiaRequestParser(object):
             self.parse(data)
 
     def parse(self, data):
+        """
+        Generate process and input objects from JSON data
+        """
         if isinstance(data, string_types):
             data = json.loads(data)
         inputs = data['data_inputs']
@@ -68,7 +77,10 @@ def getConfig():
 
 
 def parse_request(process, request_json):
-    parser  = GaiaRequestParser(process, data=request_json, parse=True)
+    """
+    Parse a JSON request using GaiaRequestParser
+    """
+    parser = GaiaRequestParser(process, data=request_json, parse=True)
     parser.process.compute()
     return parser.process.output.data
 
@@ -77,9 +89,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run geospatial process.')
     parser.add_argument('process')
     parser.add_argument('--jsonstr', default=None,
-                       help='String representation of JSON request')
+                        help='String representation of JSON request')
     parser.add_argument('--jsonfile', default=None,
-                       help='sum the integers (default: find the max)')
+                        help='sum the integers (default: find the max)')
     parser.add_argument('--outfile', default=None,
                         help='Save results to a file')
     args = parser.parse_args()
