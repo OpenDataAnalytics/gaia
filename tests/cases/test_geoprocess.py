@@ -4,7 +4,7 @@ import unittest
 from gaia.core import GaiaRequestParser
 
 testfile_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), 'data/geoprocess')
+    os.path.realpath(__file__)), '../data/geoprocess')
 
 
 class TestGaiaRequestParser(unittest.TestCase):
