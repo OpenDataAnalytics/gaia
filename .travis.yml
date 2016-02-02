@@ -5,6 +5,7 @@ sudo: false
 addons:
   apt:
     packages:
+      - python-dev
       - libgdal1-dev
 
 python:
