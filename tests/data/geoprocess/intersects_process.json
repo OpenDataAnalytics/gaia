@@ -2,7 +2,7 @@
   "data_inputs": {
       "first": {
           "type": "file",
-          "uri": "/Users/essamjoubori1/epidemico/gaia/tests/data/geoprocess/iraq_hospitals.geojson"
+          "uri": "/Users/essamjoubori1/epidemico/gaia/tests/data/geoprocess/iraq_roads.geojson"
       },
       "second": {
           "type": "file",

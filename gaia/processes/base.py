@@ -124,7 +124,7 @@ class WithinProcess(GaiaProcess):
 
 
 """
-   --------- INTERSECT PROCESS ------------
+   --------- INTERSECTS PROCESS ------------
 """
 
 class IntersectsProcess(GaiaProcess):
