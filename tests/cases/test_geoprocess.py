@@ -18,11 +18,29 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('within',
                                     data=json_body).process
-        process.calculate()
+        process.compute()
         output = json.loads(process.output.data)
         with open(os.path.join(
                 testfile_path,
                 'within_nested_buffer_process_result.json')) as exp:
+            expected_json = json.load(exp)
+        self.assertIn('features', output)
+        self.assertEquals(len(expected_json['features']),
+                          len(output['features']))
+
+    def test_process_intersects(self):
+        """Test Intersects process"""
+        with open(os.path.join(testfile_path,
+                               'intersects_process.json')) as inf:
+            body_text = inf.read().replace('{basepath}', testfile_path)
+        json_body = json.loads(body_text)
+        process = GaiaRequestParser('intersects',
+                                    data=json_body).process
+        process.compute()
+        output = json.loads(process.output.data)
+        with open(os.path.join(
+                testfile_path,
+                'intersects_process_results.json')) as exp:
             expected_json = json.load(exp)
         self.assertIn('features', output)
         self.assertEquals(len(expected_json['features']),

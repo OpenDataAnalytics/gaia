@@ -36,6 +36,10 @@ class GaiaProcess(object):
                 input.io.read()
 
 
+"""
+   --------- BUFFER PROCESS ------------
+"""
+
 class BufferProcess(GaiaProcess):
 
     required_inputs = (('input', formats.VECTOR),)
@@ -54,6 +58,10 @@ class BufferProcess(GaiaProcess):
         logger.debug(self.output)
 
 
+"""
+   --------- SUBSET VECTOR PROCESS ------------
+"""
+
 class SubsetVectorProcess(GaiaProcess):
 
     required_inputs = (('input', formats.ALL),)
@@ -68,6 +76,10 @@ class SubsetVectorProcess(GaiaProcess):
         logger.debug(self.output)
 
 
+"""
+   --------- SUBSET RASTER PROCESS ------------
+"""
+
 class SubsetRasterProcess(GaiaProcess):
 
     required_inputs = (('input', formats.ALL),)
@@ -81,6 +93,12 @@ class SubsetRasterProcess(GaiaProcess):
         }
         logger.debug(self.output)
 
+
+
+
+"""
+   --------- WITHIN PROCESS ------------
+"""
 
 class WithinProcess(GaiaProcess):
 
@@ -100,6 +118,32 @@ class WithinProcess(GaiaProcess):
         self.raw_output = first_within
         self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
         logger.debug(self.output)
+
+
+
+
+
+"""
+   --------- INTERSECT PROCESS ------------
+"""
+
+class IntersectsProcess(GaiaProcess):
+
+    def compute(self):
+        super(IntersectsProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'first':
+                first_df = input.data()
+            elif input.name == 'second':
+                second_df = input.data()
+        first_intersects = first_df[first_df.geometry.intersects(
+            second_df.geometry.unary_union)]
+        self.raw_output = first_intersects
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
+        logger.debug(self.output)
+
+
+
 
 
 def create_process(name):
