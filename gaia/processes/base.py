@@ -5,6 +5,7 @@ import gaia.inputs
 from gaia.inputs import formats
 import logging
 from geopandas import GeoDataFrame
+import pandas as pd
 
 
 __author__ = 'mbertrand'
@@ -139,6 +140,46 @@ class IntersectsProcess(GaiaProcess):
         first_intersects = first_df[first_df.geometry.intersects(
             second_df.geometry.unary_union)]
         self.raw_output = first_intersects
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
+        logger.debug(self.output)
+
+
+"""
+   --------- DIFFERENCE PROCESS ------------
+"""
+
+class DifferenceProcess(GaiaProcess):
+
+    def compute(self):
+        super(DifferenceProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'first':
+                first_df = input.data()
+            elif input.name == 'second':
+                second_df = input.data()
+
+        self.raw_output = first_intersects
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output)
+        logger.debug(self.output)
+
+
+"""
+   --------- UNION PROCESS ------------
+"""
+
+class UnionProcess(GaiaProcess):
+
+    def compute(self):
+        super(UnionProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'first':
+                first_df = input.data()
+            elif input.name == 'second':
+                second_df = input.data()
+
+        uniondf = GeoDataFrame(pd.concat([first_df, second_df]))
+
+        self.raw_output = uniondf
         self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
         logger.debug(self.output)
 
