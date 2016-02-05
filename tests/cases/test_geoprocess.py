@@ -18,7 +18,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('within',
                                     data=json_body).process
-        process.calculate()
+        process.compute()
         output = json.loads(process.output.data)
         with open(os.path.join(
                 testfile_path,
