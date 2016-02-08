@@ -158,8 +158,11 @@ class DifferenceProcess(GaiaProcess):
             elif input.name == 'second':
                 second_df = input.data()
 
+        first_intersects = first_df[first_df.geometry.intersects(
+            second_df.geometry.unary_union) == False]
+        
         self.raw_output = first_intersects
-        self.output = gaia.inputs.GaiaOutput('result', self.raw_output)
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
         logger.debug(self.output)
 
 
