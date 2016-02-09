@@ -4,11 +4,11 @@ import traceback
 import uuid
 import errno
 import logging
+from gaia.processes import create_output_dir
 from geopandas import GeoDataFrame, GeoSeries
-import gaia.core
-import gaia.inputs
+from gaia.core import config, GaiaException
 from gaia.inputs import formats
-from gaia.processes.gdal_functions import gdal_clip
+from gaia.gdal_functions import gdal_clip
 
 __author__ = 'mbertrand'
 
@@ -27,14 +27,12 @@ class GaiaProcess(object):
     """
 
     required_args = tuple()
-    output = None
 
-    def __init__(self, inputs=None, args=None):
+    def __init__(self, inputs=None, output=None, args=None):
         self.inputs = inputs
+        self.output = output
         self.args = args
         self.id = str(uuid.uuid4())
-        config = gaia.core.getConfig()
-        self.outpath = config['gaia']['output_path']
 
     def compute(self):
         for input in self.inputs:
@@ -54,9 +52,8 @@ class BufferProcess(GaiaProcess):
         first_df = self.inputs[0].data()
         buffer = first_df.buffer(self.args['buffer_size'])
         buffer_df = GeoDataFrame(geometry=buffer)
-        self.raw_output = buffer_df
-        self.output = gaia.inputs.GaiaOutput('result',
-                                             self.raw_output.to_json())
+        self.output.data = buffer_df.to_json()
+        self.output.write()
         logger.debug(self.output)
 
 
@@ -94,9 +91,8 @@ class SubsetRasterProcess(GaiaProcess):
             os.path.join(self.outpath, self.id, output_name))
         create_output_dir(raster_output)
         clip_json = clip_df.geometry.unary_union.__geo_interface__
-        self.raw_output = gdal_clip(raster_img, raster_output, clip_json)
-        self.output = gaia.inputs.GaiaOutput('result', self.raw_output,
-                                             file=raster_output)
+        self.output.data = gdal_clip(raster_img, raster_output, clip_json)
+        self.output.write()
 
 
 class WithinProcess(GaiaProcess):
@@ -110,10 +106,8 @@ class WithinProcess(GaiaProcess):
                 second_df = input.data()
         first_within = first_df[first_df.geometry.within(
             second_df.geometry.unary_union)]
-        self.raw_output = first_within
-        self.output = gaia.inputs.GaiaOutput('result',
-                                             self.raw_output.to_json())
-        logger.debug(self.output)
+        self.output.data = first_within
+        self.output.write()
 
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
     default_output = formats.JSON
@@ -134,10 +128,10 @@ def create_process(name):
     :param name:
     :return:
     """
-    m = importlib.import_module('gaia.processes.base')
+    m = importlib.import_module('gaia.processes')
     try:
         class_name = '{}Process'.format(name[0].capitalize() + name[1:])
         return getattr(m, class_name)()
     except AttributeError:
-        raise gaia.core.GaiaException(traceback.format_exc())
+        raise GaiaException(traceback.format_exc())
 

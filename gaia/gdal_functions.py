@@ -1,5 +1,4 @@
 import json
-from geopandas import GeoDataFrame
 from osgeo import gdal, gdalnumeric, ogr, osr
 from PIL import Image, ImageDraw
 

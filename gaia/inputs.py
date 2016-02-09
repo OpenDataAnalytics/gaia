@@ -4,9 +4,10 @@ import uuid
 import gdal
 import shutil
 import osr
-from gaia.core import GaiaException, GaiaRequestParser, getConfig
-from gaia.inputs import datatypes, formats
-from gaia.processes.gdal_functions import gdal_reproject
+import datatypes
+import formats
+from gaia.core import GaiaException, config
+from gaia.gdal_functions import gdal_reproject
 
 
 class MissingParameterError(GaiaException):
@@ -24,66 +25,46 @@ class UnsupportedFormatException(GaiaException):
     pass
 
 
-class GaiaInput(object):
-    """Defines an input to be used for a geospatial process"""
-
-    def __init__(self, name, **kwargs):
-        self.name = name
-        self.io = None
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    def data(self):
-        if self.io:
-            return self.io.data
-        return None
-
-
-class GaiaOutput(object):
-    """Defines an output for a geospatial process"""
-    def __init__(self, name, result, **kwargs):
-        self.name = name
-        self.data = result
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
 class GaiaIO(object):
     """Abstract IO class for importing/exporting data from a certain source"""
     data = None
     filter = None
+    id = None
 
-    def __init__(self, **kwargs):
-        config = getConfig()
+    def __init__(self, name, **kwargs):
+        self.name = name
         self.tmp_dir = config['gaia']['tmp_dir']
         self.default_epsg = config['gaia']['default_epsg']
         self.output_path = config['gaia']['output_path']
-        self.id = str(uuid.uuid4())
+        self.process_id = str(uuid.uuid4())
         for k, v in kwargs.items():
             setattr(self, k, v)
+        if not self.id:
+            self.id = uuid.uuid4()
 
     def read(self, *args, **kwargs):
         raise NotImplementedError()
 
     def write(self, *args, **kwargs):
-        raise NotImplementedError()
+        return ''
 
 
 class FileIO(GaiaIO):
     """Read and write file data."""
     type = datatypes.FILE
 
-    def __init__(self, uri=None, filter=None, **kwargs):
+    def __init__(self, name, uri=None, filter=None, **kwargs):
         if self.allowed_folder(uri):
             raise GaiaException(
                 "Access to this directory is not permitted : {}".format(
                     os.path.dirname(uri)))
         self.uri = uri
         self.filter = filter
-        super(FileIO, self).__init__(uri=uri, filter=filter)
-        self.ext = os.path.splitext(self.uri)[1].lower()
+        super(FileIO, self).__init__(name, uri=uri, filter=filter, **kwargs)
+        if self.uri:
+            self.ext = os.path.splitext(self.uri)[1].lower()
 
     def allowed_folder(self, folder):
-        config = getConfig()
         allowed_dirs = config['gaia']['fileio_paths'].split(',')
         if not allowed_dirs:
             return True
@@ -100,9 +81,7 @@ class FileIO(GaiaIO):
             raise MissingDataException(
                 'Specified file not found: {}'.format(self.uri))
 
-    def delete(self):
-        output_folder = os.path.join(self.output_path, self.id)
-        shutil.rmtree(output_folder)
+    def write()
 
 
 class VectorFileIO(FileIO):
@@ -191,8 +170,8 @@ class RasterFileIO(FileIO):
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
-    def __init__(self, process, **kwargs):
-        super(ProcessIO, self).__init__(**kwargs)
+    def __init__(self, name, process=None, **kwargs):
+        super(ProcessIO, self).__init__(name, **kwargs)
         self.process = process
         self.default_output = process.default_output
 
@@ -206,8 +185,8 @@ class GirderIO(GaiaIO):
 
     default_output = None
 
-    def __init__(self, girder_uris, auth, **kwargs):
-        super(ProcessIO, self).__init__(**kwargs)
+    def __init__(self, name, girder_uris=[], auth=None, **kwargs):
+        super(GirderIO, self).__init__(name, **kwargs)
         raise NotImplementedError
 
 
@@ -215,36 +194,9 @@ class PostgisIO(GaiaIO):
     """Read and write PostGIS data"""
     default_output = formats.JSON
 
-    def __init__(self, girder_uris, auth, **kwargs):
-        super(ProcessIO, self).__init__(**kwargs)
+    def __init__(self, name, connection='', **kwargs):
+        super(PostgisIO, self).__init__(name, **kwargs)
         raise NotImplementedError
 
 
-def is_vector(filename):
-    try:
-        return os.path.splitext(filename)[1] in formats.VECTOR
-    except IndexError:
-        return False
 
-
-def create_io(data):
-    if data['type'] == 'file':
-        io = VectorFileIO(**data) if is_vector(
-            data['uri']) else RasterFileIO(**data)
-        return io
-    elif data['type'] == 'process':
-        process_name = data['process']['name']
-        parser = GaiaRequestParser(process_name, data=data['process'])
-        return ProcessIO(parser.process)
-    # elif data['type'] == 'girder':
-    #     return GirderIO(**data)
-    # elif data['type'] == 'wfs':
-    #     return WfsIO(**data)
-    # elif data['type'] == 'wfs':
-    #     return WpsIO(**data)
-    # elif data['type'] == 'raw':
-    #     return GaiaIO(**data)
-    # elif data['type'] == 'pg':
-    #     return PostgisIO(**data)
-    else:
-        raise NotImplementedError()

@@ -3,7 +3,7 @@ import os
 import unittest
 from zipfile import ZipFile
 import shutil
-from gaia.core import GaiaRequestParser
+from gaia.parser import GaiaRequestParser
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data/geoprocess')
