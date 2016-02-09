@@ -1,11 +1,14 @@
 import importlib
+import os
 import traceback
+import uuid
+import errno
+import logging
+from geopandas import GeoDataFrame, GeoSeries
 import gaia.core
 import gaia.inputs
 from gaia.inputs import formats
-import logging
-from geopandas import GeoDataFrame
-
+from gaia.processes.gdal_functions import gdal_clip
 
 __author__ = 'mbertrand'
 
@@ -29,6 +32,9 @@ class GaiaProcess(object):
     def __init__(self, inputs=None, args=None):
         self.inputs = inputs
         self.args = args
+        self.id = str(uuid.uuid4())
+        config = gaia.core.getConfig()
+        self.outpath = config['gaia']['output_path']
 
     def compute(self):
         for input in self.inputs:
@@ -70,23 +76,30 @@ class SubsetVectorProcess(GaiaProcess):
 
 class SubsetRasterProcess(GaiaProcess):
 
-    required_inputs = (('input', formats.ALL),)
-    required_args = ('subset_area',)
+    required_inputs = (('clip', formats.JSON), ('raster', formats.RASTER))
     default_output = formats.RASTER
 
     def compute(self):
         super(SubsetRasterProcess, self).compute()
-        self.output = {
-            "Process": "Subset; real output will be GeoTIFF"
-        }
-        logger.debug(self.output)
+        clip_df = None
+        raster_img = None
+        for input in self.inputs:
+            if input.name == 'clip':
+                clip_df = input.data()
+            elif input.name == 'raster':
+                raster_img = input.data()
+        # Merge all features in vector input
+        output_name = '{}.tif'.format(self.id)
+        raster_output = os.path.abspath(
+            os.path.join(self.outpath, self.id, output_name))
+        create_output_dir(raster_output)
+        clip_json = clip_df.geometry.unary_union.__geo_interface__
+        self.raw_output = gdal_clip(raster_img, raster_output, clip_json)
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output,
+                                             file=raster_output)
 
 
 class WithinProcess(GaiaProcess):
-
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    default_output = formats.JSON
-
     def compute(self):
         super(WithinProcess, self).compute()
         # TODO: Don't assume GeoPandas Dataframe. Could be PostGIS,Girder,etc.
@@ -98,8 +111,21 @@ class WithinProcess(GaiaProcess):
         first_within = first_df[first_df.geometry.within(
             second_df.geometry.unary_union)]
         self.raw_output = first_within
-        self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
+        self.output = gaia.inputs.GaiaOutput('result',
+                                             self.raw_output.to_json())
         logger.debug(self.output)
+
+    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    default_output = formats.JSON
+
+
+def create_output_dir(filename):
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
 
 
 def create_process(name):
@@ -110,7 +136,8 @@ def create_process(name):
     """
     m = importlib.import_module('gaia.processes.base')
     try:
-        class_name = '{}Process'.format(name.capitalize())
+        class_name = '{}Process'.format(name[0].capitalize() + name[1:])
         return getattr(m, class_name)()
     except AttributeError:
         raise gaia.core.GaiaException(traceback.format_exc())
+

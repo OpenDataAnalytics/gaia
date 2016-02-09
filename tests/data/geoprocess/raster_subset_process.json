@@ -1,0 +1,12 @@
+{
+  "data_inputs": {
+      "clip": {
+          "type": "file",
+          "uri": "{basepath}/2states.geojson"
+      },
+      "raster": {
+          "type": "file",
+          "uri": "{basepath}/globalairtemp.tif"
+      }
+  }
+}
