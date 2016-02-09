@@ -207,7 +207,7 @@ class GirderIO(GaiaIO):
     default_output = None
 
     def __init__(self, girder_uris, auth, **kwargs):
-        super(ProcessIO, self).__init__(**kwargs)
+        super(GirderIO, self).__init__(**kwargs)
         raise NotImplementedError
 
 
@@ -216,7 +216,7 @@ class PostgisIO(GaiaIO):
     default_output = formats.JSON
 
     def __init__(self, girder_uris, auth, **kwargs):
-        super(ProcessIO, self).__init__(**kwargs)
+        super(PostgisIO, self).__init__(**kwargs)
         raise NotImplementedError
 
 
