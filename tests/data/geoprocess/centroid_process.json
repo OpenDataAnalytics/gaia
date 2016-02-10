@@ -2,11 +2,11 @@
   "data_inputs": {
       "first": {
           "type": "file",
-           "uri": "/Users/essamjoubori1/epidemico/gaia/tests/data/geoprocess/baghdad_districts.geojson"
+           "uri": "{basepath}/baghdad_districts.geojson"
       },
       "second": {
           "type": "file",
-          "uri": "/Users/essamjoubori1/epidemico/gaia/tests/data/geoprocess/baghdad_districts.geojson"
+          "uri": "{basepath}/baghdad_districts.geojson"
       }
   }
 }

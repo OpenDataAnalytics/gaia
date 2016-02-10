@@ -1,8 +1,12 @@
 import os
 import geopandas
-import rasterio as rasterio
+import uuid
+import gdal
+import shutil
+import osr
 from gaia.core import GaiaException, GaiaRequestParser, getConfig
 from gaia.inputs import datatypes, formats
+from gaia.processes.gdal_functions import gdal_reproject
 
 
 class MissingParameterError(GaiaException):
@@ -40,15 +44,20 @@ class GaiaOutput(object):
     def __init__(self, name, result, **kwargs):
         self.name = name
         self.data = result
-
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 class GaiaIO(object):
     """Abstract IO class for importing/exporting data from a certain source"""
     data = None
-    default_projection = u'epsg:3857'
     filter = None
 
     def __init__(self, **kwargs):
+        config = getConfig()
+        self.tmp_dir = config['gaia']['tmp_dir']
+        self.default_epsg = config['gaia']['default_epsg']
+        self.output_path = config['gaia']['output_path']
+        self.id = str(uuid.uuid4())
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -91,10 +100,9 @@ class FileIO(GaiaIO):
             raise MissingDataException(
                 'Specified file not found: {}'.format(self.uri))
 
-    def write(self, data, filepath, is_bin):
-        mode = 'b' if is_bin else 't'
-        with open(filepath, 'w{}'.format(mode)) as outfile:
-            outfile.write(data)
+    def delete(self):
+        output_folder = os.path.join(self.output_path, self.id)
+        shutil.rmtree(output_folder)
 
 
 class VectorFileIO(FileIO):
@@ -116,30 +124,37 @@ class VectorFileIO(FileIO):
         if self.filter:
             self.filter_data()
 
-    def as_df(self):
-        if self.data is None:
-            raise GaiaException("No data")
-        return self.data
-
     def as_json(self):
         if self.data is None:
             raise GaiaException("No data")
         return self.data.to_json()
 
-    def write(self, data, filepath):
-        with open(filepath, 'w') as outfile:
-            outfile.write(self.to_json())
+    def write(self, filename, as_type='json'):
+        """
+        Write data (assumed geopandas) to geojson or shapefile
+        :param filename: Base filename
+        :param as_type: shapefile or json
+        :return: location of file
+        """
+        output_name = os.path.join(self.output_path, self.id, filename)
+        if as_type == 'json':
+            with open(output_name, 'w') as outfile:
+                outfile.write(self.to_json())
+        elif as_type == 'shapefile':
+            self.data.to_file(output_name)
+        else:
+            raise NotImplementedError('{} not a valid type'.format(as_type))
+        return output_name
 
     def filter_data(self):
         print self.filter
 
-    def epsg_code(self):
-        return int(self.default_projection.split(':')[1])
-
     def reproject(self):
         original_crs = self.data.crs.get('init', None)
-        if original_crs != self.default_projection:
-            self.data = self.data.to_crs(epsg=self.epsg_code())
+        if original_crs and ':' in original_crs:
+            original_crs = original_crs.split(':')[1]
+        if original_crs != self.default_epsg:
+            self.data = self.data.to_crs(epsg=self.default_epsg)
 
 
 class RasterFileIO(FileIO):
@@ -155,30 +170,23 @@ class RasterFileIO(FileIO):
                 )
             )
         super(RasterFileIO, self).read(standardize=standardize)
-        self.data = rasterio.open(self.uri)
-
+        self.basename = os.path.basename(self.uri)
+        self.data = gdal.Open(self.uri)
         if standardize:
             self.reproject()
-
-    def as_df(self):
-        if not self.data:
-            raise GaiaException("No data")
-        return self.data
-
-    def as_json(self):
-        if not self.data:
-            raise GaiaException("No data")
-        return self.data.to_json()
 
     def write(self, data, filepath):
         with open(filepath, 'w') as outfile:
             outfile.write(self.to_json())
 
     def reproject(self):
-        return
-        original_crs = self.data.crs.get('init', None)
-        if original_crs != self.default_projection:
-            self.data = self.data.to_crs(self.default_projection)
+        data_crs = osr.SpatialReference(wkt=self.data.GetProjection())
+        if data_crs.GetAttrValue('AUTHORITY', 1) != self.default_epsg:
+            repro_file = os.path.join(self.tmp_dir, self.basename)
+            self.data = gdal_reproject(self.uri, repro_file,
+                                       epsg=self.default_epsg)
+            self.uri = repro_file
+            return repro_file
 
 
 class ProcessIO(GaiaIO):
@@ -199,7 +207,7 @@ class GirderIO(GaiaIO):
     default_output = None
 
     def __init__(self, girder_uris, auth, **kwargs):
-        super(ProcessIO, self).__init__(**kwargs)
+        super(GirderIO, self).__init__(**kwargs)
         raise NotImplementedError
 
 
@@ -208,7 +216,7 @@ class PostgisIO(GaiaIO):
     default_output = formats.JSON
 
     def __init__(self, girder_uris, auth, **kwargs):
-        super(ProcessIO, self).__init__(**kwargs)
+        super(PostgisIO, self).__init__(**kwargs)
         raise NotImplementedError
 
 
