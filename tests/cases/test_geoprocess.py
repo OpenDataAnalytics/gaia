@@ -64,6 +64,26 @@ class TestGaiaRequestParser(unittest.TestCase):
         self.assertEquals(len(expected_json['features']),
                           len(output['features']))
 
+
+    def test_process_union(self):
+        """Test Union Process"""
+        with open(os.path.join(testfile_path,
+                               'union_process.json')) as inf:
+            body_text = inf.read().replace('{basepath}', testfile_path)
+        json_body = json.loads(body_text)
+        process = GaiaRequestParser('union',
+                                    data=json_body).process
+        process.compute()
+        output = json.loads(process.output.data)
+        with open(os.path.join(
+                testfile_path,
+                'union_process_results.json')) as exp:
+            expected_json = json.load(exp)
+        self.assertIn('features', output)
+        self.assertEquals(len(expected_json['features']),
+                          len(output['features']))
+
+
     def test_process_controid(self):
         """Test Centroid Process"""
         with open(os.path.join(testfile_path,
