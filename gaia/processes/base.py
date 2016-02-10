@@ -187,7 +187,28 @@ class UnionProcess(GaiaProcess):
         logger.debug(self.output)
 
 
+"""
+   --------- CENTROID PROCESS ------------
+"""
 
+class CentroidProcess(GaiaProcess):
+
+    def compute(self):
+        super(CentroidProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'first':
+                first_df = input.data()
+
+        first_centroids = first_df.geometry.centroid
+
+        centroids = GeoDataFrame(first_centroids[first_df.centroid.within(
+            first_df.geometry)])
+
+        centroids.columns = ['geometry']
+
+        self.raw_output = centroids
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
+        logger.debug(self.output)
 
 
 def create_process(name):
