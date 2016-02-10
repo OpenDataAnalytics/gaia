@@ -6,6 +6,7 @@ from gaia.inputs import formats
 import logging
 from geopandas import GeoDataFrame
 import pandas as pd
+import numpy as np
 
 
 __author__ = 'mbertrand'
@@ -198,6 +199,8 @@ class CentroidProcess(GaiaProcess):
         for input in self.inputs:
             if input.name == 'first':
                 first_df = input.data()
+            elif input.name == 'second':
+                second_df = input.data()
 
         first_centroids = first_df.geometry.centroid
 
@@ -207,6 +210,38 @@ class CentroidProcess(GaiaProcess):
         centroids.columns = ['geometry']
 
         self.raw_output = centroids
+        self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
+        logger.debug(self.output)
+
+"""
+   --------- DISTANCE PROCESS ------------
+"""
+
+class DistanceProcess(GaiaProcess):
+
+    def compute(self):
+        PROPERTY_NAME = 'min_dist'
+        super(DistanceProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'first':
+                first_df = input.data()
+            elif input.name == 'second':
+                second_df = input.data()
+
+        first_gs = first_df.geometry
+
+        second_gs = second_df.geometry
+
+        first_length = len(first_gs)
+
+        min_dist = np.empty(first_length)
+
+        for i, first_features in enumerate(first_gs):
+            min_dist[i] = np.min([first_features.distance(second_features) for second_features in second_gs])
+
+        first_df[PROPERTY_NAME] = min_dist
+
+        self.raw_output = first_df
         self.output = gaia.inputs.GaiaOutput('result', self.raw_output.to_json())
         logger.debug(self.output)
 
