@@ -1,4 +1,5 @@
 import os
+import errno
 import geopandas
 import uuid
 import gdal
@@ -29,32 +30,38 @@ class GaiaIO(object):
     """Abstract IO class for importing/exporting data from a certain source"""
     data = None
     filter = None
-    id = None
+    default_output = None
 
     def __init__(self, name, **kwargs):
         self.name = name
         self.tmp_dir = config['gaia']['tmp_dir']
         self.default_epsg = config['gaia']['default_epsg']
-        self.output_path = config['gaia']['output_path']
-        self.process_id = str(uuid.uuid4())
         for k, v in kwargs.items():
             setattr(self, k, v)
-        if not self.id:
-            self.id = uuid.uuid4()
 
     def read(self, *args, **kwargs):
         raise NotImplementedError()
 
     def write(self, *args, **kwargs):
-        return ''
+        pass
+
+    def create_output_dir(self, filename):
+        if not os.path.exists(os.path.dirname(filename)):
+            try:
+                os.makedirs(os.path.dirname(filename))
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
+
+    def delete(self):
+        raise NotImplementedError()
 
 
 class FileIO(GaiaIO):
     """Read and write file data."""
-    type = datatypes.FILE
 
     def __init__(self, name, uri=None, filter=None, **kwargs):
-        if self.allowed_folder(uri):
+        if uri and self.allowed_folder(uri):
             raise GaiaException(
                 "Access to this directory is not permitted : {}".format(
                     os.path.dirname(uri)))
@@ -81,7 +88,9 @@ class FileIO(GaiaIO):
             raise MissingDataException(
                 'Specified file not found: {}'.format(self.uri))
 
-    def write()
+    def delete(self):
+        if os.path.exists(self.uri):
+            shutil.rmtree(os.path.dirname(self.uri))
 
 
 class VectorFileIO(FileIO):
@@ -89,7 +98,9 @@ class VectorFileIO(FileIO):
 
     default_output = formats.PANDAS
 
-    def read(self, standardize=True):
+    def read(self, standardize=True, format=None):
+        if not format:
+            format = self.default_output
         if self.ext not in formats.VECTOR:
             raise UnsupportedFormatException(
                 "Only the following vector formats are supported: {}".format(
@@ -97,33 +108,35 @@ class VectorFileIO(FileIO):
                 )
             )
         super(VectorFileIO, self).read(standardize=standardize)
-        self.data = geopandas.read_file(self.uri)
-        if standardize:
-            self.reproject()
-        if self.filter:
-            self.filter_data()
-
-    def as_json(self):
         if self.data is None:
-            raise GaiaException("No data")
-        return self.data.to_json()
+            self.data = geopandas.read_file(self.uri)
+            if standardize:
+                self.reproject()
+            if self.filter:
+                self.filter_data()
+        if format == formats.JSON:
+            return self.data.to_json()
+        else:
+            return self.data
 
-    def write(self, filename, as_type='json'):
+    def write(self, filename=None, as_type='json'):
         """
         Write data (assumed geopandas) to geojson or shapefile
         :param filename: Base filename
         :param as_type: shapefile or json
         :return: location of file
         """
-        output_name = os.path.join(self.output_path, self.id, filename)
+        if not filename:
+            filename = self.uri
+        self.create_output_dir(filename)
         if as_type == 'json':
-            with open(output_name, 'w') as outfile:
-                outfile.write(self.to_json())
+            with open(filename, 'w') as outfile:
+                outfile.write(self.data.to_json())
         elif as_type == 'shapefile':
-            self.data.to_file(output_name)
+            self.data.to_file(filename)
         else:
             raise NotImplementedError('{} not a valid type'.format(as_type))
-        return output_name
+        return self.uri
 
     def filter_data(self):
         print self.filter
@@ -153,10 +166,7 @@ class RasterFileIO(FileIO):
         self.data = gdal.Open(self.uri)
         if standardize:
             self.reproject()
-
-    def write(self, data, filepath):
-        with open(filepath, 'w') as outfile:
-            outfile.write(self.to_json())
+        return self.data
 
     def reproject(self):
         data_crs = osr.SpatialReference(wkt=self.data.GetProjection())
@@ -165,19 +175,21 @@ class RasterFileIO(FileIO):
             self.data = gdal_reproject(self.uri, repro_file,
                                        epsg=self.default_epsg)
             self.uri = repro_file
-            return repro_file
 
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
-    def __init__(self, name, process=None, **kwargs):
+    def __init__(self, name, process=None, parent_id=None, **kwargs):
         super(ProcessIO, self).__init__(name, **kwargs)
         self.process = process
         self.default_output = process.default_output
 
+
     def read(self, standardize=True):
-        self.process.compute()
-        self.data = self.process.raw_output
+        if self.data is None:
+            self.process.compute()
+            self.data = self.process.output.data
+        return self.data
 
 
 class GirderIO(GaiaIO):
@@ -197,6 +209,4 @@ class PostgisIO(GaiaIO):
     def __init__(self, name, connection='', **kwargs):
         super(PostgisIO, self).__init__(name, **kwargs)
         raise NotImplementedError
-
-
 
