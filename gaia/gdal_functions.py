@@ -1,13 +1,12 @@
 import json
-from geopandas import GeoDataFrame
 from osgeo import gdal, gdalnumeric, ogr, osr
 from PIL import Image, ImageDraw
 
 
 def gdal_reproject(src, dst,
-              epsg=3857,
-              error_threshold=0.125,
-              resampling=gdal.GRA_NearestNeighbour):
+                   epsg=3857,
+                   error_threshold=0.125,
+                   resampling=gdal.GRA_NearestNeighbour):
     """
     Reproject a raster image
     :param src: The source image
@@ -27,10 +26,10 @@ def gdal_reproject(src, dst,
     # Call AutoCreateWarpedVRT() to fetch default values
     # for target raster dimensions and geotransform
     reprojected_ds = gdal.AutoCreateWarpedVRT(src_ds,
-                                      None,
-                                      dst_wkt,
-                                      resampling,
-                                      error_threshold)
+                                              None,
+                                              dst_wkt,
+                                              resampling,
+                                              error_threshold)
 
     # Create the final warped raster
     gdal.GetDriverByName('GTiff').CreateCopy(dst, reprojected_ds)
@@ -42,8 +41,10 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     This function will subset a raster by a vector polygon.
     Adapted from the GDAL/OGR Python Cookbook at
     https://pcjericks.github.io/py-gdalogr-cookbook
-    :param raster_file: Image to be subset
-    :param poly_json: A JSON string representation of a polygon
+    :param raster_input: raster input filepath
+    :param raster_output: raster output filepath
+    :param polygon_json: polygon as geojson string
+    :param nodata: nodata value for output raster file
     :return:
     """
 
@@ -52,18 +53,9 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
         Converts a Python Imaging Library array to a
         gdalnumeric image.
         """
-        a=gdalnumeric.fromstring(i.tobytes(),'b')
-        a.shape=i.im.size[1], i.im.size[0]
+        a = gdalnumeric.fromstring(i.tobytes(), 'b')
+        a.shape = i.im.size[1], i.im.size[0]
         return a
-
-    def array_to_image(a):
-        """
-        Converts a gdalnumeric array to a
-        Python Imaging Library Image.
-        """
-        i=Image.frombytes('L',(a.shape[1],a.shape[0]),
-                (a.astype('b')).tobytes())
-        return i
 
     def world_to_pixel(geoMatrix, x, y):
         """
@@ -77,19 +69,19 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
         line = int((ulY - y) / xDist)
         return (pixel, line)
 
-    def OpenArray( array, prototype_ds = None, xoff=0, yoff=0 ):
+    def OpenArray(array, prototype_ds=None, xoff=0, yoff=0):
         """
         EDIT: this is basically an overloaded
         version of the gdal_array.OpenArray passing in xoff, yoff explicitly
         so we can pass these params off to CopyDatasetInfo
         """
-        ds = gdal.Open( gdalnumeric.GetArrayFilename(array) )
+        ds = gdal.Open(gdalnumeric.GetArrayFilename(array))
 
         if ds is not None and prototype_ds is not None:
             if type(prototype_ds).__name__ == 'str':
-                prototype_ds = gdal.Open( prototype_ds )
+                prototype_ds = gdal.Open(prototype_ds)
             if prototype_ds is not None:
-                gdalnumeric.CopyDatasetInfo( prototype_ds, ds, xoff=xoff, yoff=yoff )
+                gdalnumeric.CopyDatasetInfo(prototype_ds, ds, xoff=xoff, yoff=yoff)
         return ds
 
     src_image = get_Dataset(raster_input)
@@ -124,8 +116,8 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     clip = src_array[ul_y:lr_y, ul_x:lr_x]
 
     # create pixel offset to pass to new image Projection info
-    xoffset =  ul_x
-    yoffset =  ul_y
+    xoffset = ul_x
+    yoffset = ul_y
 
     # Create a new geomatrix for the image
     geo_trans = list(geo_trans)
@@ -143,23 +135,23 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
         pixels = []
         pts = poly.GetGeometryRef(i)
         if pts.GetPointCount() == 0:
-            #MultiPolygon
             pts = pts.GetGeometryRef(0)
         for p in range(pts.GetPointCount()):
-          points.append((pts.GetX(p), pts.GetY(p)))
+            points.append((pts.GetX(p), pts.GetY(p)))
         for p in points:
-          pixels.append(world_to_pixel(geo_trans, p[0], p[1]))
+            pixels.append(world_to_pixel(geo_trans, p[0], p[1]))
         rasterize.polygon(pixels, 0)
     mask = image_to_array(raster_poly)
 
     # Clip the image using the mask
     clip = gdalnumeric.choose(mask, (clip, nodata_value)).astype(src_dtype)
 
-    gtiff_driver = gdal.GetDriverByName( 'GTiff' )
+    gtiff_driver = gdal.GetDriverByName('GTiff')
     if gtiff_driver is None:
         raise ValueError("Can't find GeoTiff Driver")
-    subset_raster = gtiff_driver.CreateCopy(raster_output,
-        OpenArray(clip, prototype_ds=raster_input, xoff=xoffset, yoff=yoffset)
+    subset_raster = gtiff_driver.CreateCopy(
+        raster_output, OpenArray(
+            clip, prototype_ds=raster_input, xoff=xoffset, yoff=yoffset)
     )
     for i in range(subset_raster.RasterCount):
         band = subset_raster.GetRasterBand(i+1)
@@ -177,5 +169,3 @@ def get_Dataset(object):
         return object
     else:
         return gdal.Open(object)
-
-

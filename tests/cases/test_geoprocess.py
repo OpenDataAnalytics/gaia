@@ -3,7 +3,8 @@ import os
 import unittest
 from zipfile import ZipFile
 import shutil
-from gaia.core import GaiaRequestParser
+from gaia import formats
+from gaia.parser import GaiaRequestParser
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data/geoprocess')
@@ -20,15 +21,22 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('within',
                                     data=json_body).process
-        process.compute()
-        output = json.loads(process.output.data)
-        with open(os.path.join(
-                testfile_path,
-                'within_nested_buffer_process_result.json')) as exp:
-            expected_json = json.load(exp)
-        self.assertIn('features', output)
-        self.assertEquals(len(expected_json['features']),
-                          len(output['features']))
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'within_nested_buffer_process_result.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_process_intersects(self):
         """Test Intersects process"""
@@ -38,15 +46,20 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('intersects',
                                     data=json_body).process
-        process.compute()
-        output = json.loads(process.output.data)
-        with open(os.path.join(
-                testfile_path,
-                'intersects_process_results.json')) as exp:
-            expected_json = json.load(exp)
-        self.assertIn('features', output)
-        self.assertEquals(len(expected_json['features']),
-                          len(output['features']))
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'intersects_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_process_difference(self):
         """Test Difference Process"""
@@ -56,16 +69,20 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('difference',
                                     data=json_body).process
-        process.compute()
-        output = json.loads(process.output.data)
-        with open(os.path.join(
-                testfile_path,
-                'difference_process_results.json')) as exp:
-            expected_json = json.load(exp)
-        self.assertIn('features', output)
-        self.assertEquals(len(expected_json['features']),
-                          len(output['features']))
-
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'difference_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_process_union(self):
         """Test Union Process"""
@@ -75,15 +92,20 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('union',
                                     data=json_body).process
-        process.compute()
-        output = json.loads(process.output.data)
-        with open(os.path.join(
-                testfile_path,
-                'union_process_results.json')) as exp:
-            expected_json = json.load(exp)
-        self.assertIn('features', output)
-        self.assertEquals(len(expected_json['features']),
-                          len(output['features']))
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'union_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
 
     def test_process_controid(self):
@@ -94,15 +116,20 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('centroid',
                                     data=json_body).process
-        process.compute()
-        output = json.loads(process.output.data)
-        with open(os.path.join(
-                testfile_path,
-                'centroid_process_results.json')) as exp:
-            expected_json = json.load(exp)
-        self.assertIn('features', output)
-        self.assertEquals(len(expected_json['features']),
-                          len(output['features']))
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'centroid_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_process_distance(self):
         """Test Distance Process"""
@@ -112,15 +139,20 @@ class TestGaiaRequestParser(unittest.TestCase):
         json_body = json.loads(body_text)
         process = GaiaRequestParser('distance',
                                     data=json_body).process
-        process.compute()
-        output = json.loads(process.output.data)
-        with open(os.path.join(
-                testfile_path,
-                'distance_process_results.json')) as exp:
-            expected_json = json.load(exp)
-        self.assertIn('features', output)
-        self.assertEquals(len(expected_json['features']),
-                          len(output['features']))
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'distance_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_process_subset_raster(self):
         """Test raster subset process with a raster file and geojson file"""
@@ -135,11 +167,13 @@ class TestGaiaRequestParser(unittest.TestCase):
             zipfile.extract('2states.geojson', testfile_path)
             process.compute()
             self.assertEquals(type(process.output.data).__name__, 'Dataset')
-            self.assertTrue(os.path.exists(process.output.file))
+            self.assertTrue(os.path.exists(process.output.uri))
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
         finally:
             testfile = os.path.join(testfile_path, '2states.geojson')
             if os.path.exists(testfile):
                 os.remove(testfile)
-            if process.output and process.output.file:
-                shutil.rmtree(os.path.dirname(process.output.file))
+            if process:
+                process.purge()
 
