@@ -1,8 +1,12 @@
 import argparse
+import traceback
 import json
+import os
 from six import string_types
-from gaia.processes import create_process
-from gaia.inputs import *
+import gaia.formats
+import gaia.inputs
+from gaia.core import GaiaException
+import importlib
 
 
 class GaiaRequestParser(object):
@@ -39,21 +43,21 @@ class GaiaRequestParser(object):
 
 def is_vector(filename):
     try:
-        return os.path.splitext(filename)[1] in formats.VECTOR
+        return os.path.splitext(filename)[1] in gaia.formats.VECTOR
     except IndexError:
         return False
 
 
 def create_io(process, name, data):
     if data['type'] == 'file':
-        io = VectorFileIO(name, **data) if is_vector(
-            data['uri']) else RasterFileIO(name, **data)
+        io = gaia.inputs.VectorFileIO(name, **data) if is_vector(
+            data['uri']) else gaia.inputs.RasterFileIO(name, **data)
         return io
     elif data['type'] == 'process':
         process_name = data['process']['name']
         parser = GaiaRequestParser(process_name,
                                    data=data['process'], parent=process.id)
-        return ProcessIO(name, process=parser.process)
+        return gaia.inputs.ProcessIO(name, process=parser.process)
     # elif data['type'] == 'girder':
     #     return GirderIO(**data)
     # elif data['type'] == 'wfs':
@@ -67,6 +71,20 @@ def create_io(process, name, data):
     #     return PostgisIO(**data)
     else:
         raise NotImplementedError()
+
+
+def create_process(name, parent=None):
+    """
+    Return an object of a particular Process class based on the input string.
+    :param name:
+    :return:
+    """
+    m = importlib.import_module('gaia.processes')
+    try:
+        class_name = '{}Process'.format(name[0].capitalize() + name[1:])
+        return getattr(m, class_name)(parent=parent)
+    except AttributeError:
+        raise GaiaException(traceback.format_exc())
 
 
 def parse_request(process, request_json):

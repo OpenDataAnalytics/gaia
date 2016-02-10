@@ -1,11 +1,9 @@
 import os
 import errno
 import geopandas
-import uuid
 import gdal
 import shutil
 import osr
-import datatypes
 import formats
 from gaia.core import GaiaException, config
 from gaia.gdal_functions import gdal_reproject
@@ -184,7 +182,6 @@ class ProcessIO(GaiaIO):
         self.process = process
         self.default_output = process.default_output
 
-
     def read(self, standardize=True):
         if self.data is None:
             self.process.compute()
@@ -209,4 +206,3 @@ class PostgisIO(GaiaIO):
     def __init__(self, name, connection='', **kwargs):
         super(PostgisIO, self).__init__(name, **kwargs)
         raise NotImplementedError
-

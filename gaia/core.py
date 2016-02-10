@@ -14,6 +14,11 @@ class GaiaException(Exception):
 
 
 def get_abspath(inpath):
+    """
+    Get absolute path of a path string
+    :param inpath: file path string
+    :return: absolute path as string
+    """
     if not os.path.isabs(inpath):
         return os.path.abspath(os.path.join(base_dir, inpath))
 
