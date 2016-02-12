@@ -9,7 +9,7 @@ from gaia.gdal_functions import gdal_clip
 import numpy as np
 import pandas as pd
 
-logger = logging.getLogger('gaia')
+logger = logging.getLogger('gaia.processes')
 
 
 class GaiaProcess(object):
@@ -17,6 +17,8 @@ class GaiaProcess(object):
     Defines a process to run on geospatial inputs
     """
 
+    # TODO: Enforce required inputs and args
+    required_inputs = tuple()
     required_args = tuple()
 
     def __init__(self, inputs=None, output=None, args=None, parent=None):
@@ -44,7 +46,9 @@ class GaiaProcess(object):
 
 class BufferProcess(GaiaProcess):
     """
-       --------- BUFFER PROCESS ------------
+    Generates a buffer polygon around the geometries of the input data.
+    The size of the buffer is determined by the 'buffer_size' args key
+    and should be in the units of the default projection.
     """
     required_inputs = (('input', formats.VECTOR),)
     required_args = ('buffer_size',)
@@ -67,43 +71,22 @@ class BufferProcess(GaiaProcess):
         logger.debug(self.output)
 
 
-class SubsetVectorProcess(GaiaProcess):
+class SubsetProcess(GaiaProcess):
     """
-       --------- SUBSET VECTOR PROCESS ------------
-    """
-    required_inputs = (('input', formats.ALL),)
-    required_args = ('subset_area',)
-    default_output = formats.JSON
-
-    def __init__(self, **kwargs):
-        super(SubsetVectorProcess, self).__init__(**kwargs)
-        if not self.output:
-            self.output = VectorFileIO('result',
-                                       uri=self.get_outpath())
-
-    def compute(self):
-        super(SubsetVectorProcess, self).compute()
-        self.output = {
-            "Process": "Subset; real output will be GeoJSON FeatureCollection"
-        }
-        logger.debug(self.output)
-
-
-class SubsetRasterProcess(GaiaProcess):
-    """
-       --------- SUBSET RASTER PROCESS ------------
+    Generates a raster datset representing the portion of the input raster
+    dataset that is contained within a vector polygon.
     """
     required_inputs = (('clip', formats.JSON), ('raster', formats.RASTER))
     default_output = formats.RASTER
 
     def __init__(self, **kwargs):
-        super(SubsetRasterProcess, self).__init__(**kwargs)
+        super(SubsetProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = RasterFileIO('result',
                                        uri=self.get_outpath())
 
     def compute(self):
-        super(SubsetRasterProcess, self).compute()
+        super(SubsetProcess, self).compute()
         clip_df = None
         raster_img = None
         for input in self.inputs:
@@ -120,7 +103,9 @@ class SubsetRasterProcess(GaiaProcess):
 
 class WithinProcess(GaiaProcess):
     """
-       --------- WITHIN PROCESS ------------
+    Similar to SubsetProcess but for vectors: calculates the features within
+    a vector dataset that are within (or whose centroids are within) the
+    polygons of a second vector dataset.
     """
 
     default_output = formats.JSON
@@ -150,7 +135,8 @@ class WithinProcess(GaiaProcess):
 
 class IntersectsProcess(GaiaProcess):
     """
-       --------- INTERSECTS PROCESS ------------
+    Calculates the features within the first vector dataset that touch
+    the features of the second vector dataset.
     """
 
     default_output = formats.JSON
@@ -177,7 +163,8 @@ class IntersectsProcess(GaiaProcess):
 
 class DifferenceProcess(GaiaProcess):
     """
-       --------- DIFFERENCE PROCESS ------------
+    Calculates which features of the first vector dataset do not
+    intersect the features of the second dataset.
     """
 
     default_output = formats.JSON
@@ -206,7 +193,7 @@ class DifferenceProcess(GaiaProcess):
 
 class UnionProcess(GaiaProcess):
     """
-       --------- UNION PROCESS ------------
+    Combines two vector datasets into one.
     """
 
     default_output = formats.JSON
@@ -234,7 +221,7 @@ class UnionProcess(GaiaProcess):
 
 class CentroidProcess(GaiaProcess):
     """
-       --------- CENTROID PROCESS ------------
+    Calculates the centroid point of a vector dataset.
     """
 
     default_output = formats.JSON
@@ -264,7 +251,8 @@ class CentroidProcess(GaiaProcess):
 
 class DistanceProcess(GaiaProcess):
     """
-       --------- DISTANCE PROCESS ------------
+    Calculates the minimum distance from each feature of the first dataset
+    to the nearest feature of the second dataset.
     """
 
     default_output = formats.JSON
