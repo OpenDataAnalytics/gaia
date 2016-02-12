@@ -161,7 +161,7 @@ class TestGaiaRequestParser(unittest.TestCase):
             body_text = inf.read().replace('{basepath}', testfile_path)
             process_json = json.loads(body_text)
         zipfile = ZipFile(os.path.join(testfile_path, '2states.zip'), 'r')
-        process = GaiaRequestParser('subsetRaster',
+        process = GaiaRequestParser('subset',
                                     data=process_json).process
         try:
             zipfile.extract('2states.geojson', testfile_path)
