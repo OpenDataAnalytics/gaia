@@ -1,6 +1,21 @@
+import string
+import sys
+import os
 import json
+import logging
+
+import gdalconst
+import numpy
 from osgeo import gdal, gdalnumeric, ogr, osr
 from PIL import Image, ImageDraw
+from osgeo.gdal_array import BandReadAsArray, BandWriteArray
+
+from gaia.core import GaiaException
+
+from optparse import OptionParser
+
+
+logger = logging.getLogger('gaia.gdal_functions')
 
 
 def gdal_reproject(src, dst,
@@ -16,7 +31,7 @@ def gdal_reproject(src, dst,
     :param resampling: Default method is Nearest Neighbor
     """
     # Open source dataset
-    src_ds = get_Dataset(src)
+    src_ds = get_dataset(src)
 
     # Define target SRS
     dst_srs = osr.SpatialReference()
@@ -84,7 +99,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
                 gdalnumeric.CopyDatasetInfo(prototype_ds, ds, xoff=xoff, yoff=yoff)
         return ds
 
-    src_image = get_Dataset(raster_input)
+    src_image = get_dataset(raster_input)
     # Load the source data as a gdalnumeric array
     src_array = src_image.ReadAsArray()
     src_dtype = src_array.dtype
@@ -159,7 +174,196 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     return subset_raster
 
 
-def get_Dataset(object):
+def gdal_resize(dataset, dimensions, projection, transform):
+    """
+    Transform a dataset to the specified dimensions and projection/bounds
+    :param dataset: Dataset to be resized
+    :param dimensions: dimensions to resize to (X, Y)
+    :param projection: Projection of of resized dataset
+    :param transform: Geotransform of resized dataset
+    :return: Resized dataset
+    """
+    raise NotImplementedError()
+
+
+def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allBands=None, output_type=None):
+    """
+    Adopted from GDAL 1.10 gdal_calc.py script.
+    :param calculation: equation to calculate, such as A + (B / 2)
+    :param raster_output: Raster file to save output as
+    :param rasters: array of rasters, the number should be equal to the number of letters in calculation
+    :param bands: array of band numbers, one for each raster in rasters array
+    :param nodata: NoDataValue to use in output raster
+    :param allBands: The
+    :param output_type: data type for output raster ('Float32', 'Uint16', etc)
+    :return: gdal Dataset
+    """
+    # set up some lists to store data for each band
+    datasets=[get_dataset(raster) for raster in rasters]
+    if not bands:
+        bands=[1 for raster in rasters]
+    datatypes=[]
+    datatype_nums=[]
+    nodata_vals=[]
+    dimensions=None
+    alpha_list = string.uppercase[:len(rasters)]
+
+    ndv_lookup = {'Byte': 255, 'UInt16': 65535, 'Int16': -32767, 'UInt32': 4294967293, 'Int32': -2147483647,
+                  'Float32': 1.175494351E-38, 'Float64': 1.7976931348623158E+308}
+
+    # loop through input files - checking dimensions
+    for i, (raster, alpha, band) in enumerate(zip(datasets, alpha_list, bands)):
+        raster_band = raster.GetRasterBand(band)
+        datatypes.append(gdal.GetDataTypeName(raster_band.DataType))
+        datatype_nums.append(raster_band.DataType)
+        nodata_vals.append(raster_band.GetNoDataValue())
+        # check that the dimensions of each layer are the same as the first
+        if dimensions:
+            if dimensions != [datasets[0].RasterXSize, datasets[0].RasterYSize]:
+                datasets[i] = gdal_resize(raster,
+                                          dimensions,
+                                          datasets[0].GetProjection(),
+                                          datasets[0].GetGeoTransform())
+        else:
+            dimensions_check = [datasets[i].RasterXSize, datasets[i].RasterYSize]
+
+    # process allBands option
+    allbandsindex=None
+    allbandscount=1
+    if allBands:
+        allbandscount=datasets[allbandsindex].RasterCount
+        if allbandscount <= 1:
+            allbandsindex=None
+
+    ################################################################
+    # set up output file
+    ################################################################
+
+    # open output file exists
+    # remove existing file and regenerate
+    if os.path.isfile(raster_output):
+        os.remove(raster_output)
+    # create a new file
+    logger.debug("Generating output file %s" % (raster_output))
+
+    # find data type to use
+    if not output_type:
+        # use the largest type of the input files
+        output_type=gdal.GetDataTypeName(max(datatype_nums))
+
+    # create file
+    output_driver = gdal.GetDriverByName('GTiff')
+    output_dataset = output_driver.Create(
+        raster_output, dimensions_check[0], dimensions_check[1], allbandscount,
+        gdal.GetDataTypeByName(output_type))
+
+    # set output geo info based on first input layer
+    output_dataset.SetGeoTransform(datasets[0].GetGeoTransform())
+    output_dataset.SetProjection(datasets[0].GetProjection())
+
+    if nodata is None:
+        nodata = ndv_lookup[output_type]
+
+    for i in range(1, allbandscount+1):
+        output_band = output_dataset.GetRasterBand(i)
+        output_band.SetNoDataValue(nodata)
+        # write to band
+        output_band = None
+
+    ################################################################
+    # find block size to chop grids into bite-sized chunks
+    ################################################################
+
+    # use the block size of the first layer to read efficiently
+    block_size = datasets[0].GetRasterBand(bands[0]).GetBlockSize();
+    # store these numbers in variables that may change later
+    n_x_valid = block_size[0]
+    n_y_valid = block_size[1]
+    # find total x and y blocks to be read
+    n_x_blocks = int((dimensions_check[0] + block_size[0] - 1) / block_size[0])
+    n_y_blocks = int((dimensions_check[1] + block_size[1] - 1) / block_size[1])
+    buffer_size = block_size[0]*block_size[1]
+
+    ################################################################
+    # start looping through each band in allbandscount
+    ################################################################
+
+    for band_num in range(1, allbandscount+1):
+
+        ################################################################
+        # start looping through blocks of data
+        ################################################################
+
+        # loop through X-lines
+        for x in range(0, n_x_blocks):
+
+            # in the rare (impossible?) case that the blocks don't fit perfectly
+            # change the block size of the final piece
+            if x == n_x_blocks-1:
+                n_x_valid = dimensions_check[0] - x * block_size[0]
+                buffer_size = n_x_valid*n_y_valid
+
+            # find X offset
+            x_offset = x*block_size[0]
+
+            # reset buffer size for start of Y loop
+            n_y_valid = block_size[1]
+            buffer_size = n_x_valid*n_y_valid
+
+            # loop through Y lines
+            for y in range(0, n_y_blocks):
+                # change the block size of the final piece
+                if y == n_y_blocks-1:
+                    n_y_valid = dimensions_check[1] - y * block_size[1]
+                    buffer_size = n_x_valid*n_y_valid
+
+                # find Y offset
+                y_offset = y*block_size[1]
+
+                # create empty buffer to mark where nodata occurs
+                nodatavalues = numpy.zeros(buffer_size)
+                nodatavalues.shape=(n_y_valid, n_x_valid)
+
+                # fetch data for each input layer
+                for i, alpha in enumerate(alpha_list):
+
+                    # populate lettered arrays with values
+                    if allbandsindex is not None and allbandsindex == i:
+                        this_band=band_num
+                    else:
+                        this_band=bands[i]
+                    band_vals = BandReadAsArray(datasets[i].GetRasterBand(this_band),
+                                                xoff=x_offset,
+                                                yoff=y_offset,
+                                                win_xsize=n_x_valid,
+                                                win_ysize=n_y_valid)
+
+                    # fill in nodata values
+                    nodatavalues = 1*numpy.logical_or(nodatavalues==1, band_vals == nodata_vals[i])
+
+                    # create an array of values for this block
+                    exec("%s=band_vals" %alpha)
+                    band_vals=None
+
+                # try the calculation on the array blocks
+                try:
+                    calc_result = eval(calculation)
+                except:
+                    logger.error("evaluation of calculation %s failed" % calculation)
+                    raise
+
+                # propogate nodata values
+                # (set nodata cells to zero then add nodata value to these cells)
+                calc_result = ((1*(nodatavalues==0))*calc_result) + (nodata*nodatavalues)
+
+                # write data block to the output file
+                output_band=output_dataset.GetRasterBand(band_num)
+                BandWriteArray(output_band, calc_result, xoff=x_offset, yoff=y_offset)
+
+    return output_dataset
+
+
+def get_dataset(object):
     """
     Given an object, try returning a GDAL Dataset
     :param object:
@@ -168,4 +372,40 @@ def get_Dataset(object):
     if type(object).__name__ == 'Dataset':
         return object
     else:
-        return gdal.Open(object)
+        return gdal.Open(object, gdalconst.GA_ReadOnly)
+
+
+if __name__ == '__main__':
+    gdal_calc('A * 5', '/tmp/abadd2a.tiff',
+              rasters=[
+                '/data/geodata/data/geonode/forecast_io_airtemp/forecast_io_airtemp_20160205T130000000Z.tif',
+                '/data/geodata/data/geonode/forecast_io_airtemp/forecast_io_airtemp_20160208T140000000Z.tif'],
+              output_type='Float32'
+              )
+    # import rasterio
+    # from rasterio.warp import calculate_default_transform, reproject, RESAMPLING
+    #
+    # dst_crs = {'init': u'epsg:3857'}
+    #
+    # with rasterio.open('/Users/mbertrand/Downloads/forecast_air_temp_clip.tif') as src:
+    #     affine, width, height = calculate_default_transform(
+    #         src.crs, dst_crs, src.width, src.height, *src.bounds, densify_pts=0)
+    #     kwargs = src.meta.copy()
+    #     kwargs.update({
+    #         'crs': dst_crs,
+    #         'transform': affine,
+    #         'affine': affine,
+    #         'width': width,
+    #         'height': height
+    #     })
+    #
+    #     with rasterio.open('/Users/mbertrand/Downloads/test_forecastio_3857_again.tif', 'w', **kwargs) as dst:
+    #         for i in range(1, src.count + 1):
+    #             reproject(
+    #                 source=rasterio.band(src, i),
+    #                 destination=rasterio.band(dst, i),
+    #                 src_transform=src.affine,
+    #                 src_crs=src.crs,
+    #                 dst_transform=affine,
+    #                 dst_crs=dst_crs,
+    #                 resampling=RESAMPLING.nearest)
