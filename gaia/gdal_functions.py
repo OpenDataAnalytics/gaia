@@ -51,6 +51,37 @@ def gdal_reproject(src, dst,
     return reprojected_ds
 
 
+def gdal_resize(raster, dimensions, projection, transform):
+    """
+    Transform a dataset to the specified dimensions and projection/bounds
+    :param dataset: Dataset to be resized
+    :param dimensions: dimensions to resize to (X, Y)
+    :param projection: Projection of of resized dataset
+    :param transform: Geotransform of resized dataset
+    :return: Resized dataset
+    """
+    dataset = get_dataset(raster)
+    bounds_ul = [transform[0], transform[3]]
+    bounds_lr = [transform[0] + (transform[1] * dimensions[0]) + (transform[2] * dimensions[1]),
+            transform[3] + (transform[4] * dimensions[0]) + (transform[5] * dimensions[1])]
+    bounds = bounds_ul + bounds_lr
+    datatype = dataset.GetRasterBand(1).DataType
+    resized_ds = gdal.GetDriverByName('MEM').Create('', dimensions[0], dimensions[1],  dataset.RasterCount, datatype)
+    for i in range(1, resized_ds.RasterCount+1):
+        nodatavalue = dataset.GetRasterBand(i).GetNoDataValue()
+        resized_band = resized_ds.GetRasterBand(i)
+        resized_arr = resized_band.ReadAsArray()
+        resized_arr[resized_arr == 0] = nodatavalue
+        resized_band.WriteArray(resized_arr)
+        resized_band.SetNoDataValue(nodatavalue)
+
+    resized_ds.SetGeoTransform(transform)
+    resized_ds.SetProjection(projection)
+
+    gdal.ReprojectImage(dataset, resized_ds)
+    return resized_ds
+
+
 def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     """
     This function will subset a raster by a vector polygon.
@@ -174,18 +205,6 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     return subset_raster
 
 
-def gdal_resize(dataset, dimensions, projection, transform):
-    """
-    Transform a dataset to the specified dimensions and projection/bounds
-    :param dataset: Dataset to be resized
-    :param dimensions: dimensions to resize to (X, Y)
-    :param projection: Projection of of resized dataset
-    :param transform: Geotransform of resized dataset
-    :return: Resized dataset
-    """
-    raise NotImplementedError()
-
-
 def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allBands=None, output_type=None):
     """
     Adopted from GDAL 1.10 gdal_calc.py script.
@@ -219,13 +238,13 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
         nodata_vals.append(raster_band.GetNoDataValue())
         # check that the dimensions of each layer are the same as the first
         if dimensions:
-            if dimensions != [datasets[0].RasterXSize, datasets[0].RasterYSize]:
+            if dimensions != [datasets[i].RasterXSize, datasets[i].RasterYSize]:
                 datasets[i] = gdal_resize(raster,
                                           dimensions,
                                           datasets[0].GetProjection(),
                                           datasets[0].GetGeoTransform())
         else:
-            dimensions_check = [datasets[i].RasterXSize, datasets[i].RasterYSize]
+            dimensions = [datasets[0].RasterXSize, datasets[0].RasterYSize]
 
     # process allBands option
     allbandsindex=None
@@ -254,7 +273,7 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
     # create file
     output_driver = gdal.GetDriverByName('GTiff')
     output_dataset = output_driver.Create(
-        raster_output, dimensions_check[0], dimensions_check[1], allbandscount,
+        raster_output, dimensions[0], dimensions[1], allbandscount,
         gdal.GetDataTypeByName(output_type))
 
     # set output geo info based on first input layer
@@ -280,8 +299,8 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
     n_x_valid = block_size[0]
     n_y_valid = block_size[1]
     # find total x and y blocks to be read
-    n_x_blocks = int((dimensions_check[0] + block_size[0] - 1) / block_size[0])
-    n_y_blocks = int((dimensions_check[1] + block_size[1] - 1) / block_size[1])
+    n_x_blocks = int((dimensions[0] + block_size[0] - 1) / block_size[0])
+    n_y_blocks = int((dimensions[1] + block_size[1] - 1) / block_size[1])
     buffer_size = block_size[0]*block_size[1]
 
     ################################################################
@@ -300,7 +319,7 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
             # in the rare (impossible?) case that the blocks don't fit perfectly
             # change the block size of the final piece
             if x == n_x_blocks-1:
-                n_x_valid = dimensions_check[0] - x * block_size[0]
+                n_x_valid = dimensions[0] - x * block_size[0]
                 buffer_size = n_x_valid*n_y_valid
 
             # find X offset
@@ -314,7 +333,7 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
             for y in range(0, n_y_blocks):
                 # change the block size of the final piece
                 if y == n_y_blocks-1:
-                    n_y_valid = dimensions_check[1] - y * block_size[1]
+                    n_y_valid = dimensions[1] - y * block_size[1]
                     buffer_size = n_x_valid*n_y_valid
 
                 # find Y offset
@@ -373,39 +392,3 @@ def get_dataset(object):
         return object
     else:
         return gdal.Open(object, gdalconst.GA_ReadOnly)
-
-
-if __name__ == '__main__':
-    gdal_calc('A * 5', '/tmp/abadd2a.tiff',
-              rasters=[
-                '/data/geodata/data/geonode/forecast_io_airtemp/forecast_io_airtemp_20160205T130000000Z.tif',
-                '/data/geodata/data/geonode/forecast_io_airtemp/forecast_io_airtemp_20160208T140000000Z.tif'],
-              output_type='Float32'
-              )
-    # import rasterio
-    # from rasterio.warp import calculate_default_transform, reproject, RESAMPLING
-    #
-    # dst_crs = {'init': u'epsg:3857'}
-    #
-    # with rasterio.open('/Users/mbertrand/Downloads/forecast_air_temp_clip.tif') as src:
-    #     affine, width, height = calculate_default_transform(
-    #         src.crs, dst_crs, src.width, src.height, *src.bounds, densify_pts=0)
-    #     kwargs = src.meta.copy()
-    #     kwargs.update({
-    #         'crs': dst_crs,
-    #         'transform': affine,
-    #         'affine': affine,
-    #         'width': width,
-    #         'height': height
-    #     })
-    #
-    #     with rasterio.open('/Users/mbertrand/Downloads/test_forecastio_3857_again.tif', 'w', **kwargs) as dst:
-    #         for i in range(1, src.count + 1):
-    #             reproject(
-    #                 source=rasterio.band(src, i),
-    #                 destination=rasterio.band(dst, i),
-    #                 src_transform=src.affine,
-    #                 src_crs=src.crs,
-    #                 dst_transform=affine,
-    #                 dst_crs=dst_crs,
-    #                 resampling=RESAMPLING.nearest)
