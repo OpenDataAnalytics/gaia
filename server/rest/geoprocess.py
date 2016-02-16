@@ -3,8 +3,9 @@ from girder.api import access
 from girder.api.describe import Description
 from girder.utility import config
 import cherrypy
-from gaia.core import GaiaRequestParser
-
+import json
+from gaia.parser import GaiaRequestParser
+import gaia.formats
 
 class GeoProcess(Resource):
     """Make various gaia requests on Girder data."""
@@ -24,11 +25,11 @@ class GeoProcess(Resource):
         json_body = self.getBodyJson()
 
         process = GaiaRequestParser(
-            geoprocess, data=json_body, config=self.config).process
+            geoprocess, data=json_body).process
 
         # assume output is GeoJSON or GeoTIFF
         process.compute()
-        result = process.output.data
+        result = json.loads(process.output.read(format=gaia.formats.JSON))
         if not isinstance(result, dict):
             setRawResponse(True)
             cherrypy.response.headers['Content-Type'] = 'image/tiff'

@@ -15,7 +15,8 @@ Table of Contents
    :maxdepth: 2
 
    installation
-   simplewps
+   usage
+   gaia
 
 .. _Girder: http://www.github.com/Girder/girder
 .. _Kitware: http://www.kitware.com

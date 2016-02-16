@@ -17,48 +17,24 @@ Update apt package indices before you start.
 
     sudo apt-get update
 
--  See `Girder system prerequisites for Ubuntu`_
--  See `Girder install from source`_
-
-.. _Girder system prerequisites for Ubuntu: http://girder.readthedocs.org/en/latest/prerequisites.html#debian-ubuntu
-.. _Girder install from source: http://girder.readthedocs.org/en/latest/installation.html#install-from-git-checkout
-
 
 - Install Gaia system dependencies
 
 ::
 
-    sudo apt-get install libfreetype6-dev libpng12-dev pkg-config libgdal-dev
+    sudo apt-get python-dev libgdal-dev
 
-- Install Romanesco dev system dependencies
 
-::
-
-    sudo apt-get install libxml2-dev libxslt1-dev
-
-Fedora 22
-^^^^^^^^^
+Install of Gaia and requirements via pip
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    sudo dnf install git gcc-c++ libffi-devel make python-devel python-pip freetype-devel geos-devel gdal-devel netcdf-devel hdf5-devel
-
--  See `installing mongo on Red Hat`_
--  See `installing node.js on Red Hat`_
-
-.. _installing mongo on Red Hat: http://docs.mongodb.org/manual/tutorial/install-mongodb-on-red-hat/#install-mongodb
-.. _installing node.js on Red Hat: https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora
+    pip install -r requirements.txt
+    pip install -r requirements-dev.txt
+    pip install -e .
 
 
-Setup Girder admin user and assetstore
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- `Run Girder`_ to ensure that it works.  Mongo should already be running, and you should follow the instructions for a source tree install.
-
-.. _Run Girder: http://girder.readthedocs.org/en/latest/installation.html#run
-- Navigate to Girder in your browser, register an admin user.
-- Navigate to the Admin console in Girder, when you are logged in as an admin user, then click on the Assetstores section.
-- Create a default Assetstore.
 
 Install of Gaia as a Girder plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
