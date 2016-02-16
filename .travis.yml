@@ -1,6 +1,6 @@
 language: python
 
-sudo: false
+sudo: required
 
 addons:
   apt:
@@ -10,16 +10,9 @@ addons:
 
 python:
   - "2.7"
-  - "3.3"
-  - "3.4"
 
 before_install:
-  - pushd "${HOME}"
-  - curl -L "http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz" | gunzip -c | tar x
-  - cd cmake-*/bin && export PATH="${PWD}:${PATH}"
-  - popd
-  - cmake --version
-  - env
+  - sudo apt-get -qq update
 
 install:
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
@@ -30,10 +23,4 @@ install:
 
 script:
   - python -m unittest discover
-  - rm -fr tmp; mkdir tmp
-  - pushd tmp
-  - python -c "import gaia; print(gaia.__version__)"
-  - popd
 
-after_success:
-  - if [ "${TRAVIS_PYTHON_VERSION}" != "2.6" ] ; then cd tests/cases; coveralls ; fi
