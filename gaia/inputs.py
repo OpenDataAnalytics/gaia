@@ -5,6 +5,7 @@ import gdal
 import shutil
 import osr
 import formats
+import pysal
 from gaia.core import GaiaException, config
 from gaia.gdal_functions import gdal_reproject
 
@@ -206,3 +207,42 @@ class PostgisIO(GaiaIO):
     def __init__(self, name, connection='', **kwargs):
         super(PostgisIO, self).__init__(name, **kwargs)
         raise NotImplementedError
+
+class WeightFileIO(FileIO):
+    """Read and write vector file data (such as GeoJSON)"""
+
+    default_output = formats.WEIGHT
+
+    def read(self, format=None):
+        if not format:
+            format = self.default_output
+        if self.ext not in formats.WEIGHT:
+            raise UnsupportedFormatException(
+                "Only the following weight formats are supported: {}".format(
+                    ','.join(formats.WEIGHT)
+                )
+            )
+        super(WeightFileIO, self).read()
+        if self.data is None:
+            weightfile = pysal.open(self.uri, 'r')
+            self.data = weightfile.read()
+            weightfile.close()
+        return self.data
+
+    def write(self, filename=None, as_type='gal'):
+        """
+        Write data (assumed pysal weight object) to gal binary weight files
+        :param filename: Base filename
+        :param as_type: gal
+        :return: location of file
+        """
+        if not filename:
+            filename = self.uri
+        self.create_output_dir(filename)
+        if as_type == 'gal':
+            gal = pysal.open(filename, 'w')
+            gal.write(self.data)
+            gal.close()
+        else:
+            raise NotImplementedError('{} not a valid type'.format(as_type))
+        return self.uri

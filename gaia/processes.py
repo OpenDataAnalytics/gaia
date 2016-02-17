@@ -1,13 +1,16 @@
 import logging
 import uuid
 import os
-from geopandas import GeoDataFrame
-from gaia.core import get_abspath, config
-from gaia.inputs import VectorFileIO, RasterFileIO
-import gaia.formats as formats
-from gaia.gdal_functions import gdal_clip
 import numpy as np
 import pandas as pd
+import pysal
+from geopandas import GeoDataFrame
+from gaia.core import get_abspath, config
+from gaia.inputs import VectorFileIO, RasterFileIO, WeightFileIO
+import gaia.formats as formats
+from gaia.gdal_functions import gdal_clip
+import gaia.pysal_weights as wt
+
 
 logger = logging.getLogger('gaia.processes')
 
@@ -287,5 +290,76 @@ class DistanceProcess(GaiaProcess):
         first_df[PROPERTY_NAME] = min_dist
 
         self.output.data = first_df
+        self.output.write()
+        logger.debug(self.output)
+
+class AutocorrelationProcess(GaiaProcess):
+    """
+    Calculate Moran's I global autocorrelation for the input data.
+    Uses contiguity weight (queen) by default. Output all attributes
+    of the Moran's I class object as json.
+    """
+    required_inputs = (('input', formats.VECTOR),)
+    required_args = ('var_col')
+    default_output = formats.JSON
+
+    def __init__(self, **kwargs):
+        super(AutocorrelationProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = VectorFileIO('result',
+                                       uri=self.get_outpath())
+
+    def compute(self):
+        super(AutocorrelationProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'input':
+                first_df = input.read()
+        col = self.args['var_col']
+        # filter out null fields
+        filter_out = first_df[col].isnull()
+        filtered_df = first_df[filter_out != True]
+
+        f = np.array(filtered_df[col])
+        w = wt.gpd_contiguity(filtered_df)
+        mi = pysal.Moran(f, w, two_tailed=True)
+        mi_dict = wt.attr_as_dict(mi)
+
+        self.output.data = mi_dict
+        self.output.write()
+        logger.debug(self.output)
+
+class WeightProcess(GaiaProcess):
+    """
+    Calculate spatial weight.
+    weight_type available includes: contiguity, knnW, distanceBandW, kernel
+    """
+    required_inputs = (('input', formats.VECTOR),)
+    required_args = ('weight_type')
+    default_output = formats.WEIGHT
+
+    def __init__(self, **kwargs):
+        super(WeightProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = WeightFileIO('result',
+                                       uri=self.get_outpath())
+
+    def compute(self):
+        super(WeightProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'input':
+                first_df = input.read()
+        weight_type = self.args['weight_type']
+        if weight_type == 'contiguity':
+            w = wt.gpd_contiguity(first_df)
+        elif weight_type == 'knnW':
+            w = wt.gpd_knnW(first_df)
+        elif weight_type == 'distanceBandW':
+            w = wt.gpd_distanceBandW(first_df)
+        elif weight_type == 'kernel':
+            w = wt.gpd_kernel(first_df)
+        # TODO: add params related to dif weight types
+        else:
+            print u'weight type {0} not available'.format(weight_type)
+        self.output.data = w
         self.output.write()
         logger.debug(self.output)
