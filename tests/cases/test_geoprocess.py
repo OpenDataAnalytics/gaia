@@ -5,6 +5,7 @@ from zipfile import ZipFile
 import shutil
 from gaia import formats
 from gaia.parser import GaiaRequestParser
+import pysal
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data/geoprocess')
@@ -108,7 +109,7 @@ class TestGaiaRequestParser(unittest.TestCase):
                 process.purge()
 
 
-    def test_process_controid(self):
+    def test_process_centroid(self):
         """Test Centroid Process"""
         with open(os.path.join(testfile_path,
                                'centroid_process.json')) as inf:
@@ -177,3 +178,46 @@ class TestGaiaRequestParser(unittest.TestCase):
             if process:
                 process.purge()
 
+    # def test_process_autocorrelation(self):
+    #     """Test Distance Process"""
+    #     with open(os.path.join(testfile_path,
+    #                            'autocorrelation_process.json')) as inf:
+    #         body_text = inf.read().replace('{basepath}', testfile_path)
+    #     json_body = json.loads(body_text)
+    #     process = GaiaRequestParser('autocorrelation',
+    #                                 data=json_body).process
+    #     try:
+    #         process.compute()
+    #         output = json.loads(process.output.read(format=formats.JSON))
+    #         with open(os.path.join(
+    #                 testfile_path,
+    #                 'autocorrelation_process_results.json')) as exp:
+    #             expected_json = json.load(exp)
+    #         self.assertIn('I', output)
+    #         self.assertEquals(len(expected_json['I']),
+    #                           len(output['I']))
+    #     finally:
+    #         pass
+    #         if process:
+    #             process.purge()
+
+    def test_process_weight(self):
+        """Test Weight Process"""
+        with open(os.path.join(testfile_path,
+                               'weight_process.json')) as inf:
+            body_text = inf.read().replace('{basepath}', testfile_path)
+        json_body = json.loads(body_text)
+        process = GaiaRequestParser('weight',
+                                    data=json_body).process
+        try:
+            process.compute()
+            output = process.output.read(format=formats.WEIGHT)
+            exp = pysal.open(os.path.join(testfile_path, 'weight_process_result.gal'), 'r')
+            expected_w = exp.read()
+            exp.close()
+            self.assertEquals(expected_w.n,
+                              output.n)
+        finally:
+            pass
+            if process:
+                process.purge()
