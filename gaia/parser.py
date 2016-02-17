@@ -36,7 +36,7 @@ class GaiaRequestParser(object):
         self.process.args = data['args'] if 'args' in data else None
         self.process.inputs = []
         for input in process_inputs:
-            io = create_io(self.process, input, process_inputs[input])
+            io = create_io(self.process, input)
             self.process.inputs.append(io)
         return self.process
 
@@ -48,16 +48,16 @@ def is_vector(filename):
         return False
 
 
-def create_io(process, name, data):
+def create_io(process, data):
     if data['type'] == 'file':
-        io = gaia.inputs.VectorFileIO(name, **data) if is_vector(
-            data['uri']) else gaia.inputs.RasterFileIO(name, **data)
+        io = gaia.inputs.VectorFileIO(**data) if is_vector(
+            data['uri']) else gaia.inputs.RasterFileIO(**data)
         return io
     elif data['type'] == 'process':
         process_name = data['process']['name']
         parser = GaiaRequestParser(process_name,
                                    data=data['process'], parent=process.id)
-        return gaia.inputs.ProcessIO(name, process=parser.process)
+        return gaia.inputs.ProcessIO(process=parser.process)
     # elif data['type'] == 'girder':
     #     return GirderIO(**data)
     # elif data['type'] == 'wfs':

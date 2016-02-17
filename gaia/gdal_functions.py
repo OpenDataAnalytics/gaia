@@ -1,19 +1,15 @@
 import string
-import sys
 import os
 import json
 import logging
-
 import gdalconst
 import numpy
-from osgeo import gdal, gdalnumeric, ogr, osr
+import gdal
+import gdalnumeric
+import ogr
+import osr
 from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
-
-from gaia.core import GaiaException
-
-from optparse import OptionParser
-
 
 logger = logging.getLogger('gaia.gdal_functions')
 
@@ -99,7 +95,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
         Converts a Python Imaging Library array to a
         gdalnumeric image.
         """
-        a = gdalnumeric.fromstring(i.tobytes(), 'b')
+        a = gdalnumeric.numpy.fromstring(i.tobytes(), 'b')
         a.shape = i.im.size[1], i.im.size[0]
         return a
 
@@ -190,7 +186,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     mask = image_to_array(raster_poly)
 
     # Clip the image using the mask
-    clip = gdalnumeric.choose(mask, (clip, nodata_value)).astype(src_dtype)
+    clip = gdalnumeric.numpy.choose(mask, (clip, nodata_value)).astype(src_dtype)
 
     gtiff_driver = gdal.GetDriverByName('GTiff')
     if gtiff_driver is None:
@@ -217,6 +213,10 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
     :param output_type: data type for output raster ('Float32', 'Uint16', etc)
     :return: gdal Dataset
     """
+
+    ndv_lookup = {'Byte': 255, 'UInt16': 65535, 'Int16': -32767, 'UInt32': 4294967293, 'Int32': -2147483647,
+              'Float32': 1.175494351E-38, 'Float64': 1.7976931348623158E+308}
+
     # set up some lists to store data for each band
     datasets=[get_dataset(raster) for raster in rasters]
     if not bands:
@@ -226,9 +226,6 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
     nodata_vals=[]
     dimensions=None
     alpha_list = string.uppercase[:len(rasters)]
-
-    ndv_lookup = {'Byte': 255, 'UInt16': 65535, 'Int16': -32767, 'UInt32': 4294967293, 'Int32': -2147483647,
-                  'Float32': 1.175494351E-38, 'Float64': 1.7976931348623158E+308}
 
     # loop through input files - checking dimensions
     for i, (raster, alpha, band) in enumerate(zip(datasets, alpha_list, bands)):

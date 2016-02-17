@@ -1,12 +1,8 @@
 {
-  "data_inputs": {
-      "first": {
+  "data_inputs": [
+      {
           "type": "file",
            "uri": "{basepath}/baghdad_districts.geojson"
-      },
-      "second": {
-          "type": "file",
-          "uri": "{basepath}/baghdad_districts.geojson"
       }
-  }
+  ]
 }

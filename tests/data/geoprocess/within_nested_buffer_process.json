@@ -1,28 +1,29 @@
 {
-  "data_inputs": {
-      "first": {
+  "data_inputs": [
+      {
+          "name": "first",
           "type": "file",
           "uri": "{basepath}/iraq_hospitals.geojson"
       },
-      "second": {
+      {
           "type": "process",
           "process": {
               "name": "buffer",
-              "data_inputs": {
-                  "features": {
+              "data_inputs": [
+                  {
                       "type": "file",
                       "uri": "{basepath}/iraq_roads.geojson",
                       "filter": {
                           "type": "motorway"
                       }
                   }
-              },
+              ],
               "args": {
                   "buffer_size": 10000
               }
           }
       }
-  },
+  ],
     "output": {
         "type": "file"
     }

@@ -108,7 +108,7 @@ class TestGaiaRequestParser(unittest.TestCase):
                 process.purge()
 
 
-    def test_process_controid(self):
+    def test_process_centroid(self):
         """Test Centroid Process"""
         with open(os.path.join(testfile_path,
                                'centroid_process.json')) as inf:
