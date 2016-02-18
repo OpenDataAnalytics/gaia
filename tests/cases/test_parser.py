@@ -2,7 +2,6 @@ import json
 import os
 import unittest
 from zipfile import ZipFile
-import shutil
 from gaia import formats
 from gaia.parser import GaiaRequestParser
 
@@ -107,7 +106,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             if process:
                 process.purge()
 
-
     def test_process_centroid(self):
         """Test Centroid Process"""
         with open(os.path.join(testfile_path,
@@ -176,4 +174,3 @@ class TestGaiaRequestParser(unittest.TestCase):
                 os.remove(testfile)
             if process:
                 process.purge()
-

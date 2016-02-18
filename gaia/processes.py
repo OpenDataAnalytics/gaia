@@ -176,8 +176,8 @@ class DifferenceProcess(GaiaProcess):
         first_df = self.inputs[0].read()
         second_df = self.inputs[1].read()
 
-        first_difference = first_df[first_df.geometry.intersects(
-            second_df.geometry.unary_union) == False]
+        first_difference = first_df[-first_df.geometry.intersects(
+            second_df.geometry.unary_union)]
 
         self.output.data = first_difference
         self.output.write()
@@ -312,4 +312,3 @@ class RasterMathProcess(GaiaProcess):
                                      nodata=nodata,
                                      allBands=all_bands,
                                      output_type=otype)
-

@@ -57,12 +57,9 @@ def gdal_resize(raster, dimensions, projection, transform):
     :return: Resized dataset
     """
     dataset = get_dataset(raster)
-    bounds_ul = [transform[0], transform[3]]
-    bounds_lr = [transform[0] + (transform[1] * dimensions[0]) + (transform[2] * dimensions[1]),
-            transform[3] + (transform[4] * dimensions[0]) + (transform[5] * dimensions[1])]
-    bounds = bounds_ul + bounds_lr
     datatype = dataset.GetRasterBand(1).DataType
-    resized_ds = gdal.GetDriverByName('MEM').Create('', dimensions[0], dimensions[1],  dataset.RasterCount, datatype)
+    resized_ds = gdal.GetDriverByName('MEM').Create(
+        '', dimensions[0], dimensions[1],  dataset.RasterCount, datatype)
     for i in range(1, resized_ds.RasterCount+1):
         nodatavalue = dataset.GetRasterBand(i).GetNoDataValue()
         resized_band = resized_ds.GetRasterBand(i)
@@ -123,7 +120,8 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
             if type(prototype_ds).__name__ == 'str':
                 prototype_ds = gdal.Open(prototype_ds)
             if prototype_ds is not None:
-                gdalnumeric.CopyDatasetInfo(prototype_ds, ds, xoff=xoff, yoff=yoff)
+                gdalnumeric.CopyDatasetInfo(
+                    prototype_ds, ds, xoff=xoff, yoff=yoff)
         return ds
 
     src_image = get_dataset(raster_input)
@@ -186,7 +184,8 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     mask = image_to_array(raster_poly)
 
     # Clip the image using the mask
-    clip = gdalnumeric.numpy.choose(mask, (clip, nodata_value)).astype(src_dtype)
+    clip = gdalnumeric.numpy.choose(
+        mask, (clip, nodata_value)).astype(src_dtype)
 
     gtiff_driver = gdal.GetDriverByName('GTiff')
     if gtiff_driver is None:
@@ -201,30 +200,38 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     return subset_raster
 
 
-def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allBands=None, output_type=None):
+def gdal_calc(calculation, raster_output, rasters,
+              bands=None, nodata=None, allBands=None, output_type=None):
     """
     Adopted from GDAL 1.10 gdal_calc.py script.
     :param calculation: equation to calculate, such as A + (B / 2)
     :param raster_output: Raster file to save output as
-    :param rasters: array of rasters, the number should be equal to the number of letters in calculation
+    :param rasters: array of rasters, should equal # of letters in calculation
     :param bands: array of band numbers, one for each raster in rasters array
     :param nodata: NoDataValue to use in output raster
-    :param allBands: The
+    :param allBands: use all bands of specified raster by index
     :param output_type: data type for output raster ('Float32', 'Uint16', etc)
     :return: gdal Dataset
     """
 
-    ndv_lookup = {'Byte': 255, 'UInt16': 65535, 'Int16': -32767, 'UInt32': 4294967293, 'Int32': -2147483647,
-              'Float32': 1.175494351E-38, 'Float64': 1.7976931348623158E+308}
+    ndv_lookup = {
+        'Byte': 255,
+        'UInt16': 65535,
+        'Int16': -32767,
+        'UInt32': 4294967293,
+        'Int32': -2147483647,
+        'Float32': 1.175494351E-38,
+        'Float64': 1.7976931348623158E+308
+    }
 
     # set up some lists to store data for each band
-    datasets=[get_dataset(raster) for raster in rasters]
+    datasets = [get_dataset(raster) for raster in rasters]
     if not bands:
-        bands=[1 for raster in rasters]
-    datatypes=[]
-    datatype_nums=[]
-    nodata_vals=[]
-    dimensions=None
+        bands = [1 for raster in rasters]
+    datatypes = []
+    datatype_nums = []
+    nodata_vals = []
+    dimensions = None
     alpha_list = string.uppercase[:len(rasters)]
 
     # loop through input files - checking dimensions
@@ -244,12 +251,12 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
             dimensions = [datasets[0].RasterXSize, datasets[0].RasterYSize]
 
     # process allBands option
-    allbandsindex=None
-    allbandscount=1
+    allbandsindex = None
+    allbandscount = 1
     if allBands:
-        allbandscount=datasets[allbandsindex].RasterCount
+        allbandscount = datasets[allbandsindex].RasterCount
         if allbandscount <= 1:
-            allbandsindex=None
+            allbandsindex = None
 
     ################################################################
     # set up output file
@@ -265,7 +272,7 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
     # find data type to use
     if not output_type:
         # use the largest type of the input files
-        output_type=gdal.GetDataTypeName(max(datatype_nums))
+        output_type = gdal.GetDataTypeName(max(datatype_nums))
 
     # create file
     output_driver = gdal.GetDriverByName('GTiff')
@@ -291,7 +298,7 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
     ################################################################
 
     # use the block size of the first layer to read efficiently
-    block_size = datasets[0].GetRasterBand(bands[0]).GetBlockSize();
+    block_size = datasets[0].GetRasterBand(bands[0]).GetBlockSize()
     # store these numbers in variables that may change later
     n_x_valid = block_size[0]
     n_y_valid = block_size[1]
@@ -338,43 +345,47 @@ def gdal_calc(calculation, raster_output, rasters, bands=None, nodata=None, allB
 
                 # create empty buffer to mark where nodata occurs
                 nodatavalues = numpy.zeros(buffer_size)
-                nodatavalues.shape=(n_y_valid, n_x_valid)
+                nodatavalues.shape = (n_y_valid, n_x_valid)
 
                 # fetch data for each input layer
                 for i, alpha in enumerate(alpha_list):
 
                     # populate lettered arrays with values
                     if allbandsindex is not None and allbandsindex == i:
-                        this_band=band_num
+                        this_band = band_num
                     else:
-                        this_band=bands[i]
-                    band_vals = BandReadAsArray(datasets[i].GetRasterBand(this_band),
-                                                xoff=x_offset,
-                                                yoff=y_offset,
-                                                win_xsize=n_x_valid,
-                                                win_ysize=n_y_valid)
+                        this_band = bands[i]
+                    band_vals = BandReadAsArray(
+                        datasets[i].GetRasterBand(this_band),
+                        xoff=x_offset,
+                        yoff=y_offset,
+                        win_xsize=n_x_valid,
+                        win_ysize=n_y_valid)
 
                     # fill in nodata values
-                    nodatavalues = 1*numpy.logical_or(nodatavalues==1, band_vals == nodata_vals[i])
+                    nodatavalues = 1*numpy.logical_or(
+                        nodatavalues == 1, band_vals == nodata_vals[i])
 
                     # create an array of values for this block
-                    exec("%s=band_vals" %alpha)
-                    band_vals=None
+                    exec("%s=band_vals" % alpha)
+                    band_vals = None
 
                 # try the calculation on the array blocks
                 try:
                     calc_result = eval(calculation)
-                except:
-                    logger.error("evaluation of calculation %s failed" % calculation)
-                    raise
+                except Exception as e:
+                    logger.error("eval of calculation %s failed" % calculation)
+                    raise e
 
                 # propogate nodata values
-                # (set nodata cells to zero then add nodata value to these cells)
-                calc_result = ((1*(nodatavalues==0))*calc_result) + (nodata*nodatavalues)
+                # (set nodata cells to 0 then add nodata value to these cells)
+                calc_result = ((1 * (nodatavalues == 0)) * calc_result) + \
+                              (nodata * nodatavalues)
 
                 # write data block to the output file
-                output_band=output_dataset.GetRasterBand(band_num)
-                BandWriteArray(output_band, calc_result, xoff=x_offset, yoff=y_offset)
+                output_band = output_dataset.GetRasterBand(band_num)
+                BandWriteArray(output_band, calc_result,
+                               xoff=x_offset, yoff=y_offset)
 
     return output_dataset
 

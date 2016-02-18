@@ -14,7 +14,6 @@ class GaiaRequestParser(object):
     Generate processes and inputs from a JSON object
     :return a GaiaProcess object
     """
-
     process = None
     data = None
 
@@ -42,6 +41,11 @@ class GaiaRequestParser(object):
 
 
 def is_vector(filename):
+    """
+    Return true if the filename appears to be a vector, False otherwise
+    :param filename: name of file
+    :return: boolean
+    """
     try:
         return os.path.splitext(filename)[1] in gaia.formats.VECTOR
     except IndexError:
@@ -49,6 +53,12 @@ def is_vector(filename):
 
 
 def create_io(process, data):
+    """
+    Create subclassed GaiaIO objects based on JSON configuration
+    :param process: The process that will contain the GaiaIO objects
+    :param data: The JSON configuration
+    :return: Subclassed GaiaIO object
+    """
     if data['type'] == 'file':
         io = gaia.inputs.VectorFileIO(**data) if is_vector(
             data['uri']) else gaia.inputs.RasterFileIO(**data)
@@ -58,17 +68,6 @@ def create_io(process, data):
         parser = GaiaRequestParser(process_name,
                                    data=data['process'], parent=process.id)
         return gaia.inputs.ProcessIO(process=parser.process)
-    # elif data['type'] == 'girder':
-    #     return GirderIO(**data)
-    # elif data['type'] == 'wfs':
-
-    #     return WfsIO(**data)
-    # elif data['type'] == 'wfs':
-    #     return WpsIO(**data)
-    # elif data['type'] == 'raw':
-    #     return GaiaIO(**data)
-    # elif data['type'] == 'pg':
-    #     return PostgisIO(**data)
     else:
         raise NotImplementedError()
 
@@ -89,7 +88,10 @@ def create_process(name, parent=None):
 
 def parse_request(process, request_json):
     """
-    Parse a JSON request using GaiaRequestParser
+    Parse a JSON request using GaiaRequestParser to return a GaiaProcess
+    :param process: The process name ('within', 'subet', etc)
+    :param request_json: The process configuration in JSON format
+    :return: A GaiaProcess object
     """
     parser = GaiaRequestParser(process, data=request_json, parse=True)
     parser.process.compute()
@@ -112,7 +114,7 @@ if __name__ == '__main__':
         with open(args.jsonfile) as infile:
             jsondata = json.load(infile)
     else:
-        print "You must supply either a JSON string or file"
+        print("You must supply either a JSON string or file")
     if jsondata:
         process = parse_request(args.process, jsondata)
-        print "Result saved to {}".format(process.output.uri)
+        print("Result saved to {}".format(process.output.uri))

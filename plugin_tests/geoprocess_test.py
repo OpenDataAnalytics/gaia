@@ -19,7 +19,6 @@
 import json
 
 import os
-import sys
 
 # Need to set the environment variable before importing girder
 os.environ['GIRDER_PORT'] = os.environ.get('GIRDER_TEST_PORT', '20200')
@@ -67,7 +66,7 @@ class GeoprocessTestCase(base.TestCase):
         Test the generated XML body for a vec:Query WPS request
         """
         with open(os.path.join(testfile_path,
-                                'within_nested_buffer_process.json')) as inf:
+                               'within_nested_buffer_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
         path = '/geoprocess/within'
         response = self.request(
@@ -85,4 +84,3 @@ class GeoprocessTestCase(base.TestCase):
         self.assertIn('features', output)
         self.assertEquals(len(expected_json['features']),
                           len(output['features']))
-

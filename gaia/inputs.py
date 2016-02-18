@@ -62,12 +62,14 @@ class GaiaFeatureCollectionIO(GaiaIO):
     default_output = formats.PANDAS
 
     def __init__(self,  collection=None, **kwargs):
-        super(GaiaFeatureCollectionIO, self).__init__(collection=collection,  **kwargs)
+        super(GaiaFeatureCollectionIO, self).__init__(
+            collection=collection,  **kwargs)
 
     def read(self, standardize=True):
             self.data = geopandas.from_features(self.collection['features'])
-            if 'crs' in self.collection and 'init' in self.collection['crs']['properties']:
-                self.data.crs = self.collection['crs']['properties']
+            if 'crs' in self.collection:
+                if 'init' in self.collection['crs']['properties']:
+                    self.data.crs = self.collection['crs']['properties']
             else:
                 # Assume EPSG:4326
                 self.data.crs = {'init': 'epsg:4326'}
@@ -227,4 +229,3 @@ class PostgisIO(GaiaIO):
     def __init__(self, name, connection='', **kwargs):
         super(PostgisIO, self).__init__(**kwargs)
         raise NotImplementedError
-

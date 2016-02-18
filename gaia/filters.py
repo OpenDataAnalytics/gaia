@@ -1,4 +1,3 @@
-from geopandas import GeoDataFrame
 import operator
 
 ops = {
