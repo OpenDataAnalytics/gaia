@@ -9,7 +9,6 @@ import gaia.processes
 from gaia.core import GaiaException
 
 
-
 class GaiaRequestParser(object):
     """
     Generate processes and inputs from a JSON object
