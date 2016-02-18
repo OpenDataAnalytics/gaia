@@ -5,8 +5,9 @@ import os
 from six import string_types
 import gaia.formats
 import gaia.inputs
+import gaia.processes
 from gaia.core import GaiaException
-import importlib
+
 
 
 class GaiaRequestParser(object):
@@ -78,10 +79,9 @@ def create_process(name, parent=None):
     :param name:
     :return:
     """
-    m = importlib.import_module('gaia.processes')
     try:
         class_name = '{}Process'.format(name[0].capitalize() + name[1:])
-        return getattr(m, class_name)(parent=parent)
+        return getattr(gaia.processes, class_name)(parent=parent)
     except AttributeError:
         raise GaiaException(traceback.format_exc())
 
