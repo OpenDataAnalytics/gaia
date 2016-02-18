@@ -5,7 +5,10 @@ import logging
 import gdalconst
 import numpy
 import gdal
-import gdalnumeric
+try:
+    import gdalnumeric
+except ImportError:
+    from osgeo import gdalnumeric
 import ogr
 import osr
 from PIL import Image, ImageDraw

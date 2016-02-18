@@ -236,7 +236,7 @@ class TestGaiaProcessors(unittest.TestCase):
 
             # Each pixel of output raster should equal 2x input raster
             # unless it is a nodata value
-            ora, r1a = [x.ReadAsArray() for x in orb, r1b]
+            ora, r1a = [x.ReadAsArray() for x in (orb, r1b)]
             for x in range(raster1.RasterXSize):
                 for y in range(raster1.RasterYSize):
                     if r1a[y, x] != r1b.GetNoDataValue():

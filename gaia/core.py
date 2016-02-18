@@ -1,4 +1,7 @@
-import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except ImportError:
+    from configparser import ConfigParser
 import os
 import shutil
 
@@ -32,7 +35,7 @@ def get_config():
     config_file = os.path.join(base_dir, 'conf/gaia.local.cfg')
     if not os.path.exists(config_file):
         shutil.copy(config_file.replace('local', 'dist'), config_file)
-    parser = ConfigParser.ConfigParser()
+    parser = ConfigParser()
     parser.read(config_file)
     config_dict = {}
     for section in parser.sections():

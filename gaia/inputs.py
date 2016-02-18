@@ -4,7 +4,7 @@ import geopandas
 import gdal
 import shutil
 import osr
-import formats
+import gaia.formats as formats
 from gaia.core import GaiaException, config
 from gaia.filters import filter_pandas
 from gaia.gdal_functions import gdal_reproject
