@@ -6,23 +6,18 @@
 Welcome to Gaia's documentation!
 ================================
 
-.. Introduction, getting started, etc...
+Gaia is a geospatial utilities plugin for Girder_, jointly developed by Kitware_ and Epidemico_.
 
-.. .. toctree::
-   :maxdepth: 3
-
-API documentation
+Table of Contents
 -----------------
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
-   modules
+   installation
+   usage
+   gaia
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+.. _Girder: http://www.github.com/Girder/girder
+.. _Kitware: http://www.kitware.com
+.. _Epidemico: http://epidemico.com
