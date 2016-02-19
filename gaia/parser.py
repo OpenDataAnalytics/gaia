@@ -5,8 +5,8 @@ import os
 from six import string_types
 import gaia.formats
 import gaia.inputs
+import gaia.processes
 from gaia.core import GaiaException
-import importlib
 
 
 class GaiaRequestParser(object):
@@ -14,7 +14,6 @@ class GaiaRequestParser(object):
     Generate processes and inputs from a JSON object
     :return a GaiaProcess object
     """
-
     process = None
     data = None
 
@@ -36,39 +35,39 @@ class GaiaRequestParser(object):
         self.process.args = data['args'] if 'args' in data else None
         self.process.inputs = []
         for input in process_inputs:
-            io = create_io(self.process, input, process_inputs[input])
+            io = create_io(self.process, input)
             self.process.inputs.append(io)
         return self.process
 
 
 def is_vector(filename):
+    """
+    Return true if the filename appears to be a vector, False otherwise
+    :param filename: name of file
+    :return: boolean
+    """
     try:
         return os.path.splitext(filename)[1] in gaia.formats.VECTOR
     except IndexError:
         return False
 
 
-def create_io(process, name, data):
+def create_io(process, data):
+    """
+    Create subclassed GaiaIO objects based on JSON configuration
+    :param process: The process that will contain the GaiaIO objects
+    :param data: The JSON configuration
+    :return: Subclassed GaiaIO object
+    """
     if data['type'] == 'file':
-        io = gaia.inputs.VectorFileIO(name, **data) if is_vector(
-            data['uri']) else gaia.inputs.RasterFileIO(name, **data)
+        io = gaia.inputs.VectorFileIO(**data) if is_vector(
+            data['uri']) else gaia.inputs.RasterFileIO(**data)
         return io
     elif data['type'] == 'process':
         process_name = data['process']['name']
         parser = GaiaRequestParser(process_name,
                                    data=data['process'], parent=process.id)
-        return gaia.inputs.ProcessIO(name, process=parser.process)
-    # elif data['type'] == 'girder':
-    #     return GirderIO(**data)
-    # elif data['type'] == 'wfs':
-
-    #     return WfsIO(**data)
-    # elif data['type'] == 'wfs':
-    #     return WpsIO(**data)
-    # elif data['type'] == 'raw':
-    #     return GaiaIO(**data)
-    # elif data['type'] == 'pg':
-    #     return PostgisIO(**data)
+        return gaia.inputs.ProcessIO(process=parser.process)
     else:
         raise NotImplementedError()
 
@@ -79,17 +78,19 @@ def create_process(name, parent=None):
     :param name:
     :return:
     """
-    m = importlib.import_module('gaia.processes')
     try:
         class_name = '{}Process'.format(name[0].capitalize() + name[1:])
-        return getattr(m, class_name)(parent=parent)
+        return getattr(gaia.processes, class_name)(parent=parent)
     except AttributeError:
         raise GaiaException(traceback.format_exc())
 
 
 def parse_request(process, request_json):
     """
-    Parse a JSON request using GaiaRequestParser
+    Parse a JSON request using GaiaRequestParser to return a GaiaProcess
+    :param process: The process name ('within', 'subet', etc)
+    :param request_json: The process configuration in JSON format
+    :return: A GaiaProcess object
     """
     parser = GaiaRequestParser(process, data=request_json, parse=True)
     parser.process.compute()
@@ -112,7 +113,7 @@ if __name__ == '__main__':
         with open(args.jsonfile) as infile:
             jsondata = json.load(infile)
     else:
-        print "You must supply either a JSON string or file"
+        print("You must supply either a JSON string or file")
     if jsondata:
         process = parse_request(args.process, jsondata)
-        print "Result saved to {}".format(process.output.uri)
+        print("Result saved to {}".format(process.output.uri))

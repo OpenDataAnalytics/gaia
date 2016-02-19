@@ -23,4 +23,4 @@ install:
 
 script:
   - python -m unittest discover
-
+  - flake8 --config tests/flake8.cfg

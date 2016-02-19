@@ -4,9 +4,10 @@ import geopandas
 import gdal
 import shutil
 import osr
-import formats
 import pysal
+import gaia.formats as formats
 from gaia.core import GaiaException, config
+from gaia.filters import filter_pandas
 from gaia.gdal_functions import gdal_reproject
 
 
@@ -31,8 +32,7 @@ class GaiaIO(object):
     filter = None
     default_output = None
 
-    def __init__(self, name, **kwargs):
-        self.name = name
+    def __init__(self, **kwargs):
         self.tmp_dir = config['gaia']['tmp_dir']
         self.default_epsg = config['gaia']['default_epsg']
         for k, v in kwargs.items():
@@ -56,17 +56,39 @@ class GaiaIO(object):
         raise NotImplementedError()
 
 
+class GaiaFeatureCollectionIO(GaiaIO):
+    """
+    GeoJSON Feature Collection IO
+    """
+    default_output = formats.PANDAS
+
+    def __init__(self,  collection=None, **kwargs):
+        super(GaiaFeatureCollectionIO, self).__init__(
+            collection=collection,  **kwargs)
+
+    def read(self, standardize=True):
+            self.data = geopandas.from_features(self.collection['features'])
+            if 'crs' in self.collection:
+                if 'init' in self.collection['crs']['properties']:
+                    self.data.crs = self.collection['crs']['properties']
+            else:
+                # Assume EPSG:4326
+                self.data.crs = {'init': 'epsg:4326'}
+            if standardize:
+                self.reproject()
+
+
 class FileIO(GaiaIO):
     """Read and write file data."""
 
-    def __init__(self, name, uri=None, filter=None, **kwargs):
+    def __init__(self, uri=None, filter=None, **kwargs):
         if uri and self.allowed_folder(uri):
             raise GaiaException(
                 "Access to this directory is not permitted : {}".format(
                     os.path.dirname(uri)))
         self.uri = uri
         self.filter = filter
-        super(FileIO, self).__init__(name, uri=uri, filter=filter, **kwargs)
+        super(FileIO, self).__init__(uri=uri, filter=filter, **kwargs)
         if self.uri:
             self.ext = os.path.splitext(self.uri)[1].lower()
 
@@ -138,7 +160,7 @@ class VectorFileIO(FileIO):
         return self.uri
 
     def filter_data(self):
-        print self.filter
+        self.data = filter_pandas(self.data, self.filter)
 
     def reproject(self):
         original_crs = self.data.crs.get('init', None)
@@ -160,11 +182,12 @@ class RasterFileIO(FileIO):
                     ','.join(formats.RASTER)
                 )
             )
-        super(RasterFileIO, self).read(standardize=standardize)
+        super(RasterFileIO, self).read()
         self.basename = os.path.basename(self.uri)
-        self.data = gdal.Open(self.uri)
-        if standardize:
-            self.reproject()
+        if not self.data:
+            self.data = gdal.Open(self.uri)
+            if standardize:
+                self.reproject()
         return self.data
 
     def reproject(self):
@@ -178,8 +201,8 @@ class RasterFileIO(FileIO):
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
-    def __init__(self, name, process=None, parent_id=None, **kwargs):
-        super(ProcessIO, self).__init__(name, **kwargs)
+    def __init__(self, process=None, parent_id=None, **kwargs):
+        super(ProcessIO, self).__init__(**kwargs)
         self.process = process
         self.default_output = process.default_output
 
@@ -196,7 +219,7 @@ class GirderIO(GaiaIO):
     default_output = None
 
     def __init__(self, name, girder_uris=[], auth=None, **kwargs):
-        super(GirderIO, self).__init__(name, **kwargs)
+        super(GirderIO, self).__init__(**kwargs)
         raise NotImplementedError
 
 
@@ -205,7 +228,7 @@ class PostgisIO(GaiaIO):
     default_output = formats.JSON
 
     def __init__(self, name, connection='', **kwargs):
-        super(PostgisIO, self).__init__(name, **kwargs)
+        super(PostgisIO, self).__init__(**kwargs)
         raise NotImplementedError
 
 class WeightFileIO(FileIO):
