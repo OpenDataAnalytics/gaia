@@ -314,6 +314,59 @@ class RasterMathProcess(GaiaProcess):
                                      allBands=all_bands,
                                      output_type=otype)
 
+class ClusterProcess(GaiaProcess):
+    """
+    Local Moran's I Calculation (Local Indicators of Spatial Association, or LISAs) to identifying clusters in data
+    https://pysal.readthedocs.org/en/latest/users/tutorials/autocorrelation.html#local-moran-s-i
+
+    Returns original vector layer with associated Moran's I statistics, including:
+    lm_Is - float, Moran's I
+    lm_q - float, quadrat location
+    lm_p_sims - float, p-value based on permutations (low p-value means observed Is differ from expected Is significantly)
+    lm_sig - boolean, True if p_sims is below 0.05
+    """
+    required_inputs = (('input', formats.VECTOR),)
+    required_args = ('var_col')
+    optional_args = ('adjust_by_col')
+    default_output = formats.JSON
+
+    def __init__(self, **kwargs):
+        super(ClusterProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = VectorFileIO(name='result',
+                                       uri=self.get_outpath())
+
+    def compute(self):
+        super(ClusterProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'input':
+                first_df = input.read()
+        col = self.args['var_col']
+        adjust_by_col = self.args.get('adjust_by_col' or None)
+
+        # filter out null fields or else weight functions won't work
+        filter_out = first_df[col].isnull()
+        filtered_df = first_df[filter_out != True].reset_index()
+
+        # get Local Moran's I
+        f = np.array(filtered_df[col])
+        w = wt.gpd_contiguity(filtered_df)
+        if adjust_by_col:
+            adjust_by = np.array(filtered_df[adjust_by_col])
+            lm = pysal.esda.moran.Moran_Local_Rate(f, adjust_by, w, permutations=9999)
+        else:
+            lm = pysal.Moran_Local(f, w, permutations=9999)
+
+        sig = lm.p_sim<0.05
+        filtered_df['lm_sig'] = sig
+        filtered_df['lm_p_sim'] = lm.p_sim
+        filtered_df['lm_q'] = lm.q
+        filtered_df['lm_Is'] = lm.Is
+
+        self.output.data = filtered_df
+        self.output.write()
+        logger.debug(self.output)
+
 # class AutocorrelationProcess(GaiaProcess):
 #     """
 #     Calculate Moran's I global autocorrelation for the input data.
