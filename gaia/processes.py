@@ -1,13 +1,18 @@
 import logging
 import uuid
 import os
-from geopandas import GeoDataFrame
-from gaia.core import get_abspath, config, GaiaException
-from gaia.inputs import VectorFileIO, RasterFileIO
-import gaia.formats as formats
-from gaia.gdal_functions import gdal_clip, gdal_calc
 import numpy as np
 import pandas as pd
+try:
+    import osr
+except ImportError:
+    from osgeo import osr
+from geopandas import GeoDataFrame
+from gaia.core import get_abspath, config, GaiaException
+from gaia.inputs import VectorFileIO, RasterFileIO, reproject
+import gaia.formats as formats
+from gaia.gdal_functions import gdal_clip, gdal_calc
+
 
 logger = logging.getLogger('gaia.processes')
 
@@ -29,9 +34,14 @@ class GaiaProcess(object):
         self.id = str(uuid.uuid4())
 
     def compute(self):
+        previous_input = None
         for input in self.inputs:
             if input.data is None:
                 input.read()
+            if previous_input:
+                if input.get_epsg() != previous_input.get_epsg():
+                    reproject(input, previous_input.epsg)
+            previous_input = input
 
     def purge(self):
         self.output.delete()
@@ -48,7 +58,8 @@ class BufferProcess(GaiaProcess):
     """
     Generates a buffer polygon around the geometries of the input data.
     The size of the buffer is determined by the 'buffer_size' args key
-    and should be in the units of the default projection.
+    and the unit of measure should be meters.  If inputs are not in a
+    metric projection they will be reprojected to EPSG:3857.
     """
     required_inputs = (('input', formats.VECTOR),)
     required_args = ('buffer_size',)
@@ -61,6 +72,14 @@ class BufferProcess(GaiaProcess):
                                        uri=self.get_outpath())
 
     def compute(self):
+        original_projection = self.inputs[0].get_epsg()
+        srs = osr.SpatialReference()
+        srs.ImportFromEPSG(int(original_projection))
+        if not srs.GetAttrValue('UNIT').lower().startswith('met'):
+            reproject(self.inputs[0], 3857)
+        else:
+            original_projection = None
+
         super(BufferProcess, self).compute()
         # TODO: Don't assume GeoPandas Dataframe. Could be PostGIS,Girder,etc.
         first_df = self.inputs[0].read()
@@ -68,7 +87,9 @@ class BufferProcess(GaiaProcess):
         buffer_df = GeoDataFrame(geometry=buffer)
         self.output.data = buffer_df
         self.output.write()
-        logger.debug(self.output)
+        if original_projection:
+            reproject(self.output, original_projection)
+            self.output.write()
 
 
 class SubsetProcess(GaiaProcess):

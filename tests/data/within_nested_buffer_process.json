@@ -2,16 +2,16 @@
   "data_inputs": [
       {
           "name": "first",
-          "type": "file",
+          "source": "file",
           "uri": "{basepath}/iraq_hospitals.geojson"
       },
       {
-          "type": "process",
+          "source": "process",
           "process": {
               "name": "buffer",
               "data_inputs": [
                   {
-                      "type": "file",
+                      "source": "file",
                       "uri": "{basepath}/iraq_roads.geojson",
                       "filter": {
                           "type": "motorway"
@@ -25,6 +25,6 @@
       }
   ],
     "output": {
-        "type": "file"
+        "source": "file"
     }
 }

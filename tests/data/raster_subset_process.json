@@ -2,12 +2,12 @@
   "data_inputs": [
       {
           "name": "clip",
-          "type": "file",
+          "source": "file",
           "uri": "{basepath}/2states.geojson"
       },
       {
           "name": "raster",
-          "type": "file",
+          "source": "file",
           "uri": "{basepath}/globalairtemp.tif"
       }
   ]
