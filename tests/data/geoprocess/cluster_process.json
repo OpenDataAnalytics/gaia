@@ -1,0 +1,12 @@
+{
+  "data_inputs": [
+    {
+      "name": "input",
+      "type": "file",
+      "uri": "{basepath}/brazil_microcephaly.geojson"
+    }
+  ],
+  "args": {
+    "var_col": "cases_confirmed"
+  }
+}

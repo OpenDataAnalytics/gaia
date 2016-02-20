@@ -232,7 +232,7 @@ class PostgisIO(GaiaIO):
         raise NotImplementedError
 
 class WeightFileIO(FileIO):
-    """Read and write vector file data (such as GeoJSON)"""
+    """Read vector and write weight file data (such as .gal)"""
 
     default_output = formats.WEIGHT
 

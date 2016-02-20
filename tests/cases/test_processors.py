@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 from zipfile import ZipFile
+import pysal
 
 from gaia import formats
 
@@ -241,6 +242,53 @@ class TestGaiaProcessors(unittest.TestCase):
                 for y in range(raster1.RasterYSize):
                     if r1a[y, x] != r1b.GetNoDataValue():
                         self.assertEquals(ora[y, x], r1a[y, x] * 2)
+        finally:
+            if process:
+                process.purge()
+
+    def test_cluster(self):
+        """
+        Test ClusterProcess for vector inputs
+        """
+        vector_io = VectorFileIO(
+            name='input', uri=os.path.join(testfile_path, 'brazil_microcephaly.geojson'))
+        args = {
+            'var_col': 'cases_confirmed'
+        }
+        process = gaia.processes.ClusterProcess(
+            inputs=[vector_io], args=args)
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'cluster_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
+    def test_weight(self):
+        """
+        Test WeightProcess for vector inputs
+        """
+        vector_io = VectorFileIO(
+            name='input' ,uri=os.path.join(testfile_path, 'brazil_microcephaly.geojson'))
+        args = {
+            'weight_type': 'knnW'
+        }
+        process = gaia.processes.WeightProcess(
+            inputs=[vector_io], args=args)
+        try:
+            process.compute()
+            exp = pysal.open(os.path.join(testfile_path, 'weight_process_result.gal'), 'r')
+            expected_w = exp.read()
+            exp.close()
+            actual = process.output.read(format=formats.WEIGHT)
+            self.assertEquals(expected_w.n,
+                              actual.n)
         finally:
             if process:
                 process.purge()

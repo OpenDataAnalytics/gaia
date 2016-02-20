@@ -176,28 +176,28 @@ class TestGaiaRequestParser(unittest.TestCase):
             if process:
                 process.purge()
 
-    # def test_process_autocorrelation(self):
-    #     """Test Distance Process"""
-    #     with open(os.path.join(testfile_path,
-    #                            'autocorrelation_process.json')) as inf:
-    #         body_text = inf.read().replace('{basepath}', testfile_path)
-    #     json_body = json.loads(body_text)
-    #     process = GaiaRequestParser('autocorrelation',
-    #                                 data=json_body).process
-    #     try:
-    #         process.compute()
-    #         output = json.loads(process.output.read(format=formats.JSON))
-    #         with open(os.path.join(
-    #                 testfile_path,
-    #                 'autocorrelation_process_results.json')) as exp:
-    #             expected_json = json.load(exp)
-    #         self.assertIn('I', output)
-    #         self.assertEquals(len(expected_json['I']),
-    #                           len(output['I']))
-    #     finally:
-    #         pass
-    #         if process:
-    #             process.purge()
+    def test_process_cluster(self):
+        """Test Cluster Process"""
+        with open(os.path.join(testfile_path,
+                               'cluster_process.json')) as inf:
+            body_text = inf.read().replace('{basepath}', testfile_path)
+        json_body = json.loads(body_text)
+        process = GaiaRequestParser('cluster',
+                                    data=json_body).process
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'cluster_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_process_weight(self):
         """Test Weight Process"""

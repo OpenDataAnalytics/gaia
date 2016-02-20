@@ -320,14 +320,14 @@ class ClusterProcess(GaiaProcess):
     https://pysal.readthedocs.org/en/latest/users/tutorials/autocorrelation.html#local-moran-s-i
 
     Returns original vector layer with associated Moran's I statistics, including:
-    lm_Is - float, Moran's I
-    lm_q - float, quadrat location
-    lm_p_sims - float, p-value based on permutations (low p-value means observed Is differ from expected Is significantly)
-    lm_sig - boolean, True if p_sims is below 0.05
+    lm_Is: float, Moran's I
+    lm_q: float, quadrat location
+    lm_p_sims: float, p-value based on permutations (low p-value means observed Is differ from expected Is significantly)
+    lm_sig: boolean, True if p_sims is below 0.05
     """
     required_inputs = (('input', formats.VECTOR),)
     required_args = ('var_col')
-    optional_args = ('adjust_by_col')
+    # optional_args = ('adjust_by_col')
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -338,11 +338,11 @@ class ClusterProcess(GaiaProcess):
 
     def compute(self):
         super(ClusterProcess, self).compute()
-        for input in self.inputs:
-            if input.name == 'input':
-                first_df = input.read()
+
+        first_df = self.inputs[0].read()
         col = self.args['var_col']
-        adjust_by_col = self.args.get('adjust_by_col' or None)
+        # adjust_by_col = self.args.get('adjust_by_col' or None)
+        adjust_by_col = None
 
         # filter out null fields or else weight functions won't work
         filter_out = first_df[col].isnull()
@@ -414,7 +414,7 @@ class WeightProcess(GaiaProcess):
     def __init__(self, **kwargs):
         super(WeightProcess, self).__init__(**kwargs)
         if not self.output:
-            self.output = WeightFileIO('result',
+            self.output = WeightFileIO(name='result',
                                        uri=self.get_outpath())
 
     def compute(self):

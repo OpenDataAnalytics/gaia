@@ -1,10 +1,11 @@
 {
-  "data_inputs": {
-      "input": {
+  "data_inputs": [
+    {
+          "name": "input",
           "type": "file",
            "uri": "{basepath}/brazil_microcephaly.geojson"
-      }
-  },
+    }
+  ],
   "args": {
     "weight_type": "knnW"
   },
