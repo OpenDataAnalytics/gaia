@@ -270,6 +270,30 @@ class TestGaiaProcessors(unittest.TestCase):
             if process:
                 process.purge()
 
+    def test_autocorrelation(self):
+        """
+        Test AutocorrelationProcess for vector inputs
+        """
+        vector_io = VectorFileIO(
+            name='input', uri=os.path.join(testfile_path, 'brazil_microcephaly.geojson'))
+        args = {
+            'var_col': 'cases_confirmed'
+        }
+        process = gaia.processes.AutocorrelationProcess(
+            inputs=[vector_io], args=args)
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'autocorrelation_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = process.output.read(format=formats.JSON)
+            self.assertEquals(expected_json['I'],
+                              actual_json['I'])
+        finally:
+            if process:
+                process.purge()
+
     def test_weight(self):
         """
         Test WeightProcess for vector inputs

@@ -5,7 +5,7 @@ import pysal
 from geopandas import GeoDataFrame
 import gaia.pysal_weights as wt
 from gaia.core import get_abspath, config, GaiaException
-from gaia.inputs import VectorFileIO, RasterFileIO, WeightFileIO
+from gaia.inputs import VectorFileIO, RasterFileIO, WeightFileIO, JsonFileIO
 import gaia.formats as formats
 from gaia.gdal_functions import gdal_clip, gdal_calc
 import numpy as np
@@ -327,7 +327,7 @@ class ClusterProcess(GaiaProcess):
     """
     required_inputs = (('input', formats.VECTOR),)
     required_args = ('var_col')
-    # optional_args = ('adjust_by_col')
+    optional_args = ('adjust_by_col')
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -341,8 +341,7 @@ class ClusterProcess(GaiaProcess):
 
         first_df = self.inputs[0].read()
         col = self.args['var_col']
-        # adjust_by_col = self.args.get('adjust_by_col' or None)
-        adjust_by_col = None
+        adjust_by_col = self.args.get('adjust_by_col' or None)
 
         # filter out null fields or else weight functions won't work
         filter_out = first_df[col].isnull()
@@ -367,40 +366,63 @@ class ClusterProcess(GaiaProcess):
         self.output.write()
         logger.debug(self.output)
 
-# class AutocorrelationProcess(GaiaProcess):
-#     """
-#     Calculate Moran's I global autocorrelation for the input data.
-#     Uses contiguity weight (queen) by default. Output all attributes
-#     of the Moran's I class object as json.
-#     """
-#     required_inputs = (('input', formats.VECTOR),)
-#     required_args = ('var_col')
-#     default_output = formats.JSON
-#
-#     def __init__(self, **kwargs):
-#         super(AutocorrelationProcess, self).__init__(**kwargs)
-#         if not self.output:
-#             self.output = VectorFileIO('result',
-#                                        uri=self.get_outpath())
-#
-#     def compute(self):
-#         super(AutocorrelationProcess, self).compute()
-#         for input in self.inputs:
-#             if input.name == 'input':
-#                 first_df = input.read()
-#         col = self.args['var_col']
-#         # filter out null fields
-#         filter_out = first_df[col].isnull()
-#         filtered_df = first_df[filter_out != True]
-#
-#         f = np.array(filtered_df[col])
-#         w = wt.gpd_contiguity(filtered_df)
-#         mi = pysal.Moran(f, w, two_tailed=True)
-#         mi_dict = wt.attr_as_dict(mi)
-#
-#         self.output.data = mi_dict
-#         self.output.write()
-#         logger.debug(self.output)
+class AutocorrelationProcess(GaiaProcess):
+    """
+    Calculate Moran's I global autocorrelation for the input data.
+    Default number of permutations = 999
+    Uses contiguity weight (queen) by default.
+
+    Returns the following Moran's I attributes as json:
+    I: float, value of Moran's I
+    EI: float, expected value of I under normality assumption
+    p_norm: float, p-value of I under normality assumption
+    EI_sim: float, average value of I from permutations
+    p_sim: array, p-value based on permutations (one-tailed)
+    z_sim: float, standardized I based on permutations
+    p_z_sim: float, p-value based on standard normal approximation from permutations
+    """
+    required_inputs = (('input', formats.VECTOR),)
+    required_args = ('var_col')
+    optional_args = ('adjust_by_col', 'permutations')
+    default_output = formats.JSON
+
+    def __init__(self, **kwargs):
+        super(AutocorrelationProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = JsonFileIO(name='result',
+                                       uri=self.get_outpath())
+
+    def compute(self):
+        super(AutocorrelationProcess, self).compute()
+        for input in self.inputs:
+            if input.name == 'input':
+                first_df = input.read()
+        col = self.args['var_col']
+        adjust_by_col = self.args.get('adjust_by_col' or None)
+        permutations = self.args.get('permutations' or None)
+        if not permutations:
+            permutations = 999
+
+        # filter out null fields
+        filter_out = first_df[col].isnull()
+        filtered_df = first_df[filter_out != True]
+
+        # get Global Moran's I
+        f = np.array(filtered_df[col])
+        w = wt.gpd_contiguity(filtered_df)
+        if adjust_by_col:
+            adjust_by = np.array(filtered_df[adjust_by_col])
+            mi = pysal.esda.moran.Moran_Rate(f, adjust_by, w, permutations=permutations)
+        else:
+            mi = pysal.Moran(f, w, permutations=permutations)
+
+        keep = ['I', 'EI', 'p_norm', 'EI_sim', 'p_sim', 'z_sim', 'p_z_sim']
+        mi_dict = {k:getattr(mi, k) for k in keep}
+
+        self.output.data = mi_dict
+        self.output.write()
+        logger.debug(self.output)
+
 
 class WeightProcess(GaiaProcess):
     """

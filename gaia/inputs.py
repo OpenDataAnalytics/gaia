@@ -5,6 +5,7 @@ import gdal
 import shutil
 import osr
 import pysal
+import json
 import gaia.formats as formats
 from gaia.core import GaiaException, config
 from gaia.filters import filter_pandas
@@ -231,6 +232,7 @@ class PostgisIO(GaiaIO):
         super(PostgisIO, self).__init__(**kwargs)
         raise NotImplementedError
 
+
 class WeightFileIO(FileIO):
     """Read vector and write weight file data (such as .gal)"""
 
@@ -266,6 +268,44 @@ class WeightFileIO(FileIO):
             gal = pysal.open(filename, 'w')
             gal.write(self.data)
             gal.close()
+        else:
+            raise NotImplementedError('{} not a valid type'.format(as_type))
+        return self.uri
+
+
+class JsonFileIO(FileIO):
+    """Read json and write json file data (such as .json)"""
+
+    default_output = formats.JSON
+
+    def read(self, format=None):
+        if not format:
+            format = self.default_output
+        if self.ext not in formats.JSON:
+            raise UnsupportedFormatException(
+                "Only the following weight formats are supported: {}".format(
+                    ','.join(formats.JSON)
+                )
+            )
+        super(JsonFileIO, self).read()
+        if self.data is None:
+            with open(self.uri, 'r') as f:
+                self.data = json.load(f)
+        return self.data
+
+    def write(self, filename=None, as_type='json'):
+        """
+        Write data (assumed dictionary object) to json file
+        :param filename: Base filename
+        :param as_type: json
+        :return: location of file
+        """
+        if not filename:
+            filename = self.uri
+        self.create_output_dir(filename)
+        if as_type == 'json':
+            with open(filename, 'w') as f:
+                json.dump(self.data, f)
         else:
             raise NotImplementedError('{} not a valid type'.format(as_type))
         return self.uri
