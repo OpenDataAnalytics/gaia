@@ -59,17 +59,19 @@ def create_io(process, data):
     :param data: The JSON configuration
     :return: Subclassed GaiaIO object
     """
-    if data['type'] == 'file':
+    if data['source'] == 'file':
         io = gaia.inputs.VectorFileIO(**data) if is_vector(
             data['uri']) else gaia.inputs.RasterFileIO(**data)
-        return io
-    elif data['type'] == 'process':
+    elif data['source'] == 'process':
         process_name = data['process']['name']
         parser = GaiaRequestParser(process_name,
                                    data=data['process'], parent=process.id)
-        return gaia.inputs.ProcessIO(process=parser.process)
+        io = gaia.inputs.ProcessIO(process=parser.process)
+    elif data['source'] == 'features':
+        io = gaia.inputs.FeatureIO(**data)
     else:
         raise NotImplementedError()
+    return io
 
 
 def create_process(name, parent=None):

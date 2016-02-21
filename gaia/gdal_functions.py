@@ -37,6 +37,10 @@ def gdal_reproject(src, dst,
     dst_srs.ImportFromEPSG(int(epsg))
     dst_wkt = dst_srs.ExportToWkt()
 
+    # Resampling might be passed as a string
+    if not isinstance(resampling, int):
+        resampling = getattr(gdal, resampling)
+
     # Call AutoCreateWarpedVRT() to fetch default values
     # for target raster dimensions and geotransform
     reprojected_ds = gdal.AutoCreateWarpedVRT(src_ds,
@@ -46,7 +50,8 @@ def gdal_reproject(src, dst,
                                               error_threshold)
 
     # Create the final warped raster
-    gdal.GetDriverByName('GTiff').CreateCopy(dst, reprojected_ds)
+    if dst:
+        gdal.GetDriverByName('GTiff').CreateCopy(dst, reprojected_ds)
     return reprojected_ds
 
 

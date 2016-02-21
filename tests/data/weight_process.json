@@ -2,7 +2,7 @@
   "data_inputs": [
     {
           "name": "input",
-          "type": "file",
+          "source": "file",
            "uri": "{basepath}/brazil_microcephaly.geojson"
     }
   ],

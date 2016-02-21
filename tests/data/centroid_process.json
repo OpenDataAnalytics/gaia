@@ -1,7 +1,7 @@
 {
   "data_inputs": [
       {
-          "type": "file",
+          "source": "file",
            "uri": "{basepath}/baghdad_districts.geojson"
       }
   ]

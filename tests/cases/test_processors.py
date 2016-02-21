@@ -11,7 +11,7 @@ import gaia.processes
 
 
 testfile_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../data/geoprocess')
+    os.path.realpath(__file__)), '../data')
 
 
 class TestGaiaProcessors(unittest.TestCase):

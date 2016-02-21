@@ -7,7 +7,7 @@ from gaia.parser import GaiaRequestParser
 import pysal
 
 testfile_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../data/geoprocess')
+    os.path.realpath(__file__)), '../data')
 
 
 class TestGaiaRequestParser(unittest.TestCase):
@@ -34,7 +34,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertIsNotNone(process.id)
             self.assertIn(process.id, process.output.uri)
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -57,7 +56,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -80,7 +78,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -103,7 +100,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -126,7 +122,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -149,7 +144,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -176,6 +170,30 @@ class TestGaiaRequestParser(unittest.TestCase):
             if process:
                 process.purge()
 
+    def test_process_within_featureio(self):
+        """Test Within process with nested Buffer process using geojson input"""
+        with open(os.path.join(
+                testfile_path,
+                'within_nested_buffer_features_process.json')) as inf:
+            json_body = json.load(inf)
+        process = GaiaRequestParser('within',
+                                    data=json_body).process
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'within_nested_buffer_features_process_result.json')) as gj:
+                expected_json = json.load(gj)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
+        finally:
+            if process:
+                process.purge()
+
     def test_process_cluster(self):
         """Test Cluster Process"""
         with open(os.path.join(testfile_path,
@@ -189,38 +207,40 @@ class TestGaiaRequestParser(unittest.TestCase):
             output = json.loads(process.output.read(format=formats.JSON))
             with open(os.path.join(
                     testfile_path,
-                    'cluster_process_results.json')) as exp:
-                expected_json = json.load(exp)
+                    'cluster_process_results.json')) as gj:
+                expected_json = json.load(gj)
             self.assertIn('features', output)
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
         finally:
-            pass
             if process:
                 process.purge()
 
     def test_process_autocorrelation(self):
-            """Test Autocorrelation Process"""
-            with open(os.path.join(testfile_path,
-                                   'autocorrelation_process.json')) as inf:
-                body_text = inf.read().replace('{basepath}', testfile_path)
-            json_body = json.loads(body_text)
-            process = GaiaRequestParser('autocorrelation',
-                                        data=json_body).process
-            try:
-                process.compute()
-                output = process.output.read(format=formats.JSON)
-                with open(os.path.join(
-                        testfile_path,
-                        'autocorrelation_process_results.json')) as exp:
-                    expected_json = json.load(exp)
-                self.assertIn('I', output)
-                self.assertEquals(expected_json['I'],
-                                  output['I'])
-            finally:
-                pass
-                if process:
-                    process.purge()
+        """Test Autocorrelation Process"""
+        with open(os.path.join(testfile_path,
+                               'autocorrelation_process.json')) as inf:
+            body_text = inf.read().replace('{basepath}', testfile_path)
+        json_body = json.loads(body_text)
+        process = GaiaRequestParser('autocorrelation',
+                                    data=json_body).process
+        try:
+            process.compute()
+            output = process.output.read(format=formats.JSON)
+            with open(os.path.join(
+                    testfile_path,
+                    'autocorrelation_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            self.assertIn('I', output)
+            self.assertEquals(expected_json['I'],
+                              output['I'])
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
+        finally:
+            if process:
+                process.purge()
 
     def test_process_weight(self):
         """Test Weight Process"""
@@ -238,7 +258,8 @@ class TestGaiaRequestParser(unittest.TestCase):
             exp.close()
             self.assertEquals(expected_w.n,
                               output.n)
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
         finally:
-            pass
             if process:
                 process.purge()
