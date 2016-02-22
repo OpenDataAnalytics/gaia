@@ -40,5 +40,3 @@ def execute_process(process, inputs=None, **kwargs):
         process.args[k] = v
     process.compute()
     return process.output
-
-
