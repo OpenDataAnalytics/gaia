@@ -4,7 +4,6 @@ import errno
 import geopandas
 import gdal
 import shutil
-from gaia.gdal_functions import gdal_reproject
 try:
     import osr
 except ImportError:
@@ -12,6 +11,7 @@ except ImportError:
 import gaia.formats as formats
 from gaia.core import GaiaException, config
 from gaia.filters import filter_pandas
+from gaia.gdal_functions import gdal_reproject
 
 
 class MissingParameterError(GaiaException):

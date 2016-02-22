@@ -6,7 +6,8 @@ from zipfile import ZipFile
 from gaia import formats
 
 from gaia.inputs import RasterFileIO, VectorFileIO
-import gaia.processes
+import gaia.processes_vector as pv
+import gaia.processes_raster as pr
 
 
 testfile_path = os.path.join(os.path.dirname(
@@ -23,7 +24,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
-        process = gaia.processes.WithinProcess(inputs=[vector1_io, vector2_io])
+        process = pv.WithinProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             self.assertEquals(len(process.output.data), 19)
@@ -39,7 +40,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
-        process = gaia.processes.IntersectsProcess(
+        process = pv.IntersectsProcess(
             inputs=[vector1_io, vector2_io])
         try:
             process.compute()
@@ -62,7 +63,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
-        process = gaia.processes.UnionProcess(inputs=[vector1_io, vector2_io])
+        process = pv.UnionProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -84,8 +85,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
-        process = gaia.processes.DifferenceProcess(
-            inputs=[vector1_io, vector2_io])
+        process = pv.DifferenceProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -105,7 +105,7 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         vector1_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
-        process = gaia.processes.CentroidProcess(inputs=[vector1_io])
+        process = pv.CentroidProcess(inputs=[vector1_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -127,8 +127,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
-        process = gaia.processes.DistanceProcess(
-            inputs=[vector1_io, vector2_io])
+        process = pv.DistanceProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -153,7 +152,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, '2states.geojson'))
         raster_io = RasterFileIO(
             uri=os.path.join(testfile_path, 'globalairtemp.tif'))
-        process = gaia.processes.SubsetProcess(inputs=[vector_io, raster_io])
+        process = pr.SubsetProcess(inputs=[vector_io, raster_io])
         try:
             process.compute()
             self.assertEquals(type(process.output.data).__name__, 'Dataset')
@@ -179,7 +178,7 @@ class TestGaiaProcessors(unittest.TestCase):
             'calc': 'A + B',
             'bands': [1, 1]
         }
-        process = gaia.processes.RasterMathProcess(
+        process = pr.RasterMathProcess(
             inputs=[raster1_io, raster2_io], args=args)
         try:
             process.compute()
@@ -217,8 +216,7 @@ class TestGaiaProcessors(unittest.TestCase):
             'calc': 'A * 2',
             'output_type': 'Float32'
         }
-        process = gaia.processes.RasterMathProcess(
-            inputs=[raster1_io, ], args=args)
+        process = pr.RasterMathProcess(inputs=[raster1_io, ], args=args)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))
