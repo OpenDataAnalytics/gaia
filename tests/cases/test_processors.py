@@ -6,15 +6,59 @@ import pysal
 
 from gaia import formats
 
-from gaia.inputs import RasterFileIO, VectorFileIO
-import gaia.processes
-
+from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO
+import gaia.processes_vector as pv
+import gaia.processes_raster as pr
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
 
 
 class TestGaiaProcessors(unittest.TestCase):
+    def test_zonalstats(self):
+        vector_io = FeatureIO(features=[
+            {"type": "Feature",
+             "geometry": {
+                 "type": "Polygon",
+                 "coordinates": [
+                     [[100.0, 0.0], [120.0, 0.0], [120.0, 30.0],
+                      [100.0, 30.0], [100.0, 0.0]]
+                 ]
+             },
+             "properties": {
+                 "prop0": "value1",
+                 "prop1": {"this": "that"}
+             }
+             },
+            {"type": "Feature",
+             "geometry": {
+                 "type": "Polygon",
+                 "coordinates": [
+                     [[-100.0, 0.0], [-120.0, 0.0], [-120.0, -30.0],
+                      [100.0, -30.0], [100.0, 0.0]]
+                 ]
+             },
+             "properties": {
+                 "prop0": "value0",
+                 "prop1": {"this": "other thing"}
+             }
+             }])
+        raster_io = RasterFileIO(name='temp', uri=os.path.join(
+            testfile_path, 'globalairtemp.tif'))
+        process = pv.ZonalStatsProcess(inputs=[vector_io, raster_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'zonalstats_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_within(self):
         """
@@ -24,7 +68,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
-        process = gaia.processes.WithinProcess(inputs=[vector1_io, vector2_io])
+        process = pv.WithinProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             self.assertEquals(len(process.output.data), 19)
@@ -40,7 +84,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
-        process = gaia.processes.IntersectsProcess(
+        process = pv.IntersectsProcess(
             inputs=[vector1_io, vector2_io])
         try:
             process.compute()
@@ -63,7 +107,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
-        process = gaia.processes.UnionProcess(inputs=[vector1_io, vector2_io])
+        process = pv.UnionProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -85,8 +129,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
-        process = gaia.processes.DifferenceProcess(
-            inputs=[vector1_io, vector2_io])
+        process = pv.DifferenceProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -106,7 +149,7 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         vector1_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
-        process = gaia.processes.CentroidProcess(inputs=[vector1_io])
+        process = pv.CentroidProcess(inputs=[vector1_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -128,8 +171,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
-        process = gaia.processes.DistanceProcess(
-            inputs=[vector1_io, vector2_io])
+        process = pv.DistanceProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -154,7 +196,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, '2states.geojson'))
         raster_io = RasterFileIO(
             uri=os.path.join(testfile_path, 'globalairtemp.tif'))
-        process = gaia.processes.SubsetProcess(inputs=[vector_io, raster_io])
+        process = pr.SubsetProcess(inputs=[vector_io, raster_io])
         try:
             process.compute()
             self.assertEquals(type(process.output.data).__name__, 'Dataset')
@@ -180,7 +222,7 @@ class TestGaiaProcessors(unittest.TestCase):
             'calc': 'A + B',
             'bands': [1, 1]
         }
-        process = gaia.processes.RasterMathProcess(
+        process = pr.RasterMathProcess(
             inputs=[raster1_io, raster2_io], args=args)
         try:
             process.compute()
@@ -195,7 +237,7 @@ class TestGaiaProcessors(unittest.TestCase):
             # Min value of output should be >= the max minimum of inputs
             self.assertGreaterEqual(orb.GetStatistics(False, True)[0],
                                     max(r1b.GetStatistics(False, True)[0],
-                                    r2b.GetStatistics(False, True)[0]))
+                                        r2b.GetStatistics(False, True)[0]))
 
             # Max value of output >=  max(minimum)+min(maximum) of inputs
             self.assertGreaterEqual(orb.GetStatistics(False, True)[1],
@@ -218,8 +260,7 @@ class TestGaiaProcessors(unittest.TestCase):
             'calc': 'A * 2',
             'output_type': 'Float32'
         }
-        process = gaia.processes.RasterMathProcess(
-            inputs=[raster1_io, ], args=args)
+        process = pr.RasterMathProcess(inputs=[raster1_io, ], args=args)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))
@@ -227,7 +268,7 @@ class TestGaiaProcessors(unittest.TestCase):
             # Output raster should be same dimensions as raster 1
             self.assertEquals((oraster.RasterXSize, oraster.RasterYSize),
                               (raster1.RasterXSize, raster1.RasterYSize))
-            orb, r1b = [x.GetRasterBand(1)for x in (oraster, raster1)]
+            orb, r1b = [x.GetRasterBand(1) for x in (oraster, raster1)]
             # Maximum value of output should be 2x the max of input raster
             self.assertEqual(orb.GetStatistics(False, True)[1],
                              r1b.GetStatistics(False, True)[1] * 2)
@@ -255,7 +296,7 @@ class TestGaiaProcessors(unittest.TestCase):
         args = {
             'var_col': 'cases_confirmed'
         }
-        process = gaia.processes.ClusterProcess(
+        process = pv.ClusterProcess(
             inputs=[vector_io], args=args)
         try:
             process.compute()
@@ -279,7 +320,7 @@ class TestGaiaProcessors(unittest.TestCase):
         args = {
             'var_col': 'cases_confirmed'
         }
-        process = gaia.processes.AutocorrelationProcess(
+        process = pv.AutocorrelationProcess(
             inputs=[vector_io], args=args)
         try:
             process.compute()
@@ -303,7 +344,7 @@ class TestGaiaProcessors(unittest.TestCase):
         args = {
             'weight_type': 'knnW'
         }
-        process = gaia.processes.WeightProcess(
+        process = pv.WeightProcess(
             inputs=[vector_io], args=args)
         try:
             process.compute()
