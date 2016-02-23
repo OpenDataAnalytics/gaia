@@ -1,6 +1,9 @@
 import logging
 import numpy as np
 import pandas as pd
+
+from gaia.gdal_functions import gdal_zonalstats
+
 try:
     import osr
 except ImportError:
@@ -223,3 +226,26 @@ class DistanceProcess(GaiaProcess):
         self.output.data = first_df
         self.output.write()
         logger.debug(self.output)
+
+
+class ZonalStatsProcess(GaiaProcess):
+    """
+    Calculates statistical values from a raster dataset for each polygon
+    in a vector dataset.
+    """
+    required_inputs = (('zones', formats.VECTOR), ('raster', formats.RASTER))
+    default_output = formats.VECTOR
+
+    def __init__(self, **kwargs):
+        super(ZonalStatsProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = VectorFileIO(name='result',
+                                       uri=self.get_outpath())
+
+    def compute(self):
+        super(ZonalStatsProcess, self).compute()
+        self.output.create_output_dir(self.output.uri)
+        features = gdal_zonalstats(
+            self.inputs[0].read(format=formats.JSON), self.inputs[1].read())
+        self.output.data = GeoDataFrame.from_features(features)
+        self.output.write()

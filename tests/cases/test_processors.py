@@ -5,16 +5,59 @@ from zipfile import ZipFile
 
 from gaia import formats
 
-from gaia.inputs import RasterFileIO, VectorFileIO
+from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO
 import gaia.processes_vector as pv
 import gaia.processes_raster as pr
-
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
 
 
 class TestGaiaProcessors(unittest.TestCase):
+    def test_zonalstats(self):
+        vector_io = FeatureIO(features=[
+            {"type": "Feature",
+             "geometry": {
+                 "type": "Polygon",
+                 "coordinates": [
+                     [[100.0, 0.0], [120.0, 0.0], [120.0, 30.0],
+                      [100.0, 30.0], [100.0, 0.0]]
+                 ]
+             },
+             "properties": {
+                 "prop0": "value1",
+                 "prop1": {"this": "that"}
+             }
+             },
+            {"type": "Feature",
+             "geometry": {
+                 "type": "Polygon",
+                 "coordinates": [
+                     [[-100.0, 0.0], [-120.0, 0.0], [-120.0, -30.0],
+                      [100.0, -30.0], [100.0, 0.0]]
+                 ]
+             },
+             "properties": {
+                 "prop0": "value0",
+                 "prop1": {"this": "other thing"}
+             }
+             }])
+        raster_io = RasterFileIO(name='temp', uri=os.path.join(
+            testfile_path, 'globalairtemp.tif'))
+        process = pv.ZonalStatsProcess(inputs=[vector_io, raster_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'zonalstats_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            pass
+            if process:
+                process.purge()
 
     def test_within(self):
         """
@@ -193,7 +236,7 @@ class TestGaiaProcessors(unittest.TestCase):
             # Min value of output should be >= the max minimum of inputs
             self.assertGreaterEqual(orb.GetStatistics(False, True)[0],
                                     max(r1b.GetStatistics(False, True)[0],
-                                    r2b.GetStatistics(False, True)[0]))
+                                        r2b.GetStatistics(False, True)[0]))
 
             # Max value of output >=  max(minimum)+min(maximum) of inputs
             self.assertGreaterEqual(orb.GetStatistics(False, True)[1],
@@ -224,7 +267,7 @@ class TestGaiaProcessors(unittest.TestCase):
             # Output raster should be same dimensions as raster 1
             self.assertEquals((oraster.RasterXSize, oraster.RasterYSize),
                               (raster1.RasterXSize, raster1.RasterYSize))
-            orb, r1b = [x.GetRasterBand(1)for x in (oraster, raster1)]
+            orb, r1b = [x.GetRasterBand(1) for x in (oraster, raster1)]
             # Maximum value of output should be 2x the max of input raster
             self.assertEqual(orb.GetStatistics(False, True)[1],
                              r1b.GetStatistics(False, True)[1] * 2)

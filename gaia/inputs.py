@@ -94,7 +94,9 @@ class FeatureIO(GaiaIO):
         super(FeatureIO, self).__init__(**kwargs)
         self.features = features
 
-    def read(self):
+    def read(self, format=None):
+        if not format:
+            format = self.default_output
         if self.data is None and self.features:
             if type(self.features) == str:
                 self.features = json.loads(self.features)
@@ -116,7 +118,10 @@ class FeatureIO(GaiaIO):
                 if 'crs' in features[0]:
                     if 'init' in features[0]['crs']['properties']:
                         self.data.crs = features[0]['crs']['properties']
-        return self.data
+        if format == formats.JSON:
+            return self.data.to_json()
+        else:
+            return self.data
 
     def delete(self):
         self.data = None
