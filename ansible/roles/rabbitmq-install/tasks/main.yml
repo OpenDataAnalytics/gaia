@@ -1,0 +1,7 @@
+---
+
+  - name: install
+    apt:
+        name: rabbitmq-server
+        state: present
+        update_cache: true

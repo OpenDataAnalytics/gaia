@@ -1,0 +1,126 @@
+- hosts: mongo
+  sudo: yes
+  roles:
+    - role: mongodb
+      state: started
+
+- hosts: rabbitmq
+  sudo: yes
+  roles:
+    - role: rabbitmq
+      state: started
+
+- hosts: girder
+  vars:
+    base_dir: /opt
+    venv_root: /opt/.venv
+    girder_user: "girder"
+    girder_group: "girder"
+  pre_tasks:
+    - name: Install virtualenv
+      apt:
+        name: virtualenvwrapper
+        state: present
+      become: yes
+
+    - name: Create virtualenv folder
+      file:
+        path: "{{venv_root}}"
+        state: directory
+        mode: 0775
+      become: yes
+
+  roles:
+    - role: girder
+      mongodb_ansible_group: girder
+      girder_version: master
+      state: started
+      become: yes
+
+  tasks:
+    - name: Set permissions on virtualenv folder
+      file:
+        path: "{{venv_root}}"
+        recurse: yes
+        state: directory
+        mode: 0775
+        owner: "{{ girder_user }}"
+        group: "{{ girder_group }}"
+      sudo: yes
+
+    - name: Install gaia system dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python-dev
+        - libgdal-dev
+      become: yes
+
+    - name: Install Gaia as a plugin
+      shell: >
+        . {{venv_root}}/bin/activate && girder-install plugin -s -f {{base_dir}}/gaia
+      become: yes
+      become_user: "{{girder_user}}"
+      environment:
+        CPLUS_INCLUDE_PATH: /usr/include/gdal
+        C_INCLUDE_PATH: /usr/include/gdal
+      tags:
+        - gaia
+
+# Configure plugins and girder
+- hosts: girder
+  become: yes
+  tasks:
+    - wait_for:
+        port: 8080
+        delay: 5
+
+    - name: Create an 'Admin' user
+      girder:
+        port: 8080
+        user:
+          firstName: "Admin"
+          lastName: "Admin"
+          login: "admin"
+          password: "letmein"
+          email: "admin@example.com"
+          admin: yes
+        state: present
+
+    - name: Activate Plugins
+      girder:
+        port: 8080
+        username: "admin"
+        password: "letmein"
+        plugins:
+          - gaia
+        state: present
+
+    - name: Create assetstore directory
+      file:
+        path: "/opt/data"
+        owner: "girder"
+        group: "girder"
+        state: directory
+
+    - name: Create filesystem assetstore
+      girder:
+        port: 8080
+        username: "admin"
+        password: "letmein"
+        assetstore:
+          name: "Filesystem Assetstore"
+          type: "filesystem"
+          root: "/opt/data"
+          current: true
+        state: present
+
+
+    - name: Restart Girder
+      girder:
+        port: 8080
+        username: "admin"
+        password: "letmein"
+        put:
+          path: "system/restart"
