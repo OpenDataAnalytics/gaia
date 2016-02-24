@@ -1,11 +1,10 @@
+import re
 import string
 import os
 import json
 import logging
 import gdalconst
 import numpy
-from numpy import logical_or, logical_and, logical_xor, \
-    bitwise_or, bitwise_and, bitwise_xor
 import gdal
 from gaia.core import GaiaException
 
@@ -19,6 +18,16 @@ from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
 
 logger = logging.getLogger('gaia.gdal_functions')
+
+ndv_lookup = {
+    'Byte': 255,
+    'UInt16': 65535,
+    'Int16': -32767,
+    'UInt32': 4294967293,
+    'Int32': -2147483647,
+    'Float32': 1.175494351E-38,
+    'Float64': 1.7976931348623158E+308
+}
 
 
 def gdal_reproject(src, dst,
@@ -226,15 +235,7 @@ def gdal_calc(calculation, raster_output, rasters,
     :return: gdal Dataset
     """
 
-    ndv_lookup = {
-        'Byte': 255,
-        'UInt16': 65535,
-        'Int16': -32767,
-        'UInt32': 4294967293,
-        'Int32': -2147483647,
-        'Float32': 1.175494351E-38,
-        'Float64': 1.7976931348623158E+308
-    }
+    calculation = re.sub(r'(logical_|bitwise_)', r'numpy.\1', calculation)
 
     # set up some lists to store data for each band
     datasets = [get_dataset(raster) for raster in rasters]
@@ -322,16 +323,13 @@ def gdal_calc(calculation, raster_output, rasters,
     ################################################################
     # start looping through each band in allbandscount
     ################################################################
-
     for band_num in range(1, allbandscount+1):
 
         ################################################################
         # start looping through blocks of data
         ################################################################
-
         # loop through X-lines
         for x in range(0, n_x_blocks):
-
             # in the rare (impossible?) case that the blocks don't fit perfectly
             # change the block size of the final piece
             if x == n_x_blocks-1:
@@ -402,7 +400,7 @@ def gdal_calc(calculation, raster_output, rasters,
     if raster_output:
         output_driver = gdal.GetDriverByName('GTiff')
         outfile = output_driver.CreateCopy(raster_output, output_dataset, False)
-        outfile = None
+        logger.debug(str(outfile))
     return output_dataset
 
 
