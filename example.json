@@ -1,0 +1,21 @@
+{
+    "task": "gaia.example.buffer",
+    "args": [
+        {
+            "_type": "gaia.inputs.VectorFileIO",
+            "uri": "/opt/gaia/iraq_roads.geojson",
+            "filter": {
+                "type": "motorway"
+            }
+        }
+    ],
+    "kwargs": {
+        "buffer_size": 10000
+    },
+
+    "output": {
+        "_type": "gaia.inputs.VectorFileIO",
+        "uri": "/tmp/output.geojson"
+    }
+
+}
