@@ -12,6 +12,7 @@
     "kwargs": {
         "buffer_size": 10000
     },
+    "options": {},
 
     "output": {
         "_type": "gaia.inputs.VectorFileIO",

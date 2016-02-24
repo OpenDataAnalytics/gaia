@@ -9,8 +9,7 @@ import json
 
 app = Celery('example',
              broker='amqp://guest@localhost//',
-             backend="ampq://guest@localhost//")
-
+             backend="amqp://guest@localhost//")
 
 # Note that the explicit 'name' part is only nesssiary
 # because we are doing everything in one file and
@@ -26,13 +25,25 @@ def buffer(vf_io, buffer_size=None):
 
 @app.task(name="gaia.example.within")
 def within(vf_io1, vf_io2):
-    first_df = vf_io1.read()
-    second_df = vf_io2.read()
+    # This should get moved into something that ensures
+    # we're dealing with dataframes internally in the functions
+    # functions shouldn't be responsible for dealing with reading
+    # or loading data.
+    try:
+        first_df = vf_io1.read()
+    except AttributeError:
+        first_df = vf_io1
 
-    first_within = first_df[first_df.geometry.within(
-        second_df.geometry.unary_union)]
+    try:
+        second_df = vf_io2.read()
+    except AttributeError:
+        second_df = vf_io2
 
-    return first_within
+
+    second_within = second_df[second_df.geometry.within(
+        first_df.geometry.unary_union)]
+
+    return second_within
 
 
 def custom_json_deserialize(dct):
@@ -49,14 +60,18 @@ def custom_json_deserialize(dct):
 def parse_request(jsondata):
     out = jsondata['output']
     task = signature(jsondata, app=app)
+
     # At this point,  "task" is a celery task and can be called
     # with .delay() for async execution on a worker,  or it can
-    # be called directly for synchronous execution
-    out.data = task()
+    # be called directly for synchronous execution - Here we just
+    # call .apply() which will call the task in the local process.
+    # This returns an "EagarResult" which has the same API as an
+    # AsyncResult (e.g.,  to get the value we have to call '.result')
+    out.data = task.apply().result
 
     out.write()
 
-
+    return out
 
 
 if __name__ == '__main__':
@@ -72,9 +87,9 @@ if __name__ == '__main__':
         print("You must supply a JSON file")
 
     if jsondata:
-        process = parse_request(jsondata)
+        output = parse_request(jsondata)
 
-        print("Result saved to {}".format(process.output.uri))
+        print("Result saved to {}".format(output.uri))
 
 
 # This can be run from the command line in the gaia source folder as follows:

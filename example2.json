@@ -1,0 +1,41 @@
+{
+    "subtask_type": "chain",
+    "args": [],
+    "kwargs": {
+        "tasks": [
+            {
+                "task": "gaia.example.buffer",
+                "args": [
+                    {
+                        "_type": "gaia.inputs.VectorFileIO",
+                        "uri": "/opt/gaia/iraq_roads.geojson",
+                        "filter": {
+                            "type": "motorway"
+                        }
+                    }
+                ],
+                "kwargs": {
+                    "buffer_size": 10000
+                },
+                "options": {}
+
+            },
+            {
+                "task": "gaia.example.within",
+                "args": [
+                    {
+                        "_type": "gaia.inputs.VectorFileIO",
+                        "uri": "/opt/gaia/iraq_hospitals.geojson"
+                    }
+                ],
+                "kwargs": {},
+                "options": {}
+            }
+        ]
+    },
+    "options": {},
+    "output": {
+        "_type": "gaia.inputs.VectorFileIO",
+        "uri": "/tmp/output.geojson"
+    }
+}
