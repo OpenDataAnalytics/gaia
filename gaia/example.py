@@ -1,3 +1,72 @@
+# This can be run from the command line in the gaia source folder as follows:
+#
+# $> python gaia/example.py example.json
+#
+#   and
+#
+# $> python gaia/example.py example2.json
+#
+#
+# example.json just runs a buffer on iraq_roads.geojson.  The JSON can be equally
+# equivallently expressed (in python) as:
+#
+#```python
+# import gaia
+# from gaia.inputs import VectorFileIO
+# gaia.example.buffer(
+#     VectorFileIO(uri="/opt/gaia/iraq_roads.geojson",
+#                  filter={"type": "motorway"}), buffer_size=10000)
+#```
+#
+# To run this asynchronously we would simply run the following:
+#
+#```python
+# gaia.example.buffer.delay(
+#     VectorFileIO(uri="/opt/gaia/iraq_roads.geojson",
+#                  filter={"type": "motorway"}), buffer_size=10000)
+#```
+#
+# The second example uses a celery 'chain'  the pythonic equvalent is:
+#
+#```python
+# import gaia
+# from celery.canvas import chain
+# from gaia.inputs import VectorFileIO
+#
+# chain(gaia.example.buffer.s(
+#           VectorFileIO(uri="/opt/gaia/iraq_roads.geojson",
+#                    filter={"type": "motorway"}), buffer_size=10000),
+#       gaia.example.within.s(
+#           VectorFileIO(uri="/opt/gaia/iraq_hosptials.geojson",
+#                    filter={"type": "motorway"}))()
+#
+#```
+#
+# In this example the output of the buffer operation becomes the first argument
+# to the within function.  The chain function uses celery signatures. Signatures
+# represent a celery task (i.e. a function) and its arguments,  but they do not
+# have to represent the entire set of arguments.  For instance we could remove
+# buffer_size  from the buffer example and pass it in later at execution time
+# on the chain.  For example:
+#
+#```python
+# c = chain(gaia.example.buffer.s(
+#             VectorFileIO(uri="/opt/gaia/iraq_roads.geojson",
+#                      filter={"type": "motorway"})),
+#           gaia.example.within.s(
+#             VectorFileIO(uri="/opt/gaia/iraq_hosptials.geojson",
+#                      filter={"type": "motorway"}))
+#
+# c(buffer_size=10000) #=> Hospitals within 10,000 meters of a motorway
+# c(buffer_size=1000)  #=> Hospitals within 1,000 meters of a motorway
+# c(buffer_size=100)   #=> Hospitals within 1,00 meters of a motorway
+#```
+#
+# Celery's canvas API - in addition to chains provides support for distributed
+# groups, chords (map-reduce) map & starmap as well as chunks (scatter-gather).
+# Please seee:  http://docs.celeryproject.org/en/latest/userguide/canvas.html for
+# More information.
+
 from __future__ import absolute_import
 import argparse
 from gaia.core import GaiaException
@@ -46,6 +115,14 @@ def within(vf_io1, vf_io2):
     return second_within
 
 
+# This is a custom json deserializer that ensures
+# that any dict with a "_type" key will show up as
+# an object of the class defined in "_type", instantiated
+# with the values in the dictionary.  It works recursively
+# For the entire json being parsed. Moving forward we would
+# Want to whitelist what classes are allowed,  to prevent
+# security issues.
+
 def custom_json_deserialize(dct):
     if "_type" in dct.keys():
         cls_name = dct['_type'].split(".")[-1]
@@ -68,7 +145,6 @@ def parse_request(jsondata):
     # This returns an "EagarResult" which has the same API as an
     # AsyncResult (e.g.,  to get the value we have to call '.result')
     out.data = task.apply().result
-
     out.write()
 
     return out
@@ -88,9 +164,4 @@ if __name__ == '__main__':
 
     if jsondata:
         output = parse_request(jsondata)
-
         print("Result saved to {}".format(output.uri))
-
-
-# This can be run from the command line in the gaia source folder as follows:
-#
