@@ -4,6 +4,8 @@ import json
 import logging
 import gdalconst
 import numpy
+from numpy import logical_or, logical_and, logical_xor, \
+    bitwise_or, bitwise_and, bitwise_xor
 import gdal
 from gaia.core import GaiaException
 
@@ -285,9 +287,9 @@ def gdal_calc(calculation, raster_output, rasters,
         output_type = gdal.GetDataTypeName(max(datatype_nums))
 
     # create file
-    output_driver = gdal.GetDriverByName('GTiff')
+    output_driver = gdal.GetDriverByName('MEM')
     output_dataset = output_driver.Create(
-        raster_output, dimensions[0], dimensions[1], allbandscount,
+        '', dimensions[0], dimensions[1], allbandscount,
         gdal.GetDataTypeByName(output_type))
 
     # set output geo info based on first input layer
@@ -397,6 +399,10 @@ def gdal_calc(calculation, raster_output, rasters,
                 BandWriteArray(output_band, calc_result,
                                xoff=x_offset, yoff=y_offset)
 
+    if raster_output:
+        output_driver = gdal.GetDriverByName('GTiff')
+        outfile = output_driver.CreateCopy(raster_output, output_dataset, False)
+        outfile = None
     return output_dataset
 
 

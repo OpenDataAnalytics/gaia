@@ -33,10 +33,12 @@ class GaiaRequestParser(object):
         if data and parse:
             self.parse(data)
 
-    def parse(self, data):
+    def parse(self, data=None):
         """
         Generate process and input objects from JSON data
         """
+        if not data:
+            data = self.data
         if isinstance(data, string_types):
             data = json.loads(data)
         process_inputs = data['data_inputs']

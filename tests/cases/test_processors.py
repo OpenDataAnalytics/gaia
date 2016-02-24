@@ -285,3 +285,39 @@ class TestGaiaProcessors(unittest.TestCase):
         finally:
             if process:
                 process.purge()
+
+    def test_rastermath_logical_operators(self):
+        """
+        Test creation of a masked raster based on logical operators
+        """
+        raster1_io = RasterFileIO(
+            name='A', uri=os.path.join(testfile_path, 'globalairtemp.tif'))
+        args = {
+            'calc': 'logical_or('
+                    'logical_and(A >= 27000, A <= 28000), '
+                    'logical_and(A >= 30000, A <= 31000))'
+        }
+        process = pr.RasterMathProcess(inputs=[raster1_io, ], args=args)
+        try:
+            process.compute()
+            self.assertTrue(os.path.exists(process.output.uri))
+            oraster, raster1 = [x.read() for x in (process.output, raster1_io)]
+            # Output raster should be same dimensions as raster 1
+            self.assertEquals((oraster.RasterXSize, oraster.RasterYSize),
+                              (raster1.RasterXSize, raster1.RasterYSize))
+            orb, r1b = [x.GetRasterBand(1) for x in (oraster, raster1)]
+            # Maximum value of output should be 1
+            self.assertEqual(orb.GetStatistics(False, True)[1], 1)
+            # Minimum value of output should be 0
+            self.assertEqual(orb.GetStatistics(False, True)[0], 0)
+            # Pixels should be 1 where source is between 27K-28K or 30-31K
+            ora, r1a = [x.ReadAsArray() for x in (orb, r1b)]
+            self.assertTrue(ora[90, 10] == 1 and r1a[90, 10] == 30083)
+            self.assertTrue(ora[160, 10] == 1 and r1a[160, 10] == 27074)
+            # Pixels should be 0 where source is not between 27K-28K or 30-31K
+            ora, r1a = [x.ReadAsArray() for x in (orb, r1b)]
+            self.assertTrue(ora[120, 10] == 0 and r1a[120, 10] == 29623)
+            self.assertTrue(ora[175, 10] == 0 and r1a[175, 10] == 23928)
+        finally:
+            if process:
+                process.purge()
