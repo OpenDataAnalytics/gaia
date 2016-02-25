@@ -1,9 +1,13 @@
+import json
 import os
 import errno
 import geopandas
 import gdal
 import shutil
-import osr
+try:
+    import osr
+except ImportError:
+    from osgeo import osr
 import gaia.formats as formats
 from gaia.core import GaiaException, config
 from gaia.filters import filter_pandas
@@ -51,30 +55,76 @@ class GaiaIO(object):
                 if exc.errno != errno.EEXIST:
                     raise
 
+    def get_epsg(self):
+        if self.data is None:
+            self.read()
+        if self.data.__class__.__name__ == 'GeoDataFrame':
+            crs = self.data.crs.get('init', None)
+            if crs and ':' in crs:
+                crs = crs.split(':')[1]
+            if crs.isdigit():
+                self.epsg = crs
+                return self.epsg
+            else:
+                # Assume EPSG:4326
+                self.epsg = 4326
+                return self.epsg
+        elif self.data.__class__.__name__ == 'Dataset':
+            projection = self.data.GetProjection()
+            data_crs = osr.SpatialReference(wkt=projection)
+            try:
+                self.epsg = data_crs.GetAttrValue('AUTHORITY', 1)
+                return self.epsg
+            except KeyError:
+                # Return the WKT projection instead
+                self.epsg = projection
+                return projection
+
     def delete(self):
         raise NotImplementedError()
 
 
-class GaiaFeatureCollectionIO(GaiaIO):
+class FeatureIO(GaiaIO):
     """
     GeoJSON Feature Collection IO
     """
     default_output = formats.PANDAS
 
-    def __init__(self,  collection=None, **kwargs):
-        super(GaiaFeatureCollectionIO, self).__init__(
-            collection=collection,  **kwargs)
+    def __init__(self,  features=None, **kwargs):
+        super(FeatureIO, self).__init__(**kwargs)
+        self.features = features
 
-    def read(self, standardize=True):
-            self.data = geopandas.from_features(self.collection['features'])
-            if 'crs' in self.collection:
-                if 'init' in self.collection['crs']['properties']:
-                    self.data.crs = self.collection['crs']['properties']
-            else:
+    def read(self, format=None):
+        if not format:
+            format = self.default_output
+        if self.data is None and self.features:
+            if type(self.features) == str:
+                self.features = json.loads(self.features)
+            features = self.features
+
+            if 'type' in features and features['type'] == 'FeatureCollection':
+                self.data = geopandas.GeoDataFrame.from_features(
+                    self.features['features'])
                 # Assume EPSG:4326
                 self.data.crs = {'init': 'epsg:4326'}
-            if standardize:
-                self.reproject()
+                if 'crs' in features:
+                    if 'init' in features['crs']['properties']:
+                        self.data.crs = features['crs']['properties']
+
+            else:
+                self.data = geopandas.GeoDataFrame.from_features(features)
+                # Assume EPSG:4326
+                self.data.crs = {'init': 'epsg:4326'}
+                if 'crs' in features[0]:
+                    if 'init' in features[0]['crs']['properties']:
+                        self.data.crs = features[0]['crs']['properties']
+        if format == formats.JSON:
+            return self.data.to_json()
+        else:
+            return self.data
+
+    def delete(self):
+        self.data = None
 
 
 class FileIO(GaiaIO):
@@ -103,7 +153,7 @@ class FileIO(GaiaIO):
                 break
         return allowed
 
-    def read(self, standardize=True):
+    def read(self, standardize=False):
         if not os.path.exists(self.uri):
             raise MissingDataException(
                 'Specified file not found: {}'.format(self.uri))
@@ -118,7 +168,7 @@ class VectorFileIO(FileIO):
 
     default_output = formats.PANDAS
 
-    def read(self, standardize=True, format=None):
+    def read(self, standardize=False, format=None):
         if not format:
             format = self.default_output
         if self.ext not in formats.VECTOR:
@@ -127,11 +177,9 @@ class VectorFileIO(FileIO):
                     ','.join(formats.VECTOR)
                 )
             )
-        super(VectorFileIO, self).read(standardize=standardize)
+        super(VectorFileIO, self).read()
         if self.data is None:
             self.data = geopandas.read_file(self.uri)
-            if standardize:
-                self.reproject()
             if self.filter:
                 self.filter_data()
         if format == formats.JSON:
@@ -161,20 +209,13 @@ class VectorFileIO(FileIO):
     def filter_data(self):
         self.data = filter_pandas(self.data, self.filter)
 
-    def reproject(self):
-        original_crs = self.data.crs.get('init', None)
-        if original_crs and ':' in original_crs:
-            original_crs = original_crs.split(':')[1]
-        if original_crs != self.default_epsg:
-            self.data = self.data.to_crs(epsg=self.default_epsg)
-
 
 class RasterFileIO(FileIO):
     """Read and write raster data (GeoTIFF)"""
 
     default_output = formats.RASTER
 
-    def read(self, standardize=True):
+    def read(self):
         if self.ext not in formats.RASTER:
             raise UnsupportedFormatException(
                 "Only the following raster formats are supported: {}".format(
@@ -185,27 +226,18 @@ class RasterFileIO(FileIO):
         self.basename = os.path.basename(self.uri)
         if not self.data:
             self.data = gdal.Open(self.uri)
-            if standardize:
-                self.reproject()
         return self.data
-
-    def reproject(self):
-        data_crs = osr.SpatialReference(wkt=self.data.GetProjection())
-        if data_crs.GetAttrValue('AUTHORITY', 1) != self.default_epsg:
-            repro_file = os.path.join(self.tmp_dir, self.basename)
-            self.data = gdal_reproject(self.uri, repro_file,
-                                       epsg=self.default_epsg)
-            self.uri = repro_file
 
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
-    def __init__(self, process=None, parent_id=None, **kwargs):
+    def __init__(self, process=None, parent=None, **kwargs):
         super(ProcessIO, self).__init__(**kwargs)
         self.process = process
+        self.parent = parent
         self.default_output = process.default_output
 
-    def read(self, standardize=True):
+    def read(self):
         if self.data is None:
             self.process.compute()
             self.data = self.process.output.data
@@ -229,3 +261,18 @@ class PostgisIO(GaiaIO):
     def __init__(self, name, connection='', **kwargs):
         super(PostgisIO, self).__init__(**kwargs)
         raise NotImplementedError
+
+
+def reproject(dataio, epsg):
+    dataset = dataio.read()
+    dataclass = dataset.__class__.__name__
+    original_crs = dataio.get_epsg()
+    # Run appropriate reprojection method
+
+    if original_crs != epsg:
+        if dataclass == 'GeoDataFrame':
+            dataio.data = dataset.to_crs(epsg=epsg)
+            dataio.epsg = epsg
+        elif dataclass == 'Dataset':
+            dataio.data = gdal_reproject(dataset, '', epsg=epsg)
+            dataio.epsg = epsg

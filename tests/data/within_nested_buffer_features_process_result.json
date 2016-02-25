@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [-104.98033318727933, 39.7915589633457]}, "type": "Feature", "id": "0", "properties": {"city": "Denver", "id": null}}, {"geometry": {"type": "Point", "coordinates": [-105.26351156994849, 40.01969627886143]}, "type": "Feature", "id": "1", "properties": {"city": "Boulder", "id": null}}]}

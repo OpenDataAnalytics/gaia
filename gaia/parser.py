@@ -2,11 +2,19 @@ import argparse
 import traceback
 import json
 import os
+import inspect
 from six import string_types
 import gaia.formats
 import gaia.inputs
-import gaia.processes
+import gaia.processes_vector
+import gaia.processes_raster
 from gaia.core import GaiaException
+
+_process_r = [(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
+    gaia.processes_raster, inspect.isclass) if x[0].endswith('Process')]
+_process_v = ([(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
+    gaia.processes_vector, inspect.isclass) if x[0].endswith('Process')])
+_processes = dict(_process_r + _process_v)
 
 
 class GaiaRequestParser(object):
@@ -25,10 +33,12 @@ class GaiaRequestParser(object):
         if data and parse:
             self.parse(data)
 
-    def parse(self, data):
+    def parse(self, data=None):
         """
         Generate process and input objects from JSON data
         """
+        if not data:
+            data = self.data
         if isinstance(data, string_types):
             data = json.loads(data)
         process_inputs = data['data_inputs']
@@ -59,17 +69,19 @@ def create_io(process, data):
     :param data: The JSON configuration
     :return: Subclassed GaiaIO object
     """
-    if data['type'] == 'file':
+    if data['source'] == 'file':
         io = gaia.inputs.VectorFileIO(**data) if is_vector(
             data['uri']) else gaia.inputs.RasterFileIO(**data)
-        return io
-    elif data['type'] == 'process':
+    elif data['source'] == 'process':
         process_name = data['process']['name']
         parser = GaiaRequestParser(process_name,
                                    data=data['process'], parent=process.id)
-        return gaia.inputs.ProcessIO(process=parser.process)
+        io = gaia.inputs.ProcessIO(process=parser.process)
+    elif data['source'] == 'features':
+        io = gaia.inputs.FeatureIO(**data)
     else:
         raise NotImplementedError()
+    return io
 
 
 def create_process(name, parent=None):
@@ -79,8 +91,7 @@ def create_process(name, parent=None):
     :return:
     """
     try:
-        class_name = '{}Process'.format(name[0].capitalize() + name[1:])
-        return getattr(gaia.processes, class_name)(parent=parent)
+        return _processes[name[0].capitalize() + name[1:]](parent=parent)
     except AttributeError:
         raise GaiaException(traceback.format_exc())
 
@@ -92,7 +103,7 @@ def parse_request(process, request_json):
     :param request_json: The process configuration in JSON format
     :return: A GaiaProcess object
     """
-    parser = GaiaRequestParser(process, data=request_json, parse=True)
+    parser = GaiaRequestParser(process, request_json, parse=True)
     parser.process.compute()
     return parser.process
 

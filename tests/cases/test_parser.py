@@ -6,7 +6,7 @@ from gaia import formats
 from gaia.parser import GaiaRequestParser
 
 testfile_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../data/geoprocess')
+    os.path.realpath(__file__)), '../data')
 
 
 class TestGaiaRequestParser(unittest.TestCase):
@@ -172,5 +172,30 @@ class TestGaiaRequestParser(unittest.TestCase):
             testfile = os.path.join(testfile_path, '2states.geojson')
             if os.path.exists(testfile):
                 os.remove(testfile)
+            if process:
+                process.purge()
+
+    def test_process_within_featureio(self):
+        """Test Within process with nested Buffer process using geojson input"""
+        with open(os.path.join(
+                testfile_path,
+                'within_nested_buffer_features_process.json')) as inf:
+            json_body = json.load(inf)
+        process = GaiaRequestParser('within',
+                                    data=json_body).process
+        try:
+            process.compute()
+            output = json.loads(process.output.read(format=formats.JSON))
+            with open(os.path.join(
+                    testfile_path,
+                    'within_nested_buffer_features_process_result.json')) as gj:
+                expected_json = json.load(gj)
+            self.assertIn('features', output)
+            self.assertEquals(len(expected_json['features']),
+                              len(output['features']))
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
+
+        finally:
             if process:
                 process.purge()

@@ -1,54 +1,28 @@
 import logging
-import uuid
-import os
-from geopandas import GeoDataFrame
-from gaia.core import get_abspath, config, GaiaException
-from gaia.inputs import VectorFileIO, RasterFileIO
-import gaia.formats as formats
-from gaia.gdal_functions import gdal_clip, gdal_calc
 import numpy as np
 import pandas as pd
 
+from gaia.gdal_functions import gdal_zonalstats
+
+try:
+    import osr
+except ImportError:
+    from osgeo import osr
+from geopandas import GeoDataFrame
+import gaia.formats as formats
+from gaia.core import GaiaException
+from gaia.inputs import VectorFileIO, reproject
+from gaia.processes_base import GaiaProcess
+
 logger = logging.getLogger('gaia.processes')
-
-
-class GaiaProcess(object):
-    """
-    Defines a process to run on geospatial inputs
-    """
-
-    # TODO: Enforce required inputs and args
-    required_inputs = tuple()
-    required_args = tuple()
-
-    def __init__(self, inputs=None, output=None, args=None, parent=None):
-        self.inputs = inputs
-        self.output = output
-        self.args = args
-        self.parent = parent
-        self.id = str(uuid.uuid4())
-
-    def compute(self):
-        for input in self.inputs:
-            if input.data is None:
-                input.read()
-
-    def purge(self):
-        self.output.delete()
-
-    def get_outpath(self, uri=config['gaia']['output_path']):
-        ids_path = '{}/{}'.format(
-            self.parent, self.id) if self.parent else self.id
-        return get_abspath(
-            os.path.join(uri, ids_path,
-                         '{}{}'.format(self.id, self.default_output[0])))
 
 
 class BufferProcess(GaiaProcess):
     """
     Generates a buffer polygon around the geometries of the input data.
     The size of the buffer is determined by the 'buffer_size' args key
-    and should be in the units of the default projection.
+    and the unit of measure should be meters.  If inputs are not in a
+    metric projection they will be reprojected to EPSG:3857.
     """
     required_inputs = (('input', formats.VECTOR),)
     required_args = ('buffer_size',)
@@ -61,6 +35,14 @@ class BufferProcess(GaiaProcess):
                                        uri=self.get_outpath())
 
     def compute(self):
+        original_projection = self.inputs[0].get_epsg()
+        srs = osr.SpatialReference()
+        srs.ImportFromEPSG(int(original_projection))
+        if not srs.GetAttrValue('UNIT').lower().startswith('met'):
+            reproject(self.inputs[0], 3857)
+        else:
+            original_projection = None
+
         super(BufferProcess, self).compute()
         # TODO: Don't assume GeoPandas Dataframe. Could be PostGIS,Girder,etc.
         first_df = self.inputs[0].read()
@@ -68,39 +50,9 @@ class BufferProcess(GaiaProcess):
         buffer_df = GeoDataFrame(geometry=buffer)
         self.output.data = buffer_df
         self.output.write()
-        logger.debug(self.output)
-
-
-class SubsetProcess(GaiaProcess):
-    """
-    Generates a raster dataset representing the portion of the input raster
-    dataset that is contained within a vector polygon.
-    """
-    required_inputs = (('clip', formats.JSON), ('raster', formats.RASTER))
-    default_output = formats.RASTER
-
-    def __init__(self, **kwargs):
-        """
-        Create a process to subset a raster by a vector polygon
-        :param clip_io: IO object containing vector polygon data
-        :param raster_io: IO object containing raster data
-        :param kwargs:
-        :return: SubsetProcess object
-        """
-        super(SubsetProcess, self).__init__(**kwargs)
-        if not self.output:
-            self.output = RasterFileIO(name='result',
-                                       uri=self.get_outpath())
-
-    def compute(self):
-        super(SubsetProcess, self).compute()
-        clip_df = self.inputs[0].read()
-        raster_img = self.inputs[1].read()
-        # Merge all features in vector input
-        raster_output = self.output.uri
-        self.output.create_output_dir(raster_output)
-        clip_json = clip_df.geometry.unary_union.__geo_interface__
-        self.output.data = gdal_clip(raster_img, raster_output, clip_json)
+        if original_projection:
+            reproject(self.output, original_projection)
+            self.output.write()
 
 
 class WithinProcess(GaiaProcess):
@@ -276,39 +228,24 @@ class DistanceProcess(GaiaProcess):
         logger.debug(self.output)
 
 
-class RasterMathProcess(GaiaProcess):
+class ZonalStatsProcess(GaiaProcess):
     """
-    Performs raster math/algebra based on supplied arguments.
-    Inputs should consist of at least one raster IO object.
-    Required arg is 'calc', an equation for the input rasters.
-    Example: "A + B / (C * 2.4)".  The letters in the equation
-    should correspond to the names of the inputs.
+    Calculates statistical values from a raster dataset for each polygon
+    in a vector dataset.
     """
-    required_inputs = (('A', formats.RASTER),)
-    required_args = ('calc',)
-    optional_args = ('bands', 'nodata', 'allBands', 'output_type')
-    default_output = formats.RASTER
+    required_inputs = (('zones', formats.VECTOR), ('raster', formats.RASTER))
+    default_output = formats.VECTOR
 
     def __init__(self, **kwargs):
-        super(RasterMathProcess, self).__init__(**kwargs)
+        super(ZonalStatsProcess, self).__init__(**kwargs)
         if not self.output:
-            self.output = RasterFileIO(name='result',
+            self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
 
     def compute(self):
-        super(RasterMathProcess, self).compute()
-
-        calculation = self.args['calc']
-        rasters = [x.read() for x in self.inputs]
-        bands = self.args.get('bands' or None)
-        nodata = self.args.get('nodata' or None)
-        all_bands = self.args.get('allBands' or None)
-        otype = self.args.get('output_type' or None)
+        super(ZonalStatsProcess, self).compute()
         self.output.create_output_dir(self.output.uri)
-        self.output.data = gdal_calc(calculation,
-                                     self.output.uri,
-                                     rasters,
-                                     bands=bands,
-                                     nodata=nodata,
-                                     allBands=all_bands,
-                                     output_type=otype)
+        features = gdal_zonalstats(
+            self.inputs[0].read(format=formats.JSON), self.inputs[1].read())
+        self.output.data = GeoDataFrame.from_features(features)
+        self.output.write()
