@@ -2,9 +2,6 @@ import numpy as np
 import pysal
 
 
-__all__ = ["PolygonCollection", "gpd_polygons", "gpd_points", "gpd_contiguity", "gpd_knnW", "gpd_distanceBandW",
-           "gpd_kernel", "attr_as_dict"]
-
 class PolygonCollection:
     """
     # function from:
@@ -22,12 +19,15 @@ class PolygonCollection:
 
         Notes
         =====
-        bbox is supported in geojson specification at both the feature and feature collection level. However, not all geojson writers generate the bbox at the feature collection level.
+        bbox is supported in geojson specification at both the feature and
+        feature collection level. However, not all geojson writers generate
+        the bbox at the feature collection level.
+
         In those cases, the bbox property will be set on initial access.
 
         """
 
-        self.type=pysal.cg.Polygon
+        self.type = pysal.cg.Polygon
         self.n = len(polygons)
         self.polygons = polygons
         if bbox is None:
@@ -40,13 +40,15 @@ class PolygonCollection:
         bboxes = np.array([self.polygons[p].bbox for p in self.polygons])
         mins = bboxes.min(axis=0)
         maxs = bboxes.max(axis=0)
-        self._bbox = [ mins[0], mins[1], maxs[2], maxs[3] ]
+        self._bbox = [mins[0], mins[1], maxs[2], maxs[3]]
         return self._bbox
+
     def get(self, index):
         return self.polygons[index]
 
     def __getitem__(self, index):
         return self.polygons[index]
+
 
 # converting gpd dataframes to polygon collections / points array
 def gpd_polygons(gpdf):
@@ -56,29 +58,32 @@ def gpd_polygons(gpdf):
     """
     ids = range(len(gpdf))
     polys = list(gpdf['geometry'].apply(pysal.cg.asShape))
-    polygons = PolygonCollection(dict(zip(ids,polys)))
+    polygons = PolygonCollection(dict(zip(ids, polys)))
     return polygons
+
 
 def gpd_points(gpdf):
     """
     Constructs points from a geopandas dataframe of polygons
-
     """
     centroids = gpdf.centroid
     points = list(centroids.apply(lambda x: pysal.cg.asShape(x)))
     return points
 
-# contiguity weights
+
 def gpd_contiguity(gpdf):
     """
+    Contiguity weights
     https://github.com/pysal/pysal/blob/master/pysal/weights/_contW_binning.py
     """
     polygons = gpd_polygons(gpdf)
-    neighbors = pysal.weights.Contiguity.ContiguityWeightsPolygons(polygons).w
-    # neighbors = pysal.weights.Contiguity.ContiguityWeightsPolygons(polygons, 2).w    # for rook
+    neighbors = pysal.weights.\
+        Contiguity.ContiguityWeightsPolygons(polygons).w
+    # neighbors = pysal.weights.\
+    # Contiguity.ContiguityWeightsPolygons(polygons, 2).w    # for rook
     return pysal.W(neighbors)
 
-# distance-based weights
+
 def gpd_knnW(gpdf, k=2, p=2, ids=None):
     """
     Constructs distance-based spatial weights from a geopandas object
@@ -94,6 +99,7 @@ def gpd_knnW(gpdf, k=2, p=2, ids=None):
     w = pysal.knnW(kd, k, p, ids)
     return w
 
+
 def gpd_distanceBandW(gpdf, threshold=11.2):
     """
     https://github.com/pysal/pysal/blob/master/pysal/weights/Distance.py
@@ -102,20 +108,14 @@ def gpd_distanceBandW(gpdf, threshold=11.2):
     w = pysal.DistanceBand(points, threshold)
     return w
 
-# kernel weights
-def gpd_kernel(gpdf, bandwidth=None, fixed=True, k=2, diagonal=False, function='triangular', eps=1.0000001, ids=None):
+
+def gpd_kernel(gpdf, bandwidth=None, fixed=True, k=2, diagonal=False,
+               function='triangular', eps=1.0000001, ids=None):
     """
+    Kernel weights
     https://github.com/pysal/pysal/blob/master/pysal/weights/Distance.py
     """
     points = gpd_points(gpdf)
-    kw = pysal.Kernel(points, bandwidth=bandwidth, fixed=fixed, k=k, diagonal=diagonal, function=function, eps=eps, ids=ids)
+    kw = pysal.Kernel(points, bandwidth=bandwidth, fixed=fixed, k=k,
+                      diagonal=diagonal, function=function, eps=eps, ids=ids)
     return kw
-
-def attr_as_dict(obj):
-    # TODO: move this function somewhere else
-    attr_list = [attr for attr in dir(obj) if not callable(getattr(obj, attr)) and attr[0] != '_']
-    kv_list = [(attr, getattr(obj, attr)) for attr in attr_list]
-    # convert np.array to list so it's json-serializable
-    kv_list_mod = [(k, list(v)) if type(v)==np.ndarray else (k, v) for k, v in kv_list]
-    out = {k:v for k, v in kv_list_mod if k != 'w'}
-    return out

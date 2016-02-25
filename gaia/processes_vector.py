@@ -255,13 +255,18 @@ class ZonalStatsProcess(GaiaProcess):
 
 class ClusterProcess(GaiaProcess):
     """
-    Local Moran's I Calculation (Local Indicators of Spatial Association, or LISAs) to identifying clusters in data
+    Local Moran's I Calculation (Local Indicators of Spatial Association,
+    or LISAs) to identifying clusters in data.
     https://pysal.readthedocs.org/en/latest/users/tutorials/autocorrelation.html#local-moran-s-i
+    http://pysal.readthedocs.org/en/latest/library/esda/moran.html
 
-    Returns original vector layer with associated Moran's I statistics, including:
+    Returns original vector layer with associated Moran's I statistics,
+    including:
+
     lm_Is: float, Moran's I
     lm_q: float, quadrat location
-    lm_p_sims: float, p-value based on permutations (low p-value means observed Is differ from expected Is significantly)
+    lm_p_sims: float, p-value based on permutations (low p-value means observed
+    Is differ from expected Is significantly)
     lm_sig: boolean, True if p_sims is below 0.05
     """
     required_inputs = (('input', formats.VECTOR),)
@@ -283,19 +288,20 @@ class ClusterProcess(GaiaProcess):
         adjust_by_col = self.args.get('adjust_by_col' or None)
 
         # filter out null fields or else weight functions won't work
-        filter_out = first_df[col].isnull()
-        filtered_df = first_df[filter_out != True].reset_index()
+        keep = first_df[col].notnull()
+        filtered_df = first_df[keep].reset_index()
 
         # get Local Moran's I
         f = np.array(filtered_df[col])
         w = wt.gpd_contiguity(filtered_df)
         if adjust_by_col:
             adjust_by = np.array(filtered_df[adjust_by_col])
-            lm = pysal.esda.moran.Moran_Local_Rate(f, adjust_by, w, permutations=9999)
+            lm = pysal.esda.moran.Moran_Local_Rate(e=f, b=adjust_by, w=w,
+                                                   permutations=9999)
         else:
-            lm = pysal.Moran_Local(f, w, permutations=9999)
+            lm = pysal.Moran_Local(y=f, w=w, permutations=9999)
 
-        sig = lm.p_sim<0.05
+        sig = lm.p_sim < 0.05
         filtered_df['lm_sig'] = sig
         filtered_df['lm_p_sim'] = lm.p_sim
         filtered_df['lm_q'] = lm.q
@@ -305,11 +311,14 @@ class ClusterProcess(GaiaProcess):
         self.output.write()
         logger.debug(self.output)
 
+
 class AutocorrelationProcess(GaiaProcess):
     """
     Calculate Moran's I global autocorrelation for the input data.
     Default number of permutations = 999
     Uses contiguity weight (queen) by default.
+    https://pysal.readthedocs.org/en/latest/users/tutorials/autocorrelation.html#moran-s-i
+    http://pysal.readthedocs.org/en/latest/library/esda/moran.html
 
     Returns the following Moran's I attributes as json:
     I: float, value of Moran's I
@@ -318,7 +327,8 @@ class AutocorrelationProcess(GaiaProcess):
     EI_sim: float, average value of I from permutations
     p_sim: array, p-value based on permutations (one-tailed)
     z_sim: float, standardized I based on permutations
-    p_z_sim: float, p-value based on standard normal approximation from permutations
+    p_z_sim: float, p-value based on standard normal approximation
+    from permutations
     """
     required_inputs = (('input', formats.VECTOR),)
     required_args = ('var_col')
@@ -329,7 +339,7 @@ class AutocorrelationProcess(GaiaProcess):
         super(AutocorrelationProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = JsonFileIO(name='result',
-                                       uri=self.get_outpath())
+                                     uri=self.get_outpath())
 
     def compute(self):
         super(AutocorrelationProcess, self).compute()
@@ -343,20 +353,21 @@ class AutocorrelationProcess(GaiaProcess):
             permutations = 999
 
         # filter out null fields
-        filter_out = first_df[col].isnull()
-        filtered_df = first_df[filter_out != True]
+        keep = first_df[col].notnull()
+        filtered_df = first_df[keep]
 
         # get Global Moran's I
         f = np.array(filtered_df[col])
         w = wt.gpd_contiguity(filtered_df)
         if adjust_by_col:
             adjust_by = np.array(filtered_df[adjust_by_col])
-            mi = pysal.esda.moran.Moran_Rate(f, adjust_by, w, permutations=permutations)
+            mi = pysal.esda.moran.Moran_Rate(e=f, b=adjust_by, w=w,
+                                             permutations=permutations)
         else:
-            mi = pysal.Moran(f, w, permutations=permutations)
+            mi = pysal.Moran(y=f, w=w, permutations=permutations)
 
         keep = ['I', 'EI', 'p_norm', 'EI_sim', 'p_sim', 'z_sim', 'p_z_sim']
-        mi_dict = {k:getattr(mi, k) for k in keep}
+        mi_dict = {k: getattr(mi, k) for k in keep}
 
         self.output.data = mi_dict
         self.output.write()

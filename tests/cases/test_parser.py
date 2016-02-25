@@ -253,7 +253,8 @@ class TestGaiaRequestParser(unittest.TestCase):
         try:
             process.compute()
             output = process.output.read(format=formats.WEIGHT)
-            exp = pysal.open(os.path.join(testfile_path, 'weight_process_result.gal'), 'r')
+            exp = pysal.open(os.path.join(testfile_path,
+                                          'weight_process_result.gal'), 'r')
             expected_w = exp.read()
             exp.close()
             self.assertEquals(expected_w.n,

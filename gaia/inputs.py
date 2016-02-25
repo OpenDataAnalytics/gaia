@@ -342,6 +342,7 @@ class JsonFileIO(FileIO):
             raise NotImplementedError('{} not a valid type'.format(as_type))
         return self.uri
 
+
 def reproject(dataio, epsg):
     dataset = dataio.read()
     dataclass = dataset.__class__.__name__
@@ -355,4 +356,3 @@ def reproject(dataio, epsg):
         elif dataclass == 'Dataset':
             dataio.data = gdal_reproject(dataset, '', epsg=epsg)
             dataio.epsg = epsg
-
