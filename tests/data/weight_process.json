@@ -3,7 +3,7 @@
     {
           "name": "input",
           "source": "file",
-           "uri": "{basepath}/brazil_microcephaly.geojson"
+           "uri": "{basepath}/baghdad_hospitals.geojson"
     }
   ],
   "args": {

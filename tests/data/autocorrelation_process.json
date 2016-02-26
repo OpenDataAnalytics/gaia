@@ -3,10 +3,10 @@
     {
       "name": "input",
       "source": "file",
-      "uri": "{basepath}/brazil_microcephaly.geojson"
+      "uri": "{basepath}/baghdad_hospitals.geojson"
     }
   ],
   "args": {
-    "var_col": "cases_confirmed"
+    "var_col": "num_hospitals"
   }
 }

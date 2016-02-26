@@ -329,9 +329,9 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         vector_io = VectorFileIO(
             name='input', uri=os.path.join(testfile_path,
-                                           'brazil_microcephaly.geojson'))
+                                           'baghdad_hospitals.geojson'))
         args = {
-            'var_col': 'cases_confirmed'
+            'var_col': 'num_hospitals'
         }
         process = pv.ClusterProcess(
             inputs=[vector_io], args=args)
@@ -354,9 +354,9 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         vector_io = VectorFileIO(
             name='input', uri=os.path.join(testfile_path,
-                                           'brazil_microcephaly.geojson'))
+                                           'baghdad_hospitals.geojson'))
         args = {
-            'var_col': 'cases_confirmed'
+            'var_col': 'num_hospitals'
         }
         process = pv.AutocorrelationProcess(
             inputs=[vector_io], args=args)
@@ -379,7 +379,7 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         vector_io = VectorFileIO(
             name='input', uri=os.path.join(testfile_path,
-                                           'brazil_microcephaly.geojson'))
+                                           'baghdad_hospitals.geojson'))
         args = {
             'weight_type': 'knnW'
         }
