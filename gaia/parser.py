@@ -3,13 +3,11 @@ import inspect
 import json
 import os
 import traceback
-
-import gaia.processes_vector
 from six import string_types
-
 import gaia.formats
-import gaia.geo.processes_raster
 import gaia.inputs
+import gaia.geo.processes_raster
+import gaia.geo.processes_vector
 from gaia.core import GaiaException
 
 _process_r = [(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
