@@ -1,19 +1,21 @@
 import argparse
-import traceback
+import inspect
 import json
 import os
-import inspect
-from six import string_types
-import gaia.formats
-import gaia.inputs
+import traceback
+
 import gaia.processes_vector
-import gaia.processes_raster
+from six import string_types
+
+import gaia.formats
+import gaia.geo.processes_raster
+import gaia.inputs
 from gaia.core import GaiaException
 
 _process_r = [(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
-    gaia.processes_raster, inspect.isclass) if x[0].endswith('Process')]
+    gaia.geo.processes_raster, inspect.isclass) if x[0].endswith('Process')]
 _process_v = ([(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
-    gaia.processes_vector, inspect.isclass) if x[0].endswith('Process')])
+    gaia.geo.processes_vector, inspect.isclass) if x[0].endswith('Process')])
 _processes = dict(_process_r + _process_v)
 
 

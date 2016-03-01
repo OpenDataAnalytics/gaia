@@ -1,8 +1,8 @@
 import logging
 from gaia import formats
+from gaia.geo.processes_base import GaiaProcess
+from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.inputs import RasterFileIO
-from gaia.processes_base import GaiaProcess
-from gaia.gdal_functions import gdal_calc, gdal_clip
 
 logger = logging.getLogger('gaia.processes_raster')
 

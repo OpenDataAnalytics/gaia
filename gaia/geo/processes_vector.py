@@ -1,9 +1,6 @@
 import logging
 import numpy as np
 import pandas as pd
-
-from gaia.gdal_functions import gdal_zonalstats
-
 try:
     import osr
 except ImportError:
@@ -12,7 +9,8 @@ from geopandas import GeoDataFrame
 import gaia.formats as formats
 from gaia.core import GaiaException
 from gaia.inputs import VectorFileIO, reproject
-from gaia.processes_base import GaiaProcess
+from gaia.geo.processes_base import GaiaProcess
+from gaia.geo.gdal_functions import gdal_zonalstats
 
 logger = logging.getLogger('gaia.processes')
 
