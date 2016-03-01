@@ -5,7 +5,3 @@ gaia
    :maxdepth: 4
 
    gaia
-   plugin_tests
-   server
-   setup
-   tests
