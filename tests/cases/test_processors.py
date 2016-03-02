@@ -2,12 +2,10 @@ import json
 import os
 import unittest
 from zipfile import ZipFile
-
 from gaia import formats
-
+import gaia.geo.processes_vector as pv
+import gaia.geo.processes_raster as pr
 from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO
-import gaia.processes_vector as pv
-import gaia.processes_raster as pr
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
