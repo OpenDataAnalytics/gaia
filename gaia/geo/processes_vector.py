@@ -403,7 +403,7 @@ class WeightProcess(GaiaProcess):
             w = wt.gpd_kernel(first_df)
         # TODO: add params related to dif weight types
         else:
-            print u'weight type {0} not available'.format(weight_type)
+            print(u'weight type {0} not available'.format(weight_type))
         self.output.data = w
         self.output.write()
         logger.debug(self.output)
