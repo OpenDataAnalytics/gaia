@@ -1,10 +1,10 @@
+import errno
 import json
 import os
-import errno
-import geopandas
-import gdal
 import shutil
 import pysal
+import gdal
+import geopandas
 
 try:
     import osr
@@ -13,7 +13,7 @@ except ImportError:
 import gaia.formats as formats
 from gaia.core import GaiaException, config
 from gaia.filters import filter_pandas
-from gaia.gdal_functions import gdal_reproject
+from gaia.geo.gdal_functions import gdal_reproject
 
 
 class MissingParameterError(GaiaException):

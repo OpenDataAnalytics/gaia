@@ -19,6 +19,10 @@ from osgeo.gdal_array import BandReadAsArray, BandWriteArray
 
 logger = logging.getLogger('gaia.gdal_functions')
 
+# Python bindings do not raise exceptions unless you
+# explicitly call UseExceptions()
+gdal.UseExceptions()
+
 ndv_lookup = {
     'Byte': 255,
     'UInt16': 65535,
@@ -96,7 +100,7 @@ def gdal_resize(raster, dimensions, projection, transform):
     return resized_ds
 
 
-def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
+def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     """
     This function will subset a raster by a vector polygon.
     Adapted from the GDAL/OGR Python Cookbook at
@@ -128,22 +132,6 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
         pixel = int((x - ulX) / xDist)
         line = int((ulY - y) / xDist)
         return (pixel, line)
-
-    def OpenArray(array, prototype_ds=None, xoff=0, yoff=0):
-        """
-        EDIT: this is basically an overloaded
-        version of the gdal_array.OpenArray passing in xoff, yoff explicitly
-        so we can pass these params off to CopyDatasetInfo
-        """
-        ds = gdal.Open(gdalnumeric.GetArrayFilename(array))
-
-        if ds is not None and prototype_ds is not None:
-            if type(prototype_ds).__name__ == 'str':
-                prototype_ds = gdal.Open(prototype_ds)
-            if prototype_ds is not None:
-                gdalnumeric.CopyDatasetInfo(
-                    prototype_ds, ds, xoff=xoff, yoff=yoff)
-        return ds
 
     src_image = get_dataset(raster_input)
     # Load the source data as a gdalnumeric array
@@ -208,17 +196,34 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=-32768):
     clip = gdalnumeric.numpy.choose(
         mask, (clip, nodata_value)).astype(src_dtype)
 
-    gtiff_driver = gdal.GetDriverByName('GTiff')
-    if gtiff_driver is None:
-        raise ValueError("Can't find GeoTiff Driver")
-    subset_raster = gtiff_driver.CreateCopy(
-        raster_output, OpenArray(
-            clip, prototype_ds=raster_input, xoff=xoffset, yoff=yoffset)
-    )
-    for i in range(subset_raster.RasterCount):
-        band = subset_raster.GetRasterBand(i+1)
-        band.SetNoDataValue(nodata_values[i])
-    return subset_raster
+    # create output raster
+    raster_band = raster_input.GetRasterBand(1)
+    output_driver = gdal.GetDriverByName('MEM')
+    output_dataset = output_driver.Create(
+        '', clip.shape[1], clip.shape[0],
+        raster_input.RasterCount, raster_band.DataType)
+    output_dataset.SetGeoTransform(geo_trans)
+    output_dataset.SetProjection(raster_input.GetProjection())
+    gdalnumeric.CopyDatasetInfo(raster_input, output_dataset,
+                                xoff=xoffset, yoff=yoffset)
+    bands = raster_input.RasterCount
+    if bands > 1:
+        for i in range(bands):
+            outBand = output_dataset.GetRasterBand(i + 1)
+            outBand.SetNoDataValue(nodata_values[i])
+            outBand.WriteArray(clip[i])
+    else:
+        outBand = output_dataset.GetRasterBand(1)
+        outBand.SetNoDataValue(nodata_values[0])
+        outBand.WriteArray(clip)
+
+    if raster_output:
+        output_driver = gdal.GetDriverByName('GTiff')
+        outfile = output_driver.CreateCopy(raster_output, output_dataset, False)
+        logger.debug(str(outfile))
+        outfile = None
+
+    return output_dataset
 
 
 def gdal_calc(calculation, raster_output, rasters,
@@ -245,7 +250,7 @@ def gdal_calc(calculation, raster_output, rasters,
     datatype_nums = []
     nodata_vals = []
     dimensions = None
-    alpha_list = string.uppercase[:len(rasters)]
+    alpha_list = string.ascii_uppercase[:len(rasters)]
 
     # loop through input files - checking dimensions
     for i, (raster, alpha, band) in enumerate(zip(datasets, alpha_list, bands)):
@@ -514,7 +519,6 @@ def gen_zonalstats(zones_json, raster):
         properties['min'] = zoneraster.min()
         properties['max'] = zoneraster.max()
         properties['stddev'] = zoneraster.std()
-        print feature
         yield(feature)
 
 
