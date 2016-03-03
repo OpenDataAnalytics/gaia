@@ -42,7 +42,7 @@ class GaiaRequestParser(object):
         if isinstance(data, string_types):
             data = json.loads(data)
         process_inputs = data['data_inputs']
-        self.process.args = data['args'] if 'args' in data else None
+        self.process.args = data['args'] if 'args' in data else {}
         self.process.inputs = []
         for input in process_inputs:
             io = create_io(self.process, input)

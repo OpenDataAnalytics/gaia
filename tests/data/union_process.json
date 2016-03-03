@@ -2,11 +2,13 @@
   "data_inputs": [
       {
           "source": "file",
-          "uri": "{basepath}/baghdad_districts.geojson"
+          "uri": "{basepath}/baghdad_districts.geojson",
+          "filters": [["NNAME", "contains", "^B"]]
       },
       {
           "source": "file",
-          "uri": "{basepath}/iraq_hospitals.geojson"
+          "uri": "{basepath}/baghdad_districts.geojson",
+          "filters": [["NNAME", "contains", "^A"]]
       }
   ]
 }

@@ -96,14 +96,62 @@ class TestGaiaProcessors(unittest.TestCase):
             if process:
                 process.purge()
 
+    def test_cross(self):
+        """
+        Test IntersectsProcess for vector inputs
+        """
+        vector1_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+        vector2_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
+        process = pv.CrossesProcess(
+            inputs=[vector1_io, vector2_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'crosses_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
+    def test_touch(self):
+        """
+        Test IntersectsProcess for vector inputs
+        """
+        vector1_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+        vector2_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
+        process = pv.TouchesProcess(
+            inputs=[vector1_io, vector2_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'touches_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
     def test_union(self):
         """
         Test UnionProcess for vector inputs
         """
         vector1_io = VectorFileIO(
-            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'),
+            filters=[('NNAME', 'contains', '^A')])
         vector2_io = VectorFileIO(
-            uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'),
+            filters=[('NNAME', 'contains', '^B')])
         process = pv.UnionProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
@@ -118,15 +166,15 @@ class TestGaiaProcessors(unittest.TestCase):
             if process:
                 process.purge()
 
-    def test_difference(self):
+    def test_disjoint(self):
         """
-        Test DifferenceProcess for vector inputs
+        Test DisjointProcess for vector inputs
         """
         vector1_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
-        process = pv.DifferenceProcess(inputs=[vector1_io, vector2_io])
+        process = pv.DisjointProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -316,6 +364,48 @@ class TestGaiaProcessors(unittest.TestCase):
             ora, r1a = [x.ReadAsArray() for x in (orb, r1b)]
             self.assertTrue(ora[120, 10] == 0 and r1a[120, 10] == 29623)
             self.assertTrue(ora[175, 10] == 0 and r1a[175, 10] == 23928)
+        finally:
+            if process:
+                process.purge()
+
+    def test_length(self):
+        """
+        Test LengthProcess for vector inputs
+        """
+        vector_roads = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_roads.geojson'),
+            filters=[('type', '=', 'motorway'), ('bridge', '=', 1)])
+        process = pv.LengthProcess(inputs=[vector_roads])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'length_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
+    def test_area(self):
+        """
+        Test AreaProcess for vector inputs
+        """
+        vector1_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'),
+            filters=[('NNAME', 'contains', '^B')])
+        process = pv.AreaProcess(inputs=[vector1_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'area_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
         finally:
             if process:
                 process.purge()

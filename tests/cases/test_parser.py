@@ -33,7 +33,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertIsNotNone(process.id)
             self.assertIn(process.id, process.output.uri)
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -56,17 +55,16 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
-    def test_process_difference(self):
+    def test_process_disjoint(self):
         """Test Difference Process"""
         with open(os.path.join(testfile_path,
                                'difference_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
         json_body = json.loads(body_text)
-        process = GaiaRequestParser('difference',
+        process = GaiaRequestParser('disjoint',
                                     data=json_body).process
         try:
             process.compute()
@@ -79,7 +77,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -102,7 +99,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -125,7 +121,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 
@@ -148,7 +143,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
         finally:
-            pass
             if process:
                 process.purge()
 

@@ -29,7 +29,7 @@ class SubsetProcess(GaiaProcess):
                                        uri=self.get_outpath())
 
     def compute(self):
-        super(SubsetProcess, self).compute()
+        self.reproject_inputs()
         clip_df = self.inputs[0].read()
         raster_img = self.inputs[1].read()
         # Merge all features in vector input
@@ -59,8 +59,7 @@ class RasterMathProcess(GaiaProcess):
                                        uri=self.get_outpath())
 
     def compute(self):
-        super(RasterMathProcess, self).compute()
-
+        self.reproject_inputs()
         calculation = self.args['calc']
         rasters = [x.read() for x in self.inputs]
         bands = self.args.get('bands' or None)

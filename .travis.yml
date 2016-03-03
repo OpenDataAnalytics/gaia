@@ -24,4 +24,4 @@ install:
 
 script:
   - python -m unittest discover
-  - flake8 --config tests/flake8.cfg
+  - flake8 --config tests/flake8.cfg gaia tests
