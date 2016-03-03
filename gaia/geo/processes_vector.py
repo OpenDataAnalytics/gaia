@@ -250,6 +250,7 @@ class DisjointProcess(GaiaProcess):
 class UnionProcess(GaiaProcess):
     """
     Combines two vector datasets into one.
+    They should have the same columns.
     """
 
     default_output = formats.JSON

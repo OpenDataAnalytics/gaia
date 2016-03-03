@@ -12,9 +12,8 @@ except ImportError:
     from osgeo import osr
 import gaia.formats as formats
 from gaia.core import GaiaException, config
-from gaia.filters import filter_pandas
+from gaia.filters import filter_pandas, filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
-
 
 
 class MissingParameterError(GaiaException):
