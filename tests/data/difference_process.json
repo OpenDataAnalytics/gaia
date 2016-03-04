@@ -1,11 +1,12 @@
 {
-  "data_inputs": [
+  "_type": "gaia.geo.processes_vector.DisjointProcess",
+  "inputs": [
       {
-          "source": "file",
+          "_type": "gaia.inputs.VectorFileIO",
            "uri": "{basepath}/baghdad_districts.geojson"
       },
       {
-          "source": "file",
+          "_type": "gaia.inputs.VectorFileIO",
           "uri": "{basepath}/iraq_roads.geojson"
       }
   ]

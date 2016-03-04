@@ -1,5 +1,7 @@
+import json
+
 from celery import Celery
-from gaia.parser import parse_request
+from gaia.parser import custom_json_deserialize
 from gaia.core import config
 
 app = Celery('tasks',
@@ -8,7 +10,7 @@ app = Celery('tasks',
 
 
 @app.task
-def parse_process(process_name, request_json):
+def parse_process(request_json):
     """
     Create a process of the specified name,
     parse a dict of process inputs and arguments,
@@ -17,7 +19,8 @@ def parse_process(process_name, request_json):
     :param request_json: Dict of inputs and process args
     :return: GaiaIO object containing process output data
     """
-    process = parse_request(process_name, request_json)
+    process = json.loads(request_json, object_hook=custom_json_deserialize)
+    process.compute()
     return process.output
 
 

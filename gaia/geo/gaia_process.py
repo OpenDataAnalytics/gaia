@@ -1,7 +1,6 @@
 import os
 import uuid
-from gaia.core import get_abspath, config
-from gaia.inputs import reproject
+from gaia.core import get_abspath, config, GaiaException
 
 
 class GaiaProcess(object):
@@ -15,12 +14,21 @@ class GaiaProcess(object):
 
     args = None
 
-    def __init__(self, inputs=None, output=None, args=None, parent=None):
+    def __init__(self, inputs=None, output=None, parent=None, **kwargs):
         self.inputs = inputs
         self.output = output
-        self.args = args or {}
         self.parent = parent
         self.id = str(uuid.uuid4())
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    def validate(self):
+        if len(self.inputs) < len(self.required_inputs):
+            raise GaiaException("Process requires a minimum of {} inputs".
+                                format(len(self.required_inputs)))
+        for arg in self.required_args:
+            if not hasattr(self, arg) or getattr(self, arg) is None:
+                raise GaiaException('Missing required argument {}'.format(arg))
 
     def compute(self):
         raise NotImplementedError()
@@ -34,16 +42,6 @@ class GaiaProcess(object):
         return get_abspath(
             os.path.join(uri, ids_path,
                          '{}{}'.format(self.id, self.default_output[0])))
-
-    def reproject_inputs(self):
-        previous_input = None
-        for input in self.inputs:
-            if input.data is None:
-                input.read()
-            if previous_input:
-                if input.get_epsg() != previous_input.get_epsg():
-                    reproject(input, previous_input.epsg)
-            previous_input = input
 
     def get_input_classes(self):
         """

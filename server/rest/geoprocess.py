@@ -4,7 +4,7 @@ from girder.api.describe import Description
 from girder.utility import config
 import cherrypy
 import json
-from gaia.parser import GaiaRequestParser
+from gaia.parser import custom_json_deserialize
 import gaia.formats
 
 
@@ -14,10 +14,10 @@ class GeoProcess(Resource):
     def __init__(self):
         self.resourceName = 'geoprocess'
         self.config = config.getConfig()
-        self.route('POST', (':geoprocess',), self.processTask)
+        self.route('POST', (), self.processTask)
 
     @access.public
-    def processTask(self, geoprocess, params):
+    def processTask(self, params):
         """
         Based on the process name in the URL and JSON in the request body,
         create & send a WPS request and pass on the response.
@@ -25,8 +25,8 @@ class GeoProcess(Resource):
 
         json_body = self.getBodyJson()
 
-        process = GaiaRequestParser(
-            geoprocess, data=json_body).process
+        process = json.loads(json.dumps(json_body),
+                             object_hook=custom_json_deserialize)
 
         # assume output is GeoJSON or GeoTIFF
         process.compute()
@@ -38,7 +38,6 @@ class GeoProcess(Resource):
 
     processTask.description = (
         Description('Make a gaia request and return the response')
-        .param('geoprocess', 'The process to run', paramType='path')
         .param('body', 'A JSON object containing the process parameters',
                paramType='body')
         .errorResponse('An error occurred making the request', 500))

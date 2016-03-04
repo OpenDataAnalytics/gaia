@@ -1,7 +1,8 @@
 {
-  "data_inputs": [
+  "_type": "gaia.geo.processes_vector.CentroidProcess",
+  "inputs": [
       {
-          "source": "file",
+          "_type": "gaia.inputs.VectorFileIO",
            "uri": "{basepath}/baghdad_districts.geojson"
       }
   ]

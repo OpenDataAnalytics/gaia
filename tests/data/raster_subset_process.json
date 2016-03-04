@@ -1,14 +1,15 @@
 {
-  "data_inputs": [
-      {
-          "name": "clip",
-          "source": "file",
-          "uri": "{basepath}/2states.geojson"
-      },
+  "_type": "gaia.geo.processes_raster.SubsetProcess",
+  "inputs": [
       {
           "name": "raster",
-          "source": "file",
+          "_type": "gaia.inputs.RasterFileIO",
           "uri": "{basepath}/globalairtemp.tif"
+      },
+      {
+          "name": "clip",
+          "_type": "gaia.inputs.VectorFileIO",
+          "uri": "{basepath}/2states.geojson"
       }
   ]
 }

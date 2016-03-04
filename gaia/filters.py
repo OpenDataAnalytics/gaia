@@ -11,10 +11,13 @@ ops = {
 
 
 def filter_pandas(df, filters):
-    """
-    Filter a GeoPandas DataFrame, return a new filtered DataFrame
+    r"""
+    Filter a GeoPandas DataFrame, return a new filtered DataFrame.
+    Currently all filters are joined by 'AND'
+    TODO: Support for 'OR', parentheses?
     :param df: The DataFrame to filter
-    :param filters: An array of [attribute, operator, value(s) arrays
+    :param filters: An array of (attribute, operator, value) arrays\
+    for example [('city', 'in', ['Boston', 'New York']), ('id', '>', 10)]
     :return: A filtered DataFrame
     """
     for filter in filters:
@@ -33,18 +36,23 @@ def filter_pandas(df, filters):
 
 
 def filter_postgis(filters):
-    """
-    Generate a SQL statement to be used as a WHERE clause
-    :param filters: list of filters in the form of (attribute, operator, values)
+    r"""
+    Generate a SQL statement to be used as a WHERE clause.
+    TODO: Support parentheses?
+    :param filters: list of filters in the form of
+    (attribute, operator, values [, join option (AND, OR)])\
     for example [('city', 'in', ['Boston', 'New York']), ('id', '>', 10)]
     :return: SQL string and list of parameters
     """
     sql_filters = None
     sql_params = []
+    sql_joiner = ' AND '
     for filter in filters:
         attribute = filter[0]
         operator = filter[1]
         values = filter[2]
+        if len(filter) > 3:
+            sql_joiner = filter[3]
         if type(values) in (list, tuple):
             sql_filter = '"{}" {} ('.format(attribute, operator) + ','.join(
                 ['%s' for x in values]) + ')'
@@ -55,5 +63,5 @@ def filter_postgis(filters):
         if not sql_filters:
             sql_filters = sql_filter
         else:
-            sql_filters = sql_filters + ' AND ' + sql_filter
+            sql_filters = sql_filters + sql_joiner + sql_filter
     return sql_filters, sql_params

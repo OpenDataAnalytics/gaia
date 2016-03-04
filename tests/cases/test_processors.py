@@ -42,7 +42,7 @@ class TestGaiaProcessors(unittest.TestCase):
              }])
         raster_io = RasterFileIO(name='temp', uri=os.path.join(
             testfile_path, 'globalairtemp.tif'))
-        process = pv.ZonalStatsProcess(inputs=[vector_io, raster_io])
+        process = pv.ZonalStatsProcess(inputs=[raster_io, vector_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -241,7 +241,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, '2states.geojson'))
         raster_io = RasterFileIO(
             uri=os.path.join(testfile_path, 'globalairtemp.tif'))
-        process = pr.SubsetProcess(inputs=[vector_io, raster_io])
+        process = pr.SubsetProcess(inputs=[raster_io, vector_io])
         try:
             process.compute()
             self.assertEquals(type(process.output.data).__name__, 'Dataset')
@@ -263,12 +263,11 @@ class TestGaiaProcessors(unittest.TestCase):
             name='A', uri=os.path.join(testfile_path, 'globalairtemp.tif'))
         raster2_io = RasterFileIO(
             name='B', uri=os.path.join(testfile_path, 'globalprecip.tif'))
-        args = {
-            'calc': 'A + B',
-            'bands': [1, 1]
-        }
+        calc = 'A + B'
+        bands = [1, 1]
+
         process = pr.RasterMathProcess(
-            inputs=[raster1_io, raster2_io], args=args)
+            inputs=[raster1_io, raster2_io], calc=calc, bands=bands)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))
@@ -301,11 +300,12 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         raster1_io = RasterFileIO(
             name='A', uri=os.path.join(testfile_path, 'globalprecip.tif'))
-        args = {
-            'calc': 'A * 2',
-            'output_type': 'Float32'
-        }
-        process = pr.RasterMathProcess(inputs=[raster1_io, ], args=args)
+        calc = 'A * 2'
+        output_type = 'Float32'
+
+        process = pr.RasterMathProcess(inputs=[raster1_io, ],
+                                       calc=calc,
+                                       output_type=output_type)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))
@@ -338,12 +338,10 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         raster1_io = RasterFileIO(
             name='A', uri=os.path.join(testfile_path, 'globalairtemp.tif'))
-        args = {
-            'calc': 'logical_or('
-                    'logical_and(A >= 27000, A <= 28000), '
-                    'logical_and(A >= 30000, A <= 31000))'
-        }
-        process = pr.RasterMathProcess(inputs=[raster1_io, ], args=args)
+        calc = 'logical_or(logical_and(A >= 27000, A <= 28000), ' \
+               'logical_and(A >= 30000, A <= 31000))'
+
+        process = pr.RasterMathProcess(inputs=[raster1_io, ], calc=calc)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))

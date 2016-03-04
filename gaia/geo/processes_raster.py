@@ -1,10 +1,10 @@
 import logging
 from gaia import formats
-from gaia.geo.processes_base import GaiaProcess
+from gaia.geo.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.inputs import RasterFileIO
 
-logger = logging.getLogger('gaia.processes_raster')
+logger = logging.getLogger('gaia.geo')
 
 
 class SubsetProcess(GaiaProcess):
@@ -12,7 +12,7 @@ class SubsetProcess(GaiaProcess):
     Generates a raster dataset representing the portion of the input raster
     dataset that is contained within a vector polygon.
     """
-    required_inputs = (('clip', formats.JSON), ('raster', formats.RASTER))
+    required_inputs = (('raster', formats.RASTER), ('clip', formats.JSON))
     default_output = formats.RASTER
 
     def __init__(self, **kwargs):
@@ -27,11 +27,12 @@ class SubsetProcess(GaiaProcess):
         if not self.output:
             self.output = RasterFileIO(name='result',
                                        uri=self.get_outpath())
+        self.validate()
 
     def compute(self):
-        self.reproject_inputs()
-        clip_df = self.inputs[0].read()
-        raster_img = self.inputs[1].read()
+        raster, clip = self.inputs[0], self.inputs[1]
+        raster_img = raster.read()
+        clip_df = clip.read(epsg=raster.get_epsg())
         # Merge all features in vector input
         raster_output = self.output.uri
         self.output.create_output_dir(raster_output)
@@ -49,25 +50,31 @@ class RasterMathProcess(GaiaProcess):
     """
     required_inputs = (('A', formats.RASTER),)
     required_args = ('calc',)
-    optional_args = ('bands', 'nodata', 'allBands', 'output_type')
     default_output = formats.RASTER
 
-    def __init__(self, **kwargs):
+    bands = None
+    nodata = None
+    all_bands = None
+    output_type = None
+
+    def __init__(self, calc=None, **kwargs):
         super(RasterMathProcess, self).__init__(**kwargs)
+        self.calc = calc
         if not self.output:
             self.output = RasterFileIO(name='result',
                                        uri=self.get_outpath())
+        self.validate()
 
     def compute(self):
-        self.reproject_inputs()
-        calculation = self.args['calc']
-        rasters = [x.read() for x in self.inputs]
-        bands = self.args.get('bands' or None)
-        nodata = self.args.get('nodata' or None)
-        all_bands = self.args.get('allBands' or None)
-        otype = self.args.get('output_type' or None)
+        first = self.inputs[0]
+        epsg = first.get_epsg()
+        rasters = [x.read(epsg=epsg) for x in self.inputs]
+        bands = self.bands
+        nodata = self.nodata
+        all_bands = self.all_bands
+        otype = self.output_type
         self.output.create_output_dir(self.output.uri)
-        self.output.data = gdal_calc(calculation,
+        self.output.data = gdal_calc(self.calc,
                                      self.output.uri,
                                      rasters,
                                      bands=bands,

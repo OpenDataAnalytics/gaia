@@ -17,7 +17,7 @@ import osr
 from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
 
-logger = logging.getLogger('gaia.gdal_functions')
+logger = logging.getLogger('gaia.geo.gdal_functions')
 
 # Python bindings do not raise exceptions unless you
 # explicitly call UseExceptions()

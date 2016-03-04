@@ -3,7 +3,7 @@ import os
 import unittest
 from zipfile import ZipFile
 from gaia import formats
-from gaia.parser import GaiaRequestParser
+from gaia.parser import custom_json_deserialize
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
@@ -17,9 +17,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'within_nested_buffer_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        json_body = json.loads(body_text)
-        process = GaiaRequestParser('within',
-                                    data=json_body).process
+        process = json.loads(body_text, object_hook=custom_json_deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -41,9 +39,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'intersects_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        json_body = json.loads(body_text)
-        process = GaiaRequestParser('intersects',
-                                    data=json_body).process
+        process = json.loads(body_text, object_hook=custom_json_deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -63,9 +59,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'difference_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        json_body = json.loads(body_text)
-        process = GaiaRequestParser('disjoint',
-                                    data=json_body).process
+        process = json.loads(body_text, object_hook=custom_json_deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -85,9 +79,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'union_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        json_body = json.loads(body_text)
-        process = GaiaRequestParser('union',
-                                    data=json_body).process
+        process = json.loads(body_text, object_hook=custom_json_deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -107,9 +99,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'centroid_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        json_body = json.loads(body_text)
-        process = GaiaRequestParser('centroid',
-                                    data=json_body).process
+        process = json.loads(body_text, object_hook=custom_json_deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -129,9 +119,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'distance_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        json_body = json.loads(body_text)
-        process = GaiaRequestParser('distance',
-                                    data=json_body).process
+        process = json.loads(body_text, object_hook=custom_json_deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -151,10 +139,9 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(
                 testfile_path, 'raster_subset_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-            process_json = json.loads(body_text)
+            process = json.loads(body_text, object_hook=custom_json_deserialize)
         zipfile = ZipFile(os.path.join(testfile_path, '2states.zip'), 'r')
-        process = GaiaRequestParser('subset',
-                                    data=process_json).process
+
         try:
             zipfile.extract('2states.geojson', testfile_path)
             process.compute()
@@ -174,9 +161,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(
                 testfile_path,
                 'within_nested_buffer_features_process.json')) as inf:
-            json_body = json.load(inf)
-        process = GaiaRequestParser('within',
-                                    data=json_body).process
+                process = json.load(inf, object_hook=custom_json_deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
