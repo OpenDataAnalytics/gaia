@@ -521,7 +521,6 @@ class PostgisIO(GaiaIO):
         """
         if self.data is None:
             query, params = self.get_query()
-            print query, params
             self.data = df_from_postgis(self.engine, query, params,
                                         self.geom_column, self.epsg)
         out_data = self.data
