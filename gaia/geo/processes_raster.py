@@ -17,10 +17,11 @@
 #  limitations under the License.
 ###############################################################################
 import logging
-from gaia import formats
+import gaia.formats as formats
 from gaia.geo.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
-from gaia.inputs import RasterFileIO
+import gaia.inputs
+
 
 logger = logging.getLogger('gaia.geo')
 
@@ -43,8 +44,8 @@ class SubsetProcess(GaiaProcess):
         """
         super(SubsetProcess, self).__init__(**kwargs)
         if not self.output:
-            self.output = RasterFileIO(name='result',
-                                       uri=self.get_outpath())
+            self.output = gaia.inputs.RasterFileIO(name='result',
+                                                   uri=self.get_outpath())
         self.validate()
 
     def compute(self):
@@ -79,8 +80,8 @@ class RasterMathProcess(GaiaProcess):
         super(RasterMathProcess, self).__init__(**kwargs)
         self.calc = calc
         if not self.output:
-            self.output = RasterFileIO(name='result',
-                                       uri=self.get_outpath())
+            self.output = gaia.inputs.RasterFileIO(name='result',
+                                                   uri=self.get_outpath())
         self.validate()
 
     def compute(self):

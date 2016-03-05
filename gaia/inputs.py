@@ -23,9 +23,7 @@ import fiona
 import geopandas
 import gdal
 import shutil
-from gaia.gdal_functions import gdal_reproject
 from sqlalchemy import create_engine, MetaData, Table, text
-
 try:
     import osr
 except ImportError:
@@ -561,6 +559,7 @@ def reproject(dataset, epsg):
     :param epsg: EPSG code to reproject to
     :return: Reprojected data
     """
+    from gaia.geo import gdal_reproject
     dataclass = dataset.__class__.__name__
     # Run appropriate reprojection method
     if dataclass == 'GeoDataFrame':

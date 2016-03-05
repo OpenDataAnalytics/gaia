@@ -20,14 +20,16 @@ import argparse
 import importlib
 import inspect
 import json
-import gaia.formats
 import gaia.inputs
-import gaia.geo
+import gaia.geo.processes_vector
+import gaia.geo.processes_raster
 from gaia.core import GaiaException
 
 valid_classes = []
 valid_classes.extend([x[0] for x in inspect.getmembers(
-    gaia.geo, inspect.isclass) if x[0].endswith('Process')])
+    gaia.geo.processes_vector, inspect.isclass) if x[0].endswith('Process')])
+valid_classes.extend([x[0] for x in inspect.getmembers(
+    gaia.geo.processes_raster, inspect.isclass) if x[0].endswith('Process')])
 valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.inputs, inspect.isclass) if x[0].endswith('IO')])
 

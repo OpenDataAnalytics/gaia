@@ -23,6 +23,7 @@ from zipfile import ZipFile
 from gaia import formats
 from gaia.parser import custom_json_deserialize
 
+
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
 

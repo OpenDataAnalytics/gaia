@@ -1,3 +1,4 @@
-from gaia_process import *
-from processes_raster import *
-from processes_vector import *
+from gaia.geo.gdal_functions import *
+from gaia.geo.gaia_process import *
+from gaia.geo.processes_raster import *
+from gaia.geo.processes_vector import *
