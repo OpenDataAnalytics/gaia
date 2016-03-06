@@ -29,6 +29,7 @@ testfile_path = os.path.join(os.path.dirname(
 
 
 class TestGaiaProcessors(unittest.TestCase):
+
     def test_zonalstats(self):
         vector_io = FeatureIO(features=[
             {"type": "Feature",

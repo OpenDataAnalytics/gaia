@@ -24,12 +24,13 @@ import geopandas
 import gdal
 import shutil
 from sqlalchemy import create_engine, MetaData, Table, text
+from geoalchemy2 import Geometry
 try:
     import osr
 except ImportError:
     from osgeo import osr
 import gaia.formats as formats
-from gaia.core import GaiaException, config
+from gaia.core import GaiaException, config, sqlengines
 from gaia.filters import filter_pandas, filter_postgis
 
 
@@ -414,13 +415,19 @@ class PostgisIO(GaiaIO):
         """
         super(PostgisIO, self).__init__(**kwargs)
         self.table = table
-        self.host = kwargs.get('host') or config['gaia']['pg_host']
-        self.dbname = kwargs.get('dbname') or config['gaia']['pg_dbname']
-        self.user = kwargs.get('user') or config['gaia']['pg_user']
-        self.password = kwargs.get('password') or config['gaia']['pg_password']
-        self.engine = create_engine(self.get_connection_string())
+        self.host = kwargs.get('host') or config['postgis']['host']
+        self.dbname = kwargs.get('dbname') or config['postgis']['dbname']
+        self.user = kwargs.get('user') or config['postgis']['user']
+        self.password = kwargs.get('password') or config['postgis']['password']
+        self.engine = self.get_engine(self.get_connection_string())
         self.get_table_info()
         self.verify()
+
+    def get_engine(self, connection_string):
+        if connection_string not in sqlengines:
+            sqlengines[connection_string] = create_engine(
+                self.get_connection_string())
+        return sqlengines[connection_string]
 
     def verify(self):
         """

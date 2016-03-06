@@ -45,13 +45,14 @@ def get_abspath(inpath):
         return os.path.abspath(os.path.join(base_dir, inpath))
 
 
-def get_config():
+def get_config(config_file=None):
     """
     Retrieve app configuration parameters
     such as database connections
     :return: configuration
     """
-    config_file = os.path.join(base_dir, 'conf/gaia.local.cfg')
+    if not config_file:
+        config_file = os.path.join(base_dir, 'conf/gaia.local.cfg')
     if not os.path.exists(config_file):
         shutil.copy(config_file.replace('local', 'dist'), config_file)
     parser = ConfigParser()
@@ -63,5 +64,6 @@ def get_config():
             config_dict[section][key] = val
     return config_dict
 
-
 config = get_config()
+
+sqlengines = {}

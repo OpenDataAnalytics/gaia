@@ -21,4 +21,5 @@ geopandas==0.1.1
 pillow==3.1.1
 gdal==1.10
 celery==3.1.20
-geoalchemy==0.7.2
+psycopg2==2.6.1
+geoalchemy2==0.2.6

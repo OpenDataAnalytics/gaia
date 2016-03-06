@@ -3,10 +3,14 @@ language: python
 sudo: required
 
 addons:
+  postgresql: "9.3"
   apt:
     packages:
       - python-dev
       - libgdal1-dev
+
+services:
+  - postgresql
 
 python:
   - "2.7"
