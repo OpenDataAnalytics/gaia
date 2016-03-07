@@ -21,15 +21,12 @@ import importlib
 import inspect
 import json
 import gaia.inputs
-import gaia.geo.processes_vector
-import gaia.geo.processes_raster
+import gaia.geo
 from gaia.core import GaiaException
 
 valid_classes = []
 valid_classes.extend([x[0] for x in inspect.getmembers(
-    gaia.geo.processes_vector, inspect.isclass) if x[0].endswith('Process')])
-valid_classes.extend([x[0] for x in inspect.getmembers(
-    gaia.geo.processes_raster, inspect.isclass) if x[0].endswith('Process')])
+    gaia.geo, inspect.isclass) if x[0].endswith('Process')])
 valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.inputs, inspect.isclass) if x[0].endswith('IO')])
 
@@ -56,19 +53,13 @@ def custom_json_deserialize(dct):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run geospatial process.')
-    parser.add_argument('--jsonstr', default=None,
-                        help='String representation of JSON request')
-    parser.add_argument('--jsonfile', default=None,
-                        help='sum the integers (default: find the max)')
+    parser.add_argument('jsonfile', default=None,
+                        help='JSON file to parse')
     args = parser.parse_args()
-
-    jsondata = None
-    if args.jsonstr:
-        process = json.loads(args.jsonstr, object_hook=custom_json_deserialize)
-    elif args.jsonfile:
-        with open(args.jsonfile) as infile:
+    with open(args.jsonfile) as infile:
             process = json.load(infile, object_hook=custom_json_deserialize)
-    else:
-        print("You must supply either a JSON string or file")
     process.compute()
-    print("Result saved to {}".format(process.output.uri))
+    if hasattr(process, 'output') and hasattr(process.output, 'uri'):
+        print("Result saved to {}".format(process.output.uri))
+    else:
+        print('Process complete.')

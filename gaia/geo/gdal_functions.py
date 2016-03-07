@@ -40,6 +40,7 @@ logger = logging.getLogger('gaia.geo.gdal_functions')
 # Python bindings do not raise exceptions unless you
 # explicitly call UseExceptions()
 gdal.UseExceptions()
+gdal.PushErrorHandler('CPLQuietErrorHandler')
 
 ndv_lookup = {
     'Byte': 255,
