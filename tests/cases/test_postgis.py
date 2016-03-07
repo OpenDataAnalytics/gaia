@@ -101,7 +101,6 @@ class TestPostGisDB(unittest.TestCase):
         iso_level = connection.connection.connection.isolation_level
         connection.connection.connection.set_isolation_level(0)
         try:
-            pass
             connection.execute("DROP DATABASE IF EXISTS {}".format(cls.dbname))
         finally:
             connection.connection.connection.set_isolation_level(iso_level)
