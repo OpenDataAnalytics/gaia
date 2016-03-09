@@ -23,8 +23,5 @@
               }
           }
       }
-  ],
-    "output": {
-        "source": "file"
-    }
+  ]
 }
