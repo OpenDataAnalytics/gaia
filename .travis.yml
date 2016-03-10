@@ -7,6 +7,10 @@ addons:
     packages:
       - python-dev
       - libgdal1-dev
+      - libblas-dev
+      - liblapack-dev
+      - libatlas-base-dev
+      - gfortran
 
 python:
   - "2.7"

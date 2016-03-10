@@ -1,0 +1,15 @@
+{
+  "data_inputs": [
+    {
+          "name": "input",
+          "source": "file",
+           "uri": "{basepath}/baghdad_hospitals.geojson"
+    }
+  ],
+  "args": {
+    "weight_type": "knnW"
+  },
+  "output": {
+    "type": "file"
+  }
+}

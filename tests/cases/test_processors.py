@@ -2,6 +2,8 @@ import json
 import os
 import unittest
 from zipfile import ZipFile
+import pysal
+
 from gaia import formats
 import gaia.geo.processes_vector as pv
 import gaia.geo.processes_raster as pr
@@ -316,6 +318,81 @@ class TestGaiaProcessors(unittest.TestCase):
             ora, r1a = [x.ReadAsArray() for x in (orb, r1b)]
             self.assertTrue(ora[120, 10] == 0 and r1a[120, 10] == 29623)
             self.assertTrue(ora[175, 10] == 0 and r1a[175, 10] == 23928)
+        finally:
+            if process:
+                process.purge()
+
+    def test_cluster(self):
+        """
+        Test ClusterProcess for vector inputs
+        """
+        vector_io = VectorFileIO(
+            name='input', uri=os.path.join(testfile_path,
+                                           'baghdad_hospitals.geojson'))
+        args = {
+            'var_col': 'num_hospitals'
+        }
+        process = pv.ClusterProcess(
+            inputs=[vector_io], args=args)
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'cluster_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
+    def test_autocorrelation(self):
+        """
+        Test AutocorrelationProcess for vector inputs
+        """
+        vector_io = VectorFileIO(
+            name='input', uri=os.path.join(testfile_path,
+                                           'baghdad_hospitals.geojson'))
+        args = {
+            'var_col': 'num_hospitals'
+        }
+        process = pv.AutocorrelationProcess(
+            inputs=[vector_io], args=args)
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'autocorrelation_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = process.output.read(format=formats.JSON)
+            self.assertEquals(expected_json['I'],
+                              actual_json['I'])
+        finally:
+            if process:
+                process.purge()
+
+    def test_weight(self):
+        """
+        Test WeightProcess for vector inputs
+        """
+        vector_io = VectorFileIO(
+            name='input', uri=os.path.join(testfile_path,
+                                           'baghdad_hospitals.geojson'))
+        args = {
+            'weight_type': 'knnW'
+        }
+        process = pv.WeightProcess(
+            inputs=[vector_io], args=args)
+        try:
+            process.compute()
+            exp = pysal.open(os.path.join(testfile_path,
+                                          'weight_process_result.gal'), 'r')
+            expected_w = exp.read()
+            exp.close()
+            actual = process.output.read(format=formats.WEIGHT)
+            self.assertEquals(expected_w.n,
+                              actual.n)
         finally:
             if process:
                 process.purge()
