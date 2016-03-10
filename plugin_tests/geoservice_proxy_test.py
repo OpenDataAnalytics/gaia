@@ -17,10 +17,8 @@
 #  limitations under the License.
 ###############################################################################
 import gzip
-import json
 import os
 from xml.etree import ElementTree as et
-
 from httmock import urlmatch, HTTMock, response as httmockresponse
 
 # Need to set the environment variable before importing girder
@@ -29,6 +27,7 @@ testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../tests/data')
 
 from tests import base
+
 
 @urlmatch(netloc=r'.*')
 def wms_gc_mock(url, request):
@@ -42,6 +41,7 @@ def wms_gc_mock(url, request):
         }
         return httmockresponse(200, content, headers, request=request)
 
+
 @urlmatch(netloc=r'.*')
 def wms_gm_mock(url, request):
     pluginTestDir = os.path.dirname(os.path.realpath(__file__))
@@ -53,6 +53,7 @@ def wms_gm_mock(url, request):
             'content-type': 'image/png'
         }
         return httmockresponse(200, content, headers, request=request)
+
 
 @urlmatch(netloc=r'.*')
 def wfs_gf_mock(url, request):

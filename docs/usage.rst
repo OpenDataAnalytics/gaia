@@ -58,15 +58,16 @@ Girder Geoserver proxy
 
 Gaia provides a proxy to the Geoserver instance of your choice.
 
-   - Modify the 'ogc_url' setting in your gaia.local.cfg file to the URL of your Geoserver instance.
+  - Modify the 'ogc_url' setting in your gaia.local.cfg file to the URL of your Geoserver instance.
 
-   - Make proxy requests to Geoserver from http://your-girder-url/geo/*:
+   - Make proxy requests to Geoserver from http://your-girder-url/geo/*::
 
-       - http://your-girder-url/geo/wms/?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities
-       - http://your-girder-url/geo/wfs/??request=GetFeature&version=1.1.0&typeName=topp:states&BBOX=-75.1,40.2,-72.3,41.5,EPSG:4326
-       - http://your-girder-url/geo/rest/workspaces/geonode/coveragestores/relief_san_andres.json
+       http://your-girder-url/geo/wms/?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities
 
-   - You can make GET, POST, and PUT requests.  You will need to add an Authorization header to your requests if authentication
-   is required.
+       http://your-girder-url/geo/wfs/??request=GetFeature&version=1.1.0&typeName=topp:states&BBOX=-75.1,40.2,-72.3,41.6,EPSG:4326
 
-   - NOTE: If you have the minerva plugin enabled, the proxy will be available at ../girder/geo instead of ../geo
+       http://your-girder-url/geo/rest/workspaces/geonode/coveragestores/relief_san_andres.json
+
+  - You can make GET, POST, and PUT requests.  You will need to add an Authorization header to your requests if authentication is required.
+
+  - NOTE: If you have the minerva plugin enabled, the proxy will be available at ../girder/geo instead of ../geo
