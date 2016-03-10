@@ -1,5 +1,5 @@
 {
-  "_type": "gaia.geo.processes_vector.WithinProcess",
+  "_type": "gaia.geo.WithinProcess",
   "inputs": [
       {
           "_type": "gaia.inputs.VectorFileIO",
@@ -9,7 +9,7 @@
       {
           "_type": "gaia.inputs.ProcessIO",
           "process": {
-              "_type": "gaia.geo.processes_vector.BufferProcess",
+              "_type": "gaia.geo.BufferProcess",
               "buffer_size": 1000,
               "name": "buffer",
               "inputs": [

@@ -22,14 +22,19 @@ import re
 import fiona
 import numpy as np
 import pandas as pd
+import pysal
 try:
     import osr
 except ImportError:
     from osgeo import osr
-from geopandas import GeoDataFrame, GeoSeries
+from geopandas import GeoSeries
+from geopandas import GeoDataFrame
+
+import gaia.pysal_weights as wt
 import gaia.formats as formats
 from gaia.core import GaiaException
-from gaia.geo.gaia_process import GaiaProcess
+from gaia.inputs import WeightFileIO, JsonFileIO
+from gaia.geo import GaiaProcess
 from gaia.geo.gdal_functions import gdal_zonalstats
 from gaia.inputs import VectorFileIO, df_from_postgis
 
@@ -906,3 +911,172 @@ class ZonalStatsProcess(GaiaProcess):
             self.inputs[0].read())
         self.output.data = GeoDataFrame.from_features(features)
         self.output.write()
+
+
+class ClusterProcess(GaiaProcess):
+    """
+    Local Moran's I Calculation (Local Indicators of Spatial Association,
+    or LISAs) to identifying clusters in data.
+    https://pysal.readthedocs.org/en/latest/users/tutorials/autocorrelation.html#local-moran-s-i
+    http://pysal.readthedocs.org/en/latest/library/esda/moran.html
+
+    Returns original vector layer with associated Moran's I statistics,
+    including:
+
+    lm_Is: float, Moran's I
+    lm_q: float, quadrat location
+    lm_p_sims: float, p-value based on permutations (low p-value means observed
+    Is differ from expected Is significantly)
+    lm_sig: boolean, True if p_sims is below 0.05
+    """
+    required_inputs = (('input', formats.VECTOR),)
+    required_args = ('var_col')
+    optional_args = ('adjust_by_col')
+    default_output = formats.JSON
+    adjust_by_col = None
+
+    def __init__(self, var_col, **kwargs):
+        self.var_col = var_col
+        super(ClusterProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = VectorFileIO(name='result',
+                                       uri=self.get_outpath())
+
+    def compute(self):
+        if not self.output:
+            self.output = VectorFileIO(name='result',
+                                       uri=self.get_outpath())
+        first_df = self.inputs[0].read()
+        col = self.var_col
+        adjust_by_col = self.adjust_by_col
+
+        # filter out null fields or else weight functions won't work
+        keep = first_df[col].notnull()
+        filtered_df = first_df[keep].reset_index()
+
+        # get Local Moran's I
+        f = np.array(filtered_df[col])
+        w = wt.gpd_contiguity(filtered_df)
+        if adjust_by_col:
+            adjust_by = np.array(filtered_df[adjust_by_col])
+            lm = pysal.esda.moran.Moran_Local_Rate(e=f, b=adjust_by, w=w,
+                                                   permutations=9999)
+        else:
+            lm = pysal.Moran_Local(y=f, w=w, permutations=9999)
+
+        sig = lm.p_sim < 0.05
+        filtered_df['lm_sig'] = sig
+        filtered_df['lm_p_sim'] = lm.p_sim
+        filtered_df['lm_q'] = lm.q
+        filtered_df['lm_Is'] = lm.Is
+
+        self.output.data = filtered_df
+        self.output.write()
+        logger.debug(self.output)
+
+
+class AutocorrelationProcess(GaiaProcess):
+    """
+    Calculate Moran's I global autocorrelation for the input data.
+    Default number of permutations = 999
+    Uses contiguity weight (queen) by default.
+    https://pysal.readthedocs.org/en/latest/users/tutorials/autocorrelation.html#moran-s-i
+    http://pysal.readthedocs.org/en/latest/library/esda/moran.html
+
+    Returns the following Moran's I attributes as json:
+    I: float, value of Moran's I
+    EI: float, expected value of I under normality assumption
+    p_norm: float, p-value of I under normality assumption
+    EI_sim: float, average value of I from permutations
+    p_sim: array, p-value based on permutations (one-tailed)
+    z_sim: float, standardized I based on permutations
+    p_z_sim: float, p-value based on standard normal approximation
+    from permutations
+    """
+    required_inputs = (('input', formats.VECTOR),)
+    required_args = ('var_col')
+    optional_args = ('adjust_by_col', 'permutations')
+    default_output = formats.JSON
+    adjust_by_col = None
+    permutations = None
+
+    def __init__(self, var_col, **kwargs):
+        self.var_col = var_col
+        super(AutocorrelationProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = JsonFileIO(name='result',
+                                     uri=self.get_outpath())
+
+    def compute(self):
+        if not self.output:
+            self.output = VectorFileIO(name='result',
+                                       uri=self.get_outpath())
+        for input in self.inputs:
+            if input.name == 'input':
+                first_df = input.read()
+        col = self.var_col
+        adjust_by_col = self.adjust_by_col
+        permutations = self.permutations
+        if not permutations:
+            permutations = 999
+
+        # filter out null fields
+        keep = first_df[col].notnull()
+        filtered_df = first_df[keep]
+
+        # get Global Moran's I
+        f = np.array(filtered_df[col])
+        w = wt.gpd_contiguity(filtered_df)
+        if adjust_by_col:
+            adjust_by = np.array(filtered_df[adjust_by_col])
+            mi = pysal.esda.moran.Moran_Rate(e=f, b=adjust_by, w=w,
+                                             permutations=permutations)
+        else:
+            mi = pysal.Moran(y=f, w=w, permutations=permutations)
+
+        keep = ['I', 'EI', 'p_norm', 'EI_sim', 'p_sim', 'z_sim', 'p_z_sim']
+        mi_dict = {k: getattr(mi, k) for k in keep}
+
+        self.output.data = mi_dict
+        self.output.write()
+        logger.debug(self.output)
+
+
+class WeightProcess(GaiaProcess):
+    """
+    Calculate spatial weight.
+    weight_type available includes: contiguity, knnW, distanceBandW, kernel
+    """
+    required_inputs = (('input', formats.VECTOR),)
+    required_args = ('weight_type')
+    default_output = formats.WEIGHT
+
+    def __init__(self, weight_type, **kwargs):
+        self.weight_type = weight_type
+        super(WeightProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = WeightFileIO(name='result',
+                                       uri=self.get_outpath())
+
+    def compute(self):
+        if not self.output:
+            self.output = VectorFileIO(name='result',
+                                       uri=self.get_outpath())
+        for input in self.inputs:
+            if input.name == 'input':
+                first_df = input.read()
+        weight_type = self.weight_type
+        if weight_type == 'contiguity':
+            w = wt.gpd_contiguity(first_df)
+        elif weight_type == 'knnW':
+            w = wt.gpd_knnW(first_df)
+        elif weight_type == 'distanceBandW':
+            w = wt.gpd_distanceBandW(first_df)
+        elif weight_type == 'kernel':
+            w = wt.gpd_kernel(first_df)
+        # TODO: add params related to dif weight types
+        else:
+            print(u'weight type {0} not available'.format(weight_type))
+        self.output.data = w
+        self.output.write()
+        logger.debug(self.output)

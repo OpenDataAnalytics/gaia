@@ -1,5 +1,5 @@
 {
-  "_type": "gaia.geo.processes_vector.CentroidProcess",
+  "_type": "gaia.geo.CentroidProcess",
   "inputs": [
       {
           "_type": "gaia.inputs.VectorFileIO",

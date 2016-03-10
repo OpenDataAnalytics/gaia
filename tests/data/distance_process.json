@@ -1,5 +1,5 @@
 {
-  "_type": "gaia.geo.processes_vector.DistanceProcess",
+  "_type": "gaia.geo.DistanceProcess",
   "inputs": [
       {
           "_type": "gaia.inputs.VectorFileIO",

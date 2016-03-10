@@ -9,6 +9,10 @@ addons:
     packages:
       - python-dev
       - libgdal1-dev
+      - libblas-dev
+      - liblapack-dev
+      - libatlas-base-dev
+      - gfortran
 
 services:
   - postgresql

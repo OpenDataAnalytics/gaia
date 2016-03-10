@@ -23,3 +23,6 @@ gdal==1.10
 celery==3.1.20
 psycopg2==2.6.1
 geoalchemy2==0.2.6
+pysal==1.11.0
+scipy==0.17.0
+

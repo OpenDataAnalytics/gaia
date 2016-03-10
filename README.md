@@ -13,7 +13,7 @@ Documentation for Gaia can be found at http://gaia.readthedocs.org.
 System dependencies (Ubuntu):
 
     sudo apt-get update
-    sudo apt-get python-dev libgdal-dev
+    sudo apt-get install python-dev libgdal-dev
 
 System dependencies (OS X):
 

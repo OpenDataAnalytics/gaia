@@ -1,5 +1,5 @@
 {
-  "_type": "gaia.geo.processes_vector.DisjointProcess",
+  "_type": "gaia.geo.DisjointProcess",
   "inputs": [
       {
           "_type": "gaia.inputs.VectorFileIO",

@@ -20,6 +20,7 @@ import json
 import os
 import errno
 import fiona
+import pysal
 import geopandas
 import gdal
 import shutil
@@ -538,6 +539,82 @@ class PostgisIO(GaiaIO):
             return out_data.to_json()
         else:
             return out_data
+
+
+class WeightFileIO(FileIO):
+    """Read vector and write weight file data (such as .gal)"""
+
+    default_output = formats.WEIGHT
+
+    def read(self, format=None):
+        if not format:
+            format = self.default_output
+        if self.ext not in formats.WEIGHT:
+            raise UnsupportedFormatException(
+                "Only the following weight formats are supported: {}".format(
+                    ','.join(formats.WEIGHT)
+                )
+            )
+        if self.data is None:
+            weightfile = pysal.open(self.uri, 'r')
+            self.data = weightfile.read()
+            weightfile.close()
+        return self.data
+
+    def write(self, filename=None, as_type='gal'):
+        """
+        Write data (assumed pysal weight object) to gal binary weight files
+        :param filename: Base filename
+        :param as_type: gal
+        :return: location of file
+        """
+        if not filename:
+            filename = self.uri
+        self.create_output_dir(filename)
+        if as_type == 'gal':
+            gal = pysal.open(filename, 'w')
+            gal.write(self.data)
+            gal.close()
+        else:
+            raise NotImplementedError('{} not a valid type'.format(as_type))
+        return self.uri
+
+
+class JsonFileIO(FileIO):
+    """Read json and write json file data (such as .json)"""
+
+    default_output = formats.JSON
+
+    def read(self, format=None):
+        if not format:
+            format = self.default_output
+        if self.ext not in formats.JSON:
+            raise UnsupportedFormatException(
+                "Only the following weight formats are supported: {}".format(
+                    ','.join(formats.JSON)
+                )
+            )
+        if self.data is None:
+            with open(self.uri, 'r') as f:
+                self.data = json.load(f)
+        return self.data
+
+    def write(self, filename=None, as_type='json'):
+        """
+        Write data (assumed dictionary object) to json file
+        :param filename: Base filename
+        :param as_type: json
+        :return: location of file
+        """
+        if not filename:
+            filename = self.uri
+        self.create_output_dir(filename)
+        if as_type == 'json':
+            with open(filename, 'w') as f:
+                json.dump(self.data, f)
+        else:
+            raise NotImplementedError('{} not a valid type'.format(as_type))
+        return self.uri
 
 
 def df_from_postgis(engine, query, params, geocolumn, epsg):

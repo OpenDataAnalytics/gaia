@@ -1,5 +1,5 @@
 {
-  "_type": "gaia.geo.processes_vector.UnionProcess",
+  "_type": "gaia.geo.UnionProcess",
   "inputs": [
       {
           "_type": "gaia.inputs.VectorFileIO",

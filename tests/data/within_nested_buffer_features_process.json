@@ -1,5 +1,5 @@
 {
-  "_type": "gaia.geo.processes_vector.WithinProcess",
+  "_type": "gaia.geo.WithinProcess",
   "inputs": [
       {
           "name": "first",
@@ -19,7 +19,7 @@
           "_type": "gaia.inputs.ProcessIO",
           "process": {
               "name": "buffer",
-              "_type": "gaia.geo.processes_vector.BufferProcess",
+              "_type": "gaia.geo.BufferProcess",
               "inputs": [
                   {
                       "_type": "gaia.inputs.FeatureIO",
