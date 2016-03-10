@@ -14,6 +14,7 @@ System dependencies (Ubuntu):
 
     sudo apt-get update
     sudo apt-get install python-dev libgdal-dev
+    sudo apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran
 
 System dependencies (OS X):
 
