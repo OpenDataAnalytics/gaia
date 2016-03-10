@@ -22,7 +22,7 @@ from girder.api.describe import Description
 from girder.utility import config
 import cherrypy
 import json
-from gaia.parser import custom_json_deserialize
+from gaia.parser import deserialize
 import gaia.formats
 
 
@@ -44,7 +44,7 @@ class GeoProcess(Resource):
         json_body = self.getBodyJson()
 
         process = json.loads(json.dumps(json_body),
-                             object_hook=custom_json_deserialize)
+                             object_hook=deserialize)
 
         # assume output is GeoJSON or GeoTIFF
         process.compute()

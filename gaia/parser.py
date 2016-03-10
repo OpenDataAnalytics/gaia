@@ -31,7 +31,7 @@ valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.inputs, inspect.isclass) if x[0].endswith('IO')])
 
 
-def custom_json_deserialize(dct):
+def deserialize(dct):
     """
     Convert a JSON object into a class
     :param dct: The JSON object
@@ -57,7 +57,7 @@ if __name__ == '__main__':
                         help='JSON file to parse')
     args = parser.parse_args()
     with open(args.jsonfile) as infile:
-            process = json.load(infile, object_hook=custom_json_deserialize)
+            process = json.load(infile, object_hook=deserialize)
     process.compute()
     if hasattr(process, 'output') and hasattr(process.output, 'uri'):
         print("Result saved to {}".format(process.output.uri))

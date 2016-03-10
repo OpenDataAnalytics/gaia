@@ -21,7 +21,7 @@ import os
 import unittest
 from zipfile import ZipFile
 from gaia import formats
-from gaia.parser import custom_json_deserialize
+from gaia.parser import deserialize
 
 
 testfile_path = os.path.join(os.path.dirname(
@@ -36,7 +36,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'within_nested_buffer_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=custom_json_deserialize)
+        process = json.loads(body_text, object_hook=deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -58,7 +58,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'intersects_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=custom_json_deserialize)
+        process = json.loads(body_text, object_hook=deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -78,7 +78,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'difference_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=custom_json_deserialize)
+        process = json.loads(body_text, object_hook=deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -98,7 +98,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'union_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=custom_json_deserialize)
+        process = json.loads(body_text, object_hook=deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -118,7 +118,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'centroid_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=custom_json_deserialize)
+        process = json.loads(body_text, object_hook=deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -138,7 +138,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(testfile_path,
                                'distance_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=custom_json_deserialize)
+        process = json.loads(body_text, object_hook=deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
@@ -158,7 +158,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(
                 testfile_path, 'raster_subset_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-            process = json.loads(body_text, object_hook=custom_json_deserialize)
+            process = json.loads(body_text, object_hook=deserialize)
         zipfile = ZipFile(os.path.join(testfile_path, '2states.zip'), 'r')
 
         try:
@@ -180,7 +180,7 @@ class TestGaiaRequestParser(unittest.TestCase):
         with open(os.path.join(
                 testfile_path,
                 'within_nested_buffer_features_process.json')) as inf:
-                process = json.load(inf, object_hook=custom_json_deserialize)
+                process = json.load(inf, object_hook=deserialize)
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
