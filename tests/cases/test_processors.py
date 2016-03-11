@@ -7,7 +7,8 @@ import pysal
 from gaia import formats
 import gaia.geo.processes_vector as pv
 import gaia.geo.processes_raster as pr
-from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO
+import gaia.geo.processes_twitter as tw
+from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO, TwitterIO
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
@@ -396,3 +397,19 @@ class TestGaiaProcessors(unittest.TestCase):
         finally:
             if process:
                 process.purge()
+
+    def test_twitter_process(self):
+        """
+        Test TwitterProcess for twitter data
+        """
+        twitterData = open(os.path.join(testfile_path, 'twitter_feed.json')).read()
+        twitterIO = TwitterIO()
+
+        geojson = twitterIO.convertToGeojson(twitterData)
+        with open(os.path.join(
+                testfile_path,
+                'twitter_process_results.json')) as exp:
+            expected_json = json.load(exp)
+        actual_json = json.loads(geojson)
+        self.assertEquals(len(expected_json['features']),
+                          len(actual_json['features']))
