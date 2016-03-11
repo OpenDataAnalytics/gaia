@@ -2,9 +2,14 @@ import errno
 import json
 import os
 import shutil
-
 import gdal
 import geopandas
+import sys
+from pandas.io.json import json_normalize
+from geopandas import GeoDataFrame
+import webbrowser
+
+
 
 try:
     import osr
@@ -14,6 +19,12 @@ import gaia.formats as formats
 from gaia.core import GaiaException, config
 from gaia.filters import filter_pandas
 from gaia.geo.gdal_functions import gdal_reproject
+
+from rauth import OAuth1Service
+import json
+import carmen
+from geopy.geocoders import Nominatim
+geolocator = Nominatim()
 
 
 class MissingParameterError(GaiaException):
@@ -164,6 +175,140 @@ class FileIO(GaiaIO):
         if os.path.exists(self.uri):
             shutil.rmtree(os.path.dirname(self.uri))
 
+
+
+class TwitterIO(FileIO):
+    """
+    Convert twitter data into geojson
+    """
+
+    def read(self, uri=None, format=None):
+        if not format:
+            format = self.default_output
+        super(TwitterIO, self).read()
+        if self.data is None:
+            self.data = open(self.uri).read()
+            self.data = json.loads(self.data)['data_inputs']
+            try:
+                read_input = raw_input
+            except NameError:
+                read_input = input
+
+
+            twitter = OAuth1Service(
+                        consumer_key= self.data['consumer_key'],
+                        consumer_secret= self.data['consumer_secret'],
+                        request_token_url= self.data['request_token_url'],
+                        access_token_url= self.data['access_token_url'],
+                        authorize_url= self.data['authorize_url'],
+                        base_url= self.data['base_url']
+            )
+
+            request_token, request_token_secret = twitter.get_request_token()
+
+            authorize_url = twitter.get_authorize_url(request_token)
+
+            print ''
+            print 'I will try to start a browser to visit the following Twitter page'
+            print 'if a browser will not start, copy the URL to your browser'
+            print 'and retrieve the pincode to be used'
+            print 'in the next step to obtaining an Authentication Token:'
+            print ''
+            print authorize_url
+            print ''
+
+            webbrowser.open(authorize_url)
+            pincode = raw_input('Enter PIN from browser: ')
+
+            session = twitter.get_auth_session(request_token,
+                                       request_token_secret,
+                                       method='POST',
+                                       data={'oauth_verifier': pincode})
+
+            params = {'include_rts': self.data['include_retweets'],  # Include retweets
+                'count': self.data['count']}
+
+            r = session.get('statuses/home_timeline.json', params=params, verify=True)
+
+
+            # Convert twitter data into geojson
+            # Create Feature if one tweet was found, otherwise create FeatureCollection
+            geojson = {}
+            if len(r.json()) > 1:
+                geojson = {
+                                    "type": "FeatureCollection",
+                                    "features": []
+
+                }
+                for i, tweet in enumerate(r.json(), 1):
+                    resolver = carmen.get_resolver()
+                    resolver.load_locations()
+                    location = resolver.resolve_tweet(tweet)
+                    if location != None:
+                        for x in location:
+                            if (x != False):
+                                location_string = x.country + ',' + x.state + ',' + x.county + ',' + x.city
+                                coord = geolocator.geocode(location_string)
+
+                                feature = {
+                                                        "type": "Feature",
+                                                        "geometry": {
+                                                            "type": "Point",
+                                                            "coordinates": [coord.latitude, coord.longitude]
+                                                        },
+                                                        "properties": {
+
+                                                        }
+                                }
+                                # Iterate over the tweet and create properties
+                                for property in tweet:
+                                    feature["properties"][property] = tweet[property]
+                        geojson['features'].append(feature)
+
+            else:
+                geojson = {
+                                    "type": "Feature",
+                                    "geometry": {
+                                        "type": "Point",
+                                        "coordinates": []
+                                    },
+                                    "properties": {}
+                }
+
+                for i, tweet in enumerate(r.json(), 1):
+                    resolver = carmen.get_resolver()
+                    resolver.load_locations()
+                    location = resolver.resolve_tweet(tweet)
+                    if location != None:
+                        for x in location:
+                            if (x != False):
+                                location_string = x.country + ',' + x.state + ',' + x.county + ',' + x.city
+                                coord = geolocator.geocode(location_string)
+                                geojson["geometry"]["coordinates"] = [coord.latitude, coord.longitude]
+                                # Iterate over the tweet and create properties
+                                for property in tweet:
+                                    geojson["properties"][property] = tweet[property]
+
+            class geoEmptyClass:
+                pass
+
+            if geojson["type"] == "Feature":
+                results = geoEmptyClass()
+                results.__geo_interface__ = geojson
+                self.data = GeoDataFrame.from_features([results])
+                if format == formats.JSON:
+                    return self.data.to_json()
+                else:
+                    return self.data
+            else:
+                self.data = GeoDataFrame.from_features(geojson["features"])
+        print self.data
+        if format == formats.JSON:
+            result = self.data.to_json()
+            print result
+            return result
+        else:
+            return self.data
 
 class VectorFileIO(FileIO):
     """Read and write vector file data (such as GeoJSON)"""

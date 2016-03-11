@@ -69,6 +69,15 @@ gaia.processes_vector module
     :show-inheritance:
 
 
+
+gaia.processes_twitter module
+---------------------
+
+.. automodule:: gaia.processes_twitter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Module contents
 ---------------
 

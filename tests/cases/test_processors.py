@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from gaia import formats
 import gaia.geo.processes_vector as pv
 import gaia.geo.processes_raster as pr
+import gaia.geo.processes_twitter as tw
 from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO
 
 testfile_path = os.path.join(os.path.dirname(
@@ -316,6 +317,26 @@ class TestGaiaProcessors(unittest.TestCase):
             ora, r1a = [x.ReadAsArray() for x in (orb, r1b)]
             self.assertTrue(ora[120, 10] == 0 and r1a[120, 10] == 29623)
             self.assertTrue(ora[175, 10] == 0 and r1a[175, 10] == 23928)
+        finally:
+            if process:
+                process.purge()
+
+    def test_twitter_process(self):
+        """
+        Test TwitterProcess for twitter data
+        """
+        twitterData = VectorFileIO(
+            uri=os.path.join(testfile_path, 'twitter_config.json'))
+        process = tw.TwitterProcess(inputs=[twitterData])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'centroid_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
         finally:
             if process:
                 process.purge()

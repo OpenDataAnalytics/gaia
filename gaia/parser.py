@@ -8,13 +8,17 @@ import gaia.formats
 import gaia.inputs
 import gaia.geo.processes_raster
 import gaia.geo.processes_vector
+import gaia.geo.processes_twitter
 from gaia.core import GaiaException
 
 _process_r = [(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
     gaia.geo.processes_raster, inspect.isclass) if x[0].endswith('Process')]
 _process_v = ([(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
     gaia.geo.processes_vector, inspect.isclass) if x[0].endswith('Process')])
-_processes = dict(_process_r + _process_v)
+_process_t = ([(x[0].replace('Process', ''), x[1]) for x in inspect.getmembers(
+    gaia.geo.processes_twitter, inspect.isclass) if x[0].endswith('Process')])
+
+_processes = dict(_process_r + _process_v + _process_t)
 
 
 class GaiaRequestParser(object):
@@ -27,7 +31,7 @@ class GaiaRequestParser(object):
 
     def __init__(self, process_name, data=None, parse=True, parent=None):
         """
-        Create an instance of GaiaRequestParser
+        Create an instanceexit() of GaiaRequestParser
         """
         self.process = create_process(process_name, parent=parent)
         if data and parse:
@@ -72,6 +76,8 @@ def create_io(process, data):
     if data['source'] == 'file':
         io = gaia.inputs.VectorFileIO(**data) if is_vector(
             data['uri']) else gaia.inputs.RasterFileIO(**data)
+    if data['source'] == 'twitter':
+        io = gaia.inputs.TwitterIO(**data)
     elif data['source'] == 'process':
         process_name = data['process']['name']
         parser = GaiaRequestParser(process_name,
