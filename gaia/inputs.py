@@ -177,63 +177,61 @@ class TwitterIO(FileIO):
     Convert twitter data into geojson
     """
 
+    def get_coordinates_from_tweet(self, tweet):
+        # Get location from a tweet using Carmen and geolocator
+        resolver = carmen.get_resolver()
+        resolver.load_locations()
+        location = resolver.resolve_tweet(tweet)
+        if location != None:
+            for x in location:
+                if (x != False):
+                    location_string = x.country + ',' + x.state + ',' + x.county + ',' + x.city
+                    coord = geolocator.geocode(location_string)
+            return coord
+
     def convertToGeojson(self, data):
-            geojson = {}
             if len(data) > 1:
                 geojson = {
-                                    "type": "FeatureCollection",
-                                    "features": []
-
+                    "type": "FeatureCollection",
+                    "features": []
                 }
-                data = json.loads(data)
+
+                if type(data) is str:
+                    data = json.loads(data)
+
                 for i, tweet in enumerate(data, 1):
-                    resolver = carmen.get_resolver()
-                    resolver.load_locations()
-                    location = resolver.resolve_tweet(tweet)
-                    if location != None:
-                        for x in location:
-                            if (x != False):
-                                location_string = x.country + ',' + x.state + ',' + x.county + ',' + x.city
-                                coord = geolocator.geocode(location_string)
+                    coord = self.get_coordinates_from_tweet(tweet)
+                    feature = {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [coord.longitude, coord.latitude]
+                        },
+                        "properties": {
 
-                                feature = {
-                                                        "type": "Feature",
-                                                        "geometry": {
-                                                            "type": "Point",
-                                                            "coordinates": [coord.latitude, coord.longitude]
-                                                        },
-                                                        "properties": {
-
-                                                        }
-                                }
-                                # Iterate over the tweet and create properties
-                                for property in tweet:
-                                    feature["properties"][property] = tweet[property]
-                        geojson['features'].append(feature)
+                        }
+                    }
+                    # Iterate over the tweet and create properties
+                    for property in tweet:
+                        feature["properties"][property] = tweet[property]
+                    geojson['features'].append(feature)
 
             else:
                 geojson = {
-                                    "type": "Feature",
-                                    "geometry": {
-                                        "type": "Point",
-                                        "coordinates": []
-                                    },
-                                    "properties": {}
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": []
+                    },
+                    "properties": {}
                 }
 
                 for i, tweet in enumerate(data, 1):
-                    resolver = carmen.get_resolver()
-                    resolver.load_locations()
-                    location = resolver.resolve_tweet(tweet)
-                    if location != None:
-                        for x in location:
-                            if (x != False):
-                                location_string = x.country + ',' + x.state + ',' + x.county + ',' + x.city
-                                coord = geolocator.geocode(location_string)
-                                geojson["geometry"]["coordinates"] = [coord.latitude, coord.longitude]
-                                # Iterate over the tweet and create properties
-                                for property in tweet:
-                                    geojson["properties"][property] = tweet[property]
+                    coord = self.get_coordinates_from_tweet(tweet)
+                    geojson["geometry"]["coordinates"] = [coord.longitude, coord.latitude]
+                    # Iterate over the tweet and create properties
+                    for property in tweet:
+                        geojson["properties"][property] = tweet[property]
 
             class geoEmptyClass:
                 pass
@@ -258,19 +256,13 @@ class TwitterIO(FileIO):
         if self.data is None:
             self.data = open(self.uri).read()
             self.data = json.loads(self.data)['data_inputs']
-            try:
-                read_input = raw_input
-            except NameError:
-                read_input = input
-
-
             twitter = OAuth1Service(
-                        consumer_key= self.data['consumer_key'],
-                        consumer_secret= self.data['consumer_secret'],
-                        request_token_url= self.data['request_token_url'],
-                        access_token_url= self.data['access_token_url'],
-                        authorize_url= self.data['authorize_url'],
-                        base_url= self.data['base_url']
+                consumer_key=self.data['consumer_key'],
+                consumer_secret=self.data['consumer_secret'],
+                request_token_url=self.data['request_token_url'],
+                access_token_url=self.data['access_token_url'],
+                authorize_url=self.data['authorize_url'],
+                base_url=self.data['base_url']
             )
 
             request_token, request_token_secret = twitter.get_request_token()

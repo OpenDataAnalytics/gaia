@@ -18,7 +18,5 @@ class TwitterProcess(GaiaProcess):
         super(TwitterProcess, self).compute()
 
         first_df = self.inputs[0]
-        print type(first_df)
         self.output.data = first_df.read()
-        print self.output.data
         self.output.write()
