@@ -17,14 +17,12 @@
 #  limitations under the License.
 ###############################################################################
 import json
-
 import os
 
 # Need to set the environment variable before importing girder
 os.environ['GIRDER_PORT'] = os.environ.get('GIRDER_TEST_PORT', '20200')
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../tests/data')
-
 
 from tests import base
 

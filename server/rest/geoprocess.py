@@ -30,7 +30,10 @@ class GeoProcess(Resource):
 
         # assume output is GeoJSON or GeoTIFF
         process.compute()
-        result = json.loads(process.output.read(format=gaia.formats.JSON))
+        if process.output.default_output == gaia.formats.PANDAS:
+            result = json.loads(process.output.read(format=gaia.formats.JSON))
+        else:
+            result = json.loads(process.output.read())
         if not isinstance(result, dict):
             setRawResponse(True)
             cherrypy.response.headers['Content-Type'] = 'image/tiff'
