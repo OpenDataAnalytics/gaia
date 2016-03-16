@@ -13,7 +13,7 @@ Documentation for Gaia can be found at http://gaia.readthedocs.org.
 System dependencies (Ubuntu):
 
     sudo apt-get update
-    sudo apt-get install python-dev libgdal-dev gfortran libopenblas-dev liblapack-dev
+    sudo apt-get install python-dev libblas-dev liblapack-dev libatlas-base-dev gfortran
 
 System dependencies (OS X):
 
