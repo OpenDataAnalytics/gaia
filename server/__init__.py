@@ -17,18 +17,19 @@
 #  limitations under the License.
 ###############################################################################
 import os
-from girder.plugins.gaia.rest import geoprocess
 from girder.utility.config import _mergeConfig
-
+from girder.plugins.gaia.rest import geoprocess
+from girder.plugins.gaia.geoservice_proxy import GeoserviceProxy
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Read the configuration files
 _cfgs = ('gaia.dist.cfg', 'gaia.local.cfg')
 for f in _cfgs:
-    configPath = os.path.join(PACKAGE_DIR, 'conf', f)
+    configPath = os.path.join(PACKAGE_DIR, '../gaia/conf', f)
     if os.path.exists(configPath):
         _mergeConfig(configPath)
 
 
 def load(info):
+    info['serverRoot'].geo = GeoserviceProxy()
     info['apiRoot'].geoprocess = geoprocess.GeoProcess()

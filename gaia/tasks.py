@@ -22,8 +22,8 @@ from gaia.parser import deserialize
 from gaia.core import config
 
 app = Celery('tasks',
-             backend=config['celery']['celery_backend'],
-             broker=config['celery']['celery_broker'])
+             backend=config['gaia_celery']['celery_backend'],
+             broker=config['gaia_celery']['celery_broker'])
 
 
 @app.task

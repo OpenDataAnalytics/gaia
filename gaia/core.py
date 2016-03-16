@@ -43,6 +43,8 @@ def get_abspath(inpath):
     """
     if not os.path.isabs(inpath):
         return os.path.abspath(os.path.join(base_dir, inpath))
+    else:
+        return inpath
 
 
 def get_config(config_file=None):
@@ -61,7 +63,7 @@ def get_config(config_file=None):
     for section in parser.sections():
         config_dict[section] = {}
         for key, val in parser.items(section):
-            config_dict[section][key] = val
+            config_dict[section][key] = val.strip('"').strip("'")
     return config_dict
 
 config = get_config()

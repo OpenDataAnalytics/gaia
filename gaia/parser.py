@@ -42,7 +42,7 @@ def deserialize(dct):
         module_name = ".".join(dct['_type'].split(".")[:-1])
         cls = getattr(importlib.import_module(module_name), cls_name)
         if cls_name not in valid_classes:
-            raise GaiaException(
+            raise ImportError(
                 'Not allowed to create class {}'.format(cls_name))
         del dct['_type']
         args = dct.get('args') or []

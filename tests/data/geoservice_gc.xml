@@ -1,0 +1,2383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://demo.geonode.org:80/geoserver/schemas/wms/1.1.1/WMS_MS_Capabilities.dtd">
+<WMT_MS_Capabilities version="1.1.1" updateSequence="2403">
+  <Service>
+    <Name>OGC:WMS</Name>
+    <Title>My GeoServer WMS mmm</Title>
+    <Abstract>This is a description of your Web Map Server.</Abstract>
+    <KeywordList>
+      <Keyword>WFS</Keyword>
+      <Keyword>WMS</Keyword>
+      <Keyword>GEOSERVER</Keyword>
+    </KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserver.sourceforge.net/html/index.php"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson/>
+        <ContactOrganization/>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType/>
+        <Address/>
+        <City/>
+        <StateOrProvince/>
+        <PostCode/>
+        <Country/>
+      </ContactAddress>
+      <ContactVoiceTelephone/>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress/>
+    </ContactInformation>
+    <Fees>NONE</Fees>
+    <AccessConstraints>NONE</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom xml</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/openlayers</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss xml</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml</Format>
+        <Format>application/vnd.google-earth.kml xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.google-earth.kmz xml</Format>
+        <Format>application/vnd.google-earth.kmz+xml</Format>
+        <Format>application/vnd.google-earth.kmz;mode=networklink</Format>
+        <Format>atom</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/gif;subtype=animated</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png8</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg</Format>
+        <Format>image/svg xml</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>kml</Format>
+        <Format>kmz</Format>
+        <Format>openlayers</Format>
+        <Format>rss</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/plain</Format>
+        <Format>application/vnd.ogc.gml</Format>
+        <Format>text/xml</Format>
+        <Format>application/vnd.ogc.gml/3.1.1</Format>
+        <Format>text/xml; subtype=gml/3.1.1</Format>
+        <Format>text/html</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+      <DescribeLayer>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </DescribeLayer>
+      <GetLegendGraphic>
+        <Format>image/png</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/gif</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetLegendGraphic>
+      <GetStyles>
+        <Format>application/vnd.ogc.sld+xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetStyles>
+    </Request>
+    <Exception>
+      <Format>application/vnd.ogc.se_xml</Format>
+      <Format>application/vnd.ogc.se_inimage</Format>
+      <Format>application/vnd.ogc.se_blank</Format>
+    </Exception>
+    <UserDefinedSymbolization SupportSLD="1" UserLayer="1" UserStyle="1" RemoteWFS="1"/>
+    <Layer>
+      <Title>My GeoServer WMS mmm</Title>
+      <Abstract>This is a description of your Web Map Server.</Abstract>
+      <!--All supported EPSG projections:-->
+      <SRS>AUTO:42001</SRS>
+      <SRS>AUTO:42002</SRS>
+      <SRS>AUTO:42003</SRS>
+      <SRS>AUTO:42004</SRS>
+      <SRS>EPSG:WGS84(DD)</SRS>
+      <SRS>EPSG:900913</SRS>
+      <SRS>EPSG:3857</SRS>
+      <SRS>EPSG:4326</SRS>
+      <LatLonBoundingBox minx="-180.0" miny="-89.99892578125" maxx="584803.9659707114" maxy="4430831.949670702"/>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:aus_roads</Name>
+        <Title>aus_roads</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>aus_roads</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="112.958808961796" miny="-54.7659989853496" maxx="158.938949547" maxy="-10.1094445275911"/>
+        <BoundingBox SRS="EPSG:4326" minx="112.958808961796" miny="-54.7659989853496" maxx="158.938949547" maxy="-10.1094445275911"/>
+        <Style>
+          <Name>aus_roads</Name>
+          <Title>aus_roads</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aaus_roads"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:aus_roads_1</Name>
+        <Title>aus_roads_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>aus_roads_1</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="112.958808961796" miny="-54.7659989853496" maxx="158.938949547" maxy="-10.1094445275911"/>
+        <BoundingBox SRS="EPSG:4326" minx="112.958808961796" miny="-54.7659989853496" maxx="158.938949547" maxy="-10.1094445275911"/>
+        <Style>
+          <Name>aus_roads_1</Name>
+          <Title>aus_roads_1</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aaus_roads_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:baumann_1897_modified</Name>
+        <Title>baumann_1897_modified</Title>
+        <Abstract>Zanzibar City Map</Abstract>
+        <KeywordList>
+          <Keyword>City</Keyword>
+          <Keyword>Zanzibar</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="39.184268393535014" miny="-6.177061292837132" maxx="39.20816521606615" maxy="-6.153949967713271"/>
+        <BoundingBox SRS="EPSG:4326" minx="-1615.941246345202" miny="-1247.5186029927768" maxx="1694.3336799548028" maxy="1235.1875917322266"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=34445da8-b3c3-11e5-b752-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>baumann_1897_modified</Name>
+          <Title>baumann_1897_modified</Title>
+          <LegendURL width="74" height="62">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Abaumann_1897_modified"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:boxes_with_date</Name>
+        <Title>Boxes With Date</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>boxes_with_date</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <BoundingBox SRS="EPSG:4326" minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <Style>
+          <Name>boxes_with_date</Name>
+          <Title>boxes_with_date</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aboxes_with_date"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:boxes_with_date_iso_date</Name>
+        <Title>CENAS </Title>
+        <Abstract>No abstract providedsdfsdfsd</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>boxes_with_date_iso_date</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <BoundingBox SRS="EPSG:4326" minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=12f0ba56-a960-11e5-aded-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>boxes_with_date_iso_date</Name>
+          <Title>boxes_with_date_iso_date</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aboxes_with_date_iso_date"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:boxes_with_dates_bc</Name>
+        <Title>Boxes With Dates Bc</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>boxes_with_dates_bc</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <BoundingBox SRS="EPSG:4326" minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <Style>
+          <Name>boxes_with_dates_bc</Name>
+          <Title>boxes_with_dates_bc</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aboxes_with_dates_bc"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:boxes_with_end_date</Name>
+        <Title>Boxes With End Date</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>boxes_with_end_date</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <BoundingBox SRS="EPSG:4326" minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <Style>
+          <Name>boxes_with_end_date</Name>
+          <Title>boxes_with_end_date</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aboxes_with_end_date"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:boxes_with_year_field</Name>
+        <Title>Boxes With Year Field</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>boxes_with_year_field</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <BoundingBox SRS="EPSG:4326" minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <Style>
+          <Name>boxes_with_year_field</Name>
+          <Title>boxes_with_year_field</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aboxes_with_year_field"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:boxes_with_year_field2</Name>
+        <Title>Boxes With Year Field2</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>boxes_with_year_field2</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <BoundingBox SRS="EPSG:4326" minx="-125.0" miny="25.0" maxx="-67.0" maxy="50.0"/>
+        <Style>
+          <Name>boxes_with_year_field2</Name>
+          <Title>boxes_with_year_field2</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aboxes_with_year_field2"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:buildingfootprints_1</Name>
+        <Title>buildingfootprints_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>buildingfootprints_1</Keyword>
+        </KeywordList>
+        <SRS>EPSG:28355</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["GDA94 / MGA zone 55",
+  GEOGCS["GDA94",
+    DATUM["Geocentric Datum of Australia 1994",
+      SPHEROID["GRS 1980", 6378137.0, 298.257222101, AUTHORITY["EPSG","7019"]],
+      TOWGS84[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      AUTHORITY["EPSG","6283"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4283"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 147.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 10000000.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","28355"]]-->
+        <LatLonBoundingBox minx="144.9001516007705" miny="-37.850684378020944" maxx="144.9919062259542" maxy="-37.77501585274527"/>
+        <BoundingBox SRS="EPSG:28355" minx="315251.514878257" miny="5808847.69581149" maxx="323152.066849742" maxy="5817074.70927148"/>
+        <Style>
+          <Name>buildingfootprints_1</Name>
+          <Title>buildingfootprints_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Abuildingfootprints_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:buildingfootprints_2</Name>
+        <Title>buildingfootprints_2</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>buildingfootprints_2</Keyword>
+        </KeywordList>
+        <SRS>EPSG:28355</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["GDA94 / MGA zone 55",
+  GEOGCS["GDA94",
+    DATUM["Geocentric Datum of Australia 1994",
+      SPHEROID["GRS 1980", 6378137.0, 298.257222101, AUTHORITY["EPSG","7019"]],
+      TOWGS84[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      AUTHORITY["EPSG","6283"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4283"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 147.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 10000000.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","28355"]]-->
+        <LatLonBoundingBox minx="144.89923405451867" miny="-37.859644974226796" maxx="144.99282377220604" maxy="-37.76605525653942"/>
+        <BoundingBox SRS="EPSG:28355" minx="315251.514878257" miny="5808847.69581149" maxx="323152.066849742" maxy="5817074.70927148"/>
+        <Style>
+          <Name>buildingfootprints_2</Name>
+          <Title>buildingfootprints_2</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Abuildingfootprints_2"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:can</Name>
+        <Title>can</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>can</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="100.253740175487" miny="16.7358191711374" maxx="100.42376461193" maxy="17.090688722375"/>
+        <BoundingBox SRS="EPSG:4326" minx="100.253740175487" miny="16.7358191711374" maxx="100.42376461193" maxy="17.090688722375"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=9ff50df4-bc1f-11e5-9be0-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>can</Name>
+          <Title>can</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Acan"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>can_404fe252</Name>
+          <Title>test</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Acan&amp;style=can_404fe252"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ccms</Name>
+        <Title>ccms</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>ccms</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3460</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["Fiji 1986 / Fiji Map Grid",
+  GEOGCS["Fiji 1986",
+    DATUM["Fiji Geodetic Datum 1986",
+      SPHEROID["WGS 72", 6378135.0, 298.26, AUTHORITY["EPSG","7043"]],
+      TOWGS84[0.0, 0.0, 4.5, 0.0, 0.0, 0.554, 0.2263],
+      AUTHORITY["EPSG","6720"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4720"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 178.75],
+  PARAMETER["latitude_of_origin", -17.0],
+  PARAMETER["scale_factor", 0.99985],
+  PARAMETER["false_easting", 2000000.0],
+  PARAMETER["false_northing", 4000000.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","3460"]]-->
+        <LatLonBoundingBox minx="177.3243945023244" miny="-17.92349454475613" maxx="177.56824227226744" maxy="-17.58226051266327"/>
+        <BoundingBox SRS="EPSG:3460" minx="1848948.63926435" miny="3897405.05261798" maxx="1874550.91639545" maxy="3934998.58106907"/>
+        <Style>
+          <Name>ccms</Name>
+          <Title>ccms</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Accms"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ccms_1</Name>
+        <Title>ccms_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>ccms_1</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3460</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["Fiji 1986 / Fiji Map Grid",
+  GEOGCS["Fiji 1986",
+    DATUM["Fiji Geodetic Datum 1986",
+      SPHEROID["WGS 72", 6378135.0, 298.26, AUTHORITY["EPSG","7043"]],
+      TOWGS84[0.0, 0.0, 4.5, 0.0, 0.0, 0.554, 0.2263],
+      AUTHORITY["EPSG","6720"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4720"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 178.75],
+  PARAMETER["latitude_of_origin", -17.0],
+  PARAMETER["scale_factor", 0.99985],
+  PARAMETER["false_easting", 2000000.0],
+  PARAMETER["false_northing", 4000000.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","3460"]]-->
+        <LatLonBoundingBox minx="177.3243945023244" miny="-17.92349454475613" maxx="177.56824227226744" maxy="-17.58226051266327"/>
+        <BoundingBox SRS="EPSG:3460" minx="1848948.63926435" miny="3897405.05261798" maxx="1874550.91639545" maxy="3934998.58106907"/>
+        <Style>
+          <Name>ccms_1</Name>
+          <Title>ccms_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Accms_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:delitos</Name>
+        <Title>delitos</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>delitos</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-65.3397475632735" miny="-43.2674957538106" maxx="-65.2961725598808" maxy="-43.2376803817652"/>
+        <BoundingBox SRS="EPSG:4326" minx="-65.3397475632735" miny="-43.2674957538106" maxx="-65.2961725598808" maxy="-43.2376803817652"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=bcf9a498-d70c-11e5-9eb0-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>delitos</Name>
+          <Title>delitos</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Adelitos"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:fsm_adm0</Name>
+        <Title>fsm_adm0</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>fsm_adm0</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="137.425277709961" miny="1.02527701854729" maxx="163.035552978516" maxy="10.090623855591"/>
+        <BoundingBox SRS="EPSG:4326" minx="137.425277709961" miny="1.02527701854729" maxx="163.035552978516" maxy="10.090623855591"/>
+        <Style>
+          <Name>fsm_adm0</Name>
+          <Title>fsm_adm0</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Afsm_adm0"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:fsm_adm0_1</Name>
+        <Title>fsm_adm0_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>fsm_adm0_1</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="137.425277709961" miny="1.02527701854729" maxx="163.035552978516" maxy="10.090623855591"/>
+        <BoundingBox SRS="EPSG:4326" minx="137.425277709961" miny="1.02527701854729" maxx="163.035552978516" maxy="10.090623855591"/>
+        <Style>
+          <Name>fsm_adm0_1</Name>
+          <Title>fsm_adm0_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Afsm_adm0_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:fsm_adm0_2</Name>
+        <Title>fsm_adm0_2</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>fsm_adm0_2</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="137.425277709961" miny="1.02527701854729" maxx="163.035552978516" maxy="10.090623855591"/>
+        <BoundingBox SRS="EPSG:4326" minx="137.425277709961" miny="1.02527701854729" maxx="163.035552978516" maxy="10.090623855591"/>
+        <Style>
+          <Name>fsm_adm0_2</Name>
+          <Title>fsm_adm0_2</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Afsm_adm0_2"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:gis_osm_adminareas_v06</Name>
+        <Title>South Florida Information Access (SOFIA) Website</Title>
+        <Abstract>The South Florida Information Access web site (SOFIA) was created as a 'one-stop-shopping' access point for research on South Florida.  All USGS South Florida Priority Ecosystems Science research projects, ranging from mercury contamination in the Everglades to coral reef decline, are online at this site.  The site provides project descriptions, proposals, publications, references, data (through the data exchange site), metadata, presentations, and contact information, as well as general interest items, such as photographs and posters.  In addition, the SOFIA site has an educational section which displays the work SOFIA is doing with the  Academy of Science and Technology in West Palm Beach, Florida.
+
+The initial version of the site was specifically tailored for scientists, managers and decision-makers.  More recent and expanded versions of the site have added educational materials and general outreach items designed for the general public.  The number of visitors to the site has increased from just under 80 per day in 1998 to over 1400 visitors/day in early 2003.  The SOFIA site has grown tremendously since its inception and currently contains over 5500 documents.
+
+The objective of the SOFIA website is to continue to provide a usable and Section-508-compliant website that provides direct access to all South Florida Place-Based Studies information.  Every effort is made to ensure that the SOFIA site is usable and accessible, though usability testing, link verification, and checking for Section 508 compliance.</Abstract>
+        <KeywordList>
+          <Keyword>SOFIA</Keyword>
+          <Keyword>007</Keyword>
+          <Keyword>information management</Keyword>
+          <Keyword>South Florida Information Access</Keyword>
+          <Keyword>website</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="13.539" miny="50.958" maxx="14.015" maxy="51.198"/>
+        <BoundingBox SRS="EPSG:4326" minx="13.539" miny="50.958" maxx="14.015" maxy="51.198"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=94318a7a-ae59-11e5-8c26-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>gis_osm_adminareas_v06</Name>
+          <Title>gis_osm_adminareas_v06</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Agis_osm_adminareas_v06"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>gis_osm_adminareas_v06_01866499</Name>
+          <Title>222222</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Agis_osm_adminareas_v06&amp;style=gis_osm_adminareas_v06_01866499"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:hid_recife_p</Name>
+        <Title>hid_recife_p</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>hid_recife_p</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4674</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["SIRGAS 2000",
+  DATUM["Sistema de Referencia Geocentrico para las AmericaS 2000",
+    SPHEROID["GRS 1980", 6378137.0, 298.257222101, AUTHORITY["EPSG","7019"]],
+    TOWGS84[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    AUTHORITY["EPSG","6674"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4674"]]-->
+        <LatLonBoundingBox minx="-35.59229467400001" miny="-9.538671879691202" maxx="-35.567725821" maxy="-9.512955842691953"/>
+        <BoundingBox SRS="EPSG:4674" minx="-35.592294674" miny="-9.53867187999998" maxx="-35.567725821" maxy="-9.51295584299993"/>
+        <Style>
+          <Name>hid_recife_p</Name>
+          <Title>hid_recife_p</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Ahid_recife_p"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:hidrografija5_polyline</Name>
+        <Title>hidrografija5_polyline</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>hidrografija5_polyline</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32634</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 34N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 21.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32634"]]-->
+        <LatLonBoundingBox minx="19.3965724661934" miny="43.6727247812429" maxx="20.000896964348325" maxy="43.98461359880949"/>
+        <BoundingBox SRS="EPSG:32634" minx="371398.018506159" miny="4836760.60141107" maxx="419467.662580174" maxy="4870654.04249947"/>
+        <Style>
+          <Name>hidrografija5_polyline</Name>
+          <Title>hidrografija5_polyline</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Ahidrografija5_polyline"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:khorasann_0_0</Name>
+        <Title>khorasann_0_0</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>WCS</Keyword>
+          <Keyword>GeoTIFF</Keyword>
+          <Keyword>khorasann_0_0</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="55.888855010430134" miny="36.56358358999269" maxx="58.477188343761114" maxy="38.30775025665777"/>
+        <BoundingBox SRS="EPSG:4326" minx="55.782174056696896" miny="36.0348193029265" maxx="58.58386929749435" maxy="38.83651454372396"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=80efee18-b00a-11e5-a1c4-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>khorasann_0_0</Name>
+          <Title>khorasann_0_0</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Akhorasann_0_0"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>khorasann_0_0_2832b021</Name>
+          <Title>khorasann_0_0</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Akhorasann_0_0&amp;style=khorasann_0_0_2832b021"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>khorasann_0_0</Name>
+          <Title>khorasann_0_0</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Akhorasann_0_0&amp;style=khorasann_0_0"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:map</Name>
+        <Title>map</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>map</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="96.816948192" miny="-43.6586111575" maxx="159.105424992" maxy="-9.219936953"/>
+        <BoundingBox SRS="EPSG:4326" minx="96.816948192" miny="-43.6586111575" maxx="159.105424992" maxy="-9.219936953"/>
+        <Style>
+          <Name>map</Name>
+          <Title>map</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Amap"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ne_50m_admin_0_countries</Name>
+        <Title>ne_50m_admin_0_countries</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>ne_50m_admin_0_countries</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <Style>
+          <Name>ne_50m_admin_0_countries</Name>
+          <Title>ne_50m_admin_0_countries</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Ane_50m_admin_0_countries"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ne_50m_admin_0_countries_1</Name>
+        <Title>ne_50m_admin_0_countries_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>ne_50m_admin_0_countries_1</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <Style>
+          <Name>ne_50m_admin_0_countries_1</Name>
+          <Title>ne_50m_admin_0_countries_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Ane_50m_admin_0_countries_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ne_50m_admin_0_countries_2</Name>
+        <Title>ne_50m_admin_0_countries_2</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>ne_50m_admin_0_countries_2</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <Style>
+          <Name>ne_50m_admin_0_countries_2</Name>
+          <Title>ne_50m_admin_0_countries_2</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Ane_50m_admin_0_countries_2"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ne_50m_admin_0_countries_test</Name>
+        <Title>ne_50m_admin_0_countries_test</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>ne_50m_admin_0_countries_test</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-89.99892578125" maxx="180.0" maxy="83.5996093750001"/>
+        <Style>
+          <Name>ne_50m_admin_0_countries_test</Name>
+          <Title>ne_50m_admin_0_countries_test</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Ane_50m_admin_0_countries_test"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:neighborhood_2014</Name>
+        <Title>neighborhood_2014</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>neighborhood_2014</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:20438</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["Ain el Abd / UTM zone 38N",
+  GEOGCS["Ain el Abd",
+    DATUM["Ain el Abd 1970",
+      SPHEROID["International 1924", 6378388.0, 297.0, AUTHORITY["EPSG","7022"]],
+      TOWGS84[-85.645, -273.077, -79.708, 2.289, 1.421, -2.532, 3.194],
+      AUTHORITY["EPSG","6204"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4204"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 45.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","20438"]]-->
+        <LatLonBoundingBox minx="45.96407743684109" miny="24.17657516779748" maxx="47.085275331145944" maxy="25.297773062102337"/>
+        <BoundingBox SRS="EPSG:20438" minx="599170.880156251" miny="2689698.92296875" maxx="709314.434218749" maxy="2784008.5"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=21535aba-d479-11e5-8142-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>neighborhood_2014</Name>
+          <Title>neighborhood_2014</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aneighborhood_2014"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>neighborhood_2014_8e589749</Name>
+          <Title>test</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aneighborhood_2014&amp;style=neighborhood_2014_8e589749"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:osm</Name>
+        <Title>osm</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>osm</Keyword>
+        </KeywordList>
+        <SRS>EPSG:2154</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["RGF93 / Lambert-93",
+  GEOGCS["RGF93",
+    DATUM["Reseau Geodesique Francais 1993",
+      SPHEROID["GRS 1980", 6378137.0, 298.257222101, AUTHORITY["EPSG","7019"]],
+      TOWGS84[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      AUTHORITY["EPSG","6171"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4171"]],
+  PROJECTION["Lambert_Conformal_Conic_2SP", AUTHORITY["EPSG","9802"]],
+  PARAMETER["central_meridian", 3.0],
+  PARAMETER["latitude_of_origin", 46.5],
+  PARAMETER["standard_parallel_1", 49.0],
+  PARAMETER["false_easting", 700000.0],
+  PARAMETER["false_northing", 6600000.0],
+  PARAMETER["scale_factor", 1.0],
+  PARAMETER["standard_parallel_2", 44.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","2154"]]-->
+        <LatLonBoundingBox minx="-2.563792465360188" miny="42.20969429937089" maxx="8.615039000649645" maxy="51.10489859153562"/>
+        <BoundingBox SRS="EPSG:2154" minx="308753.948865485" miny="6135220.57991711" maxx="1094861.83042768" maxy="7112161.26784056"/>
+        <Style>
+          <Name>osm</Name>
+          <Title>osm</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aosm"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:osm_1</Name>
+        <Title>autoroute</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>osm_1</Keyword>
+        </KeywordList>
+        <SRS>EPSG:2154</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["RGF93 / Lambert-93",
+  GEOGCS["RGF93",
+    DATUM["Reseau Geodesique Francais 1993",
+      SPHEROID["GRS 1980", 6378137.0, 298.257222101, AUTHORITY["EPSG","7019"]],
+      TOWGS84[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      AUTHORITY["EPSG","6171"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4171"]],
+  PROJECTION["Lambert_Conformal_Conic_2SP", AUTHORITY["EPSG","9802"]],
+  PARAMETER["central_meridian", 3.0],
+  PARAMETER["latitude_of_origin", 46.5],
+  PARAMETER["standard_parallel_1", 49.0],
+  PARAMETER["false_easting", 700000.0],
+  PARAMETER["false_northing", 6600000.0],
+  PARAMETER["scale_factor", 1.0],
+  PARAMETER["standard_parallel_2", 44.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","2154"]]-->
+        <LatLonBoundingBox minx="-2.563792465360188" miny="42.20969429937089" maxx="8.615039000649645" maxy="51.10489859153562"/>
+        <BoundingBox SRS="EPSG:2154" minx="308753.948865485" miny="6135220.57991711" maxx="1094861.83042768" maxy="7112161.26784056"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=36ecd024-e156-11e5-9582-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>osm_1</Name>
+          <Title>osm_1</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aosm_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:pdf_variante11</Name>
+        <Title>pdf_variante11</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>WCS</Keyword>
+          <Keyword>GeoTIFF</Keyword>
+          <Keyword>pdf_variante11</Keyword>
+        </KeywordList>
+        <SRS>EPSG:404000</SRS>
+        <!--WKT definition of this CRS:
+LOCAL_CS["Wildcard 2D cartesian plane in metric unit",
+  LOCAL_DATUM["Unknown", 0],
+  UNIT["m", 1.0],
+  AXIS["x", EAST],
+  AXIS["y", NORTH],
+  AUTHORITY["EPSG","404000"]]-->
+        <LatLonBoundingBox minx="580905.8314683487" miny="4426933.81516834" maxx="584803.9659707114" maxy="4430831.949670702"/>
+        <BoundingBox SRS="EPSG:404000" minx="580944.0484732739" miny="4428179.068461892" maxx="584765.7489657863" maxy="4429586.696377149"/>
+        <Style>
+          <Name>pdf_variante11</Name>
+          <Title>pdf_variante11</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Apdf_variante11"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:phadom</Name>
+        <Title>phadom</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>phadom</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32628</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 28N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", -15.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32628"]]-->
+        <LatLonBoundingBox minx="-16.821581237929344" miny="28.076025292261004" maxx="-16.156897886046334" maxy="28.585424047376293"/>
+        <BoundingBox SRS="EPSG:32628" minx="321846.187123482" miny="3106951.01647605" maxx="386333.958124337" maxy="3162607.27195038"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=02bf63ac-c676-11e5-ba97-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>phadom</Name>
+          <Title>phadom</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aphadom"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>phadom_0a0cef9f</Name>
+          <Title>mi estilo</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aphadom&amp;style=phadom_0a0cef9f"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:phadom_1</Name>
+        <Title>Prueba pp</Title>
+        <Abstract>Recintos de prueba</Abstract>
+        <KeywordList>
+          <Keyword>phadom_1</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32628</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 28N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", -15.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32628"]]-->
+        <LatLonBoundingBox minx="-16.828228071448173" miny="27.991736160358315" maxx="-16.150251052527505" maxy="28.669713179278983"/>
+        <BoundingBox SRS="EPSG:32628" minx="321846.187123482" miny="3106951.01647605" maxx="386333.958124337" maxy="3162607.27195038"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=47a26b30-c677-11e5-ba97-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>phadom_1</Name>
+          <Title>phadom_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aphadom_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:pipes</Name>
+        <Title>pipes</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>pipes</Keyword>
+        </KeywordList>
+        <SRS>EPSG:26910</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["NAD83 / UTM zone 10N",
+  GEOGCS["NAD83",
+    DATUM["North American Datum 1983",
+      SPHEROID["GRS 1980", 6378137.0, 298.257222101, AUTHORITY["EPSG","7019"]],
+      TOWGS84[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      AUTHORITY["EPSG","6269"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4269"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", -123.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","26910"]]-->
+        <LatLonBoundingBox minx="-124.13256946457051" miny="49.01232469717088" maxx="-123.84375900827143" maxy="49.30113515346996"/>
+        <BoundingBox SRS="EPSG:26910" minx="418374.174327388" miny="5435084.39859245" maxx="437563.273436473" maxy="5455629.12203461"/>
+        <Style>
+          <Name>pipes</Name>
+          <Title>pipes</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Apipes"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:poas_smi_v2013</Name>
+        <Title>POAS São Miguel</Title>
+        <Abstract>Teste Geonode e Atlas Styler</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>poas_smi_v2013</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32626</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 26N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", -27.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32626"]]-->
+        <LatLonBoundingBox minx="-25.80909018020754" miny="37.46768829276542" maxx="-25.127768605301114" maxy="38.14900986767184"/>
+        <BoundingBox SRS="EPSG:32626" minx="605546.887316697" miny="4175325.26571049" maxx="664025.287367821" maxy="4196086.55086458"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=8b79f97e-cecc-11e5-8d44-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>poas_smi_v2013</Name>
+          <Title>poas_smi_v2013</Title>
+          <LegendURL width="265" height="180">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Apoas_smi_v2013"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0.0" max="1.0E20"/>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:poas_smi_v2013_1</Name>
+        <Title>poas_smi_v2013_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>poas_smi_v2013_1</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32626</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 26N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", -27.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32626"]]-->
+        <LatLonBoundingBox minx="-25.80909018020754" miny="37.46768829276542" maxx="-25.127768605301114" maxy="38.14900986767184"/>
+        <BoundingBox SRS="EPSG:32626" minx="605546.887316697" miny="4175325.26571049" maxx="664025.287367821" maxy="4196086.55086458"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=4fd26d04-d1b3-11e5-83fa-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>poas_smi_v2013_1</Name>
+          <Title>poas_smi_v2013_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Apoas_smi_v2013_1"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>poas_smi_v2013_1_49db36c1</Name>
+          <Title>poas_smi_v2013_1_49db36c1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Apoas_smi_v2013_1&amp;style=poas_smi_v2013_1_49db36c1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:prov</Name>
+        <Title>prov</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>prov</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="95.009496" miny="-11.00214" maxx="141.001" maxy="5.9072"/>
+        <BoundingBox SRS="EPSG:4326" minx="95.009496" miny="-11.00214" maxx="141.001" maxy="5.9072"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=fd6beff0-caf4-11e5-98cd-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>prov</Name>
+          <Title>prov</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aprov"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:relief_san_andres</Name>
+        <Title>Relief San Andres</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>WCS</Keyword>
+          <Keyword>GeoTIFF</Keyword>
+          <Keyword>relief_san_andres</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-84.0" miny="11.0" maxx="-78.0" maxy="15.0"/>
+        <BoundingBox SRS="EPSG:4326" minx="-84.1212" miny="9.878799999999998" maxx="-77.8788" maxy="16.1212"/>
+        <Style>
+          <Name>relief_san_andres</Name>
+          <Title>relief_san_andres</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Arelief_san_andres"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:rezerv_font_point</Name>
+        <Title>rezerv_font_point</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>rezerv_font_point</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32634</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 34N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 21.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32634"]]-->
+        <LatLonBoundingBox minx="44.29998649776449" miny="37.68681404517473" maxx="45.52018758143888" maxy="38.175027724252494"/>
+        <BoundingBox SRS="EPSG:32634" minx="7400776.71718667" miny="4850027.05294831" maxx="7416181.48756261" maxy="4862199.67726933"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=ec634c7a-ab01-11e5-8e57-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>rezerv_font_point</Name>
+          <Title>rezerv_font_point</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Arezerv_font_point"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:roads</Name>
+        <Title>roads</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>roads</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <BoundingBox SRS="EPSG:4326" minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=a9bf7172-df55-11e5-97dc-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>roads</Name>
+          <Title>roads</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aroads"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:roads_1</Name>
+        <Title>roads_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>roads_1</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <BoundingBox SRS="EPSG:4326" minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <Style>
+          <Name>roads_1</Name>
+          <Title>roads_1</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aroads_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:roads_2</Name>
+        <Title>roads_2</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>roads_2</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <BoundingBox SRS="EPSG:4326" minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <Style>
+          <Name>roads_2</Name>
+          <Title>roads_2</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aroads_2"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:roads_3</Name>
+        <Title>roads_3</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>roads_3</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <BoundingBox SRS="EPSG:4326" minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <Style>
+          <Name>roads_3</Name>
+          <Title>roads_3</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aroads_3"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:roads_4</Name>
+        <Title>roads_4</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>roads_4</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <BoundingBox SRS="EPSG:4326" minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <Style>
+          <Name>roads_4</Name>
+          <Title>roads_4</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aroads_4"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:roads_5</Name>
+        <Title>roads_5</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>roads_5</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <BoundingBox SRS="EPSG:4326" minx="-83.3159077" miny="-89.6966045" maxx="168.2933791" maxy="-62.1554872"/>
+        <Style>
+          <Name>roads_5</Name>
+          <Title>roads_5</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aroads_5"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:sample_acled</Name>
+        <Title>sample_acled</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>sample_acled</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="43.52281" miny="-25.26285" maxx="49.40905" maxy="-12.34275"/>
+        <BoundingBox SRS="EPSG:4326" minx="43.52281" miny="-25.26285" maxx="49.40905" maxy="-12.34275"/>
+        <Style>
+          <Name>sample_acled</Name>
+          <Title>sample_acled</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asample_acled"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:sample_acled_1</Name>
+        <Title>sample_acled_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>sample_acled_1</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="43.52281" miny="-25.26285" maxx="49.40905" maxy="-12.34275"/>
+        <BoundingBox SRS="EPSG:4326" minx="43.52281" miny="-25.26285" maxx="49.40905" maxy="-12.34275"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=c533a920-d026-11e5-8dd1-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>sample_acled_1</Name>
+          <Title>sample_acled_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asample_acled_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_administrative</Name>
+        <Title>San Andres Y Providencia Administrative</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>san_andres_y_providencia_administrative</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.908727" miny="12.1189965" maxx="-79.9333322" maxy="15.5027746"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.908727" miny="12.1189965" maxx="-79.9333322" maxy="15.5027746"/>
+        <Style>
+          <Name>san_andres_y_providencia_administrative</Name>
+          <Title>san_andres_y_providencia_administrative</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_administrative"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_administrative_1</Name>
+        <Title>san_andres_y_providencia_administrative_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>san_andres_y_providencia_administrative_1</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.908727" miny="12.1189965" maxx="-79.9333322" maxy="15.5027746"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.908727" miny="12.1189965" maxx="-79.9333322" maxy="15.5027746"/>
+        <Style>
+          <Name>san_andres_y_providencia_administrative_1</Name>
+          <Title>san_andres_y_providencia_administrative_1</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_administrative_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_coastline</Name>
+        <Title>San Andres Y Providencia Coastline</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>san_andres_y_providencia_coastline</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.3962935" miny="13.3202891" maxx="-81.3490249" maxy="13.3859614"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.3962935" miny="13.3202891" maxx="-81.3490249" maxy="13.3859614"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=14383e20-a960-11e5-aded-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>san_andres_y_providencia_coastline</Name>
+          <Title>san_andres_y_providencia_coastline</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_coastline"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_highway</Name>
+        <Title>San Andres Y Providencia Highway</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>san_andres_y_providencia_highway</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.7353634" miny="12.48051" maxx="-81.3554805" maxy="13.3858644"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.7353634" miny="12.48051" maxx="-81.3554805" maxy="13.3858644"/>
+        <Style>
+          <Name>san_andres_y_providencia_highway</Name>
+          <Title>san_andres_y_providencia_highway</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_highway"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_location</Name>
+        <Title>San Andres Y Providencia Location</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>san_andres_y_providencia_location</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.8593555" miny="12.1665322" maxx="-81.356409" maxy="13.396306"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.8593555" miny="12.1665322" maxx="-81.356409" maxy="13.396306"/>
+        <Style>
+          <Name>san_andres_y_providencia_location</Name>
+          <Title>san_andres_y_providencia_location</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_location"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_natural</Name>
+        <Title>San Andres Y Providencia Natural</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>san_andres_y_providencia_natural</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.7208541" miny="12.5348134" maxx="-81.3547849" maxy="13.3942764"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.7208541" miny="12.5348134" maxx="-81.3547849" maxy="13.3942764"/>
+        <Style>
+          <Name>san_andres_y_providencia_natural</Name>
+          <Title>san_andres_y_providencia_natural</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_natural"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_poi</Name>
+        <Title>San Andres Y Providencia Poi</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>san_andres_y_providencia_poi</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.7354706" miny="12.4806157" maxx="-81.35" maxy="13.3881269"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.7354706" miny="12.4806157" maxx="-81.35" maxy="13.3881269"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=168df20a-a960-11e5-aded-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>san_andres_y_providencia_poi</Name>
+          <Title>san_andres_y_providencia_poi</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_poi"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:san_andres_y_providencia_water</Name>
+        <Title>San Andres Y Providencia Water</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>san_andres_y_providencia_water</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="-81.7356617" miny="12.4801497" maxx="-81.3451159" maxy="13.3944018"/>
+        <BoundingBox SRS="EPSG:4326" minx="-81.7356617" miny="12.4801497" maxx="-81.3451159" maxy="13.3944018"/>
+        <Style>
+          <Name>san_andres_y_providencia_water</Name>
+          <Title>san_andres_y_providencia_water</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asan_andres_y_providencia_water"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:single_point</Name>
+        <Title>Single Point</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>single_point</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="9.9999" miny="9.9999" maxx="10.0001" maxy="10.0001"/>
+        <BoundingBox SRS="EPSG:4326" minx="10.0" miny="10.0" maxx="10.0" maxy="10.0"/>
+        <Style>
+          <Name>single_point</Name>
+          <Title>single_point</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Asingle_point"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:test_grid</Name>
+        <Title>Test Grid</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>WCS</Keyword>
+          <Keyword>GeoTIFF</Keyword>
+          <Keyword>test_grid</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="96.956" miny="-5.5187329999999" maxx="97.10970532" maxy="-5.3035455519999"/>
+        <BoundingBox SRS="EPSG:4326" minx="96.956" miny="-5.5187329999999" maxx="97.10970532" maxy="-5.3035455519999"/>
+        <Style>
+          <Name>test_grid</Name>
+          <Title>test_grid</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Atest_grid"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:test_vulci</Name>
+        <Title>test_vulci</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>WCS</Keyword>
+          <Keyword>GeoTIFF</Keyword>
+          <Keyword>test_vulci</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32632</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 32N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 9.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32632"]]-->
+        <LatLonBoundingBox minx="11.62648665928621" miny="42.41646766938259" maxx="11.630475374580826" maxy="42.420456384677216"/>
+        <BoundingBox SRS="EPSG:32632" minx="716102.960875" miny="4699469.218125001" maxx="716415.960875" maxy="4699703.968125001"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=94fb9fce-d521-11e5-a3c2-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>test_vulci</Name>
+          <Title>test_vulci</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Atest_vulci"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ulice_polyline</Name>
+        <Title>ulice_polyline</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>ulice_polyline</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4326</SRS>
+        <!--WKT definition of this CRS:
+GEOGCS["WGS 84",
+  DATUM["World Geodetic System 1984",
+    SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+    AUTHORITY["EPSG","6326"]],
+  PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+  UNIT["degree", 0.017453292519943295],
+  AXIS["Geodetic longitude", EAST],
+  AXIS["Geodetic latitude", NORTH],
+  AUTHORITY["EPSG","4326"]]-->
+        <LatLonBoundingBox minx="19.785276" miny="43.818708" maxx="19.923201" maxy="43.87615"/>
+        <BoundingBox SRS="EPSG:4326" minx="19.785276" miny="43.818708" maxx="19.923201" maxy="43.87615"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=821d165a-aa90-11e5-8de7-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>ulice_polyline</Name>
+          <Title>ulice_polyline</Title>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aulice_polyline"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>ulice_polyline_90eef514</Name>
+          <Title>536</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aulice_polyline&amp;style=ulice_polyline_90eef514"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>ulice_polyline_3d861887</Name>
+          <Title>Style 2</Title>
+          <LegendURL width="46" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aulice_polyline&amp;style=ulice_polyline_3d861887"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>geonode:ulice_ue_polyline_1</Name>
+        <Title>ulice_ue_polyline_1</Title>
+        <Abstract>No abstract provided</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>ulice_ue_polyline_1</Keyword>
+        </KeywordList>
+        <SRS>EPSG:32634</SRS>
+        <!--WKT definition of this CRS:
+PROJCS["WGS 84 / UTM zone 34N",
+  GEOGCS["WGS 84",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH],
+    AUTHORITY["EPSG","4326"]],
+  PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]],
+  PARAMETER["central_meridian", 21.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
+  AXIS["Northing", NORTH],
+  AUTHORITY["EPSG","32634"]]-->
+        <LatLonBoundingBox minx="44.521207956722876" miny="37.789106347405095" maxx="45.27286216439752" maxy="38.085569739085244"/>
+        <BoundingBox SRS="EPSG:32634" minx="7402745.9706642" miny="4853381.51453571" maxx="7413840.06558994" maxy="4859741.23275035"/>
+        <Attribution>
+          <Title>admin</Title>
+        </Attribution>
+        <MetadataURL type="FGDC">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;elementsetname=full&amp;id=f6037a98-ab01-11e5-b9f5-12d3d02c9b01"/>
+        </MetadataURL>
+        <Style>
+          <Name>ulice_ue_polyline_1</Name>
+          <Title>ulice_ue_polyline_1</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://demo.geonode.org:80/geoserver/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=geonode%3Aulice_ue_polyline_1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMT_MS_Capabilities>

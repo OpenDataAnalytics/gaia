@@ -65,15 +65,15 @@ class TestPostGisDB(unittest.TestCase):
     def setUpClass(cls):
         config_file = os.path.join(base_dir, '../conf/test.local.cfg')
         config = gaia.core.get_config(config_file)
-        cls.user = config['postgis']['user']
-        cls.password = config['postgis']['password']
-        cls.host = config['postgis']['host']
-        cls.dbname = config['postgis']['dbname']
+        cls.user = config['gaia_postgis']['user']
+        cls.password = config['gaia_postgis']['password']
+        cls.host = config['gaia_postgis']['host']
+        cls.dbname = config['gaia_postgis']['dbname']
 
         try:
             connection = cls.get_connection()
-        except OperationalError as oe:
-            raise unittest.SkipTest(oe.message)
+        except OperationalError:
+            raise unittest.SkipTest()
 
         iso_level = connection.connection.connection.isolation_level
         connection.connection.connection.set_isolation_level(0)
