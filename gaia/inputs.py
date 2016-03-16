@@ -416,10 +416,11 @@ class PostgisIO(GaiaIO):
         """
         super(PostgisIO, self).__init__(**kwargs)
         self.table = table
-        self.host = kwargs.get('host') or config['postgis']['host']
-        self.dbname = kwargs.get('dbname') or config['postgis']['dbname']
-        self.user = kwargs.get('user') or config['postgis']['user']
-        self.password = kwargs.get('password') or config['postgis']['password']
+        self.host = kwargs.get('host') or config['gaia_postgis']['host']
+        self.dbname = kwargs.get('dbname') or config['gaia_postgis']['dbname']
+        self.user = kwargs.get('user') or config['gaia_postgis']['user']
+        self.password = kwargs.get(
+            'password') or config['gaia_postgis']['password']
         self.engine = self.get_engine(self.get_connection_string())
         self.get_table_info()
         self.verify()
