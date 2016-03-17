@@ -1,15 +1,11 @@
 {
-  "data_inputs": [
+  "_type": "gaia.geo.WeightProcess",
+  "inputs": [
     {
-          "name": "input",
-          "source": "file",
-           "uri": "{basepath}/baghdad_hospitals.geojson"
+      "name": "input",
+      "_type": "gaia.inputs.VectorFileIO",
+      "uri": "{basepath}/baghdad_hospitals.geojson"
     }
   ],
-  "args": {
-    "weight_type": "knnW"
-  },
-  "output": {
-    "type": "file"
-  }
+  "weight_type": "knnW"
 }

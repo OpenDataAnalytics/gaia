@@ -1,3 +1,21 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+###############################################################################
+#  Copyright Kitware Inc. and Epidemico Inc.
+#
+#  Licensed under the Apache License, Version 2.0 ( the "License" );
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+###############################################################################
 import json
 import os
 import unittest
@@ -5,8 +23,7 @@ from zipfile import ZipFile
 import pysal
 
 from gaia import formats
-import gaia.geo.processes_vector as pv
-import gaia.geo.processes_raster as pr
+import gaia.geo as geo
 from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO
 
 testfile_path = os.path.join(os.path.dirname(
@@ -14,6 +31,7 @@ testfile_path = os.path.join(os.path.dirname(
 
 
 class TestGaiaProcessors(unittest.TestCase):
+
     def test_zonalstats(self):
         vector_io = FeatureIO(features=[
             {"type": "Feature",
@@ -44,7 +62,7 @@ class TestGaiaProcessors(unittest.TestCase):
              }])
         raster_io = RasterFileIO(name='temp', uri=os.path.join(
             testfile_path, 'globalairtemp.tif'))
-        process = pv.ZonalStatsProcess(inputs=[vector_io, raster_io])
+        process = geo.ZonalStatsProcess(inputs=[raster_io, vector_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -67,7 +85,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
-        process = pv.WithinProcess(inputs=[vector1_io, vector2_io])
+        process = geo.WithinProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             self.assertEquals(len(process.output.data), 19)
@@ -83,7 +101,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
-        process = pv.IntersectsProcess(
+        process = geo.IntersectsProcess(
             inputs=[vector1_io, vector2_io])
         try:
             process.compute()
@@ -98,15 +116,63 @@ class TestGaiaProcessors(unittest.TestCase):
             if process:
                 process.purge()
 
+    def test_cross(self):
+        """
+        Test IntersectsProcess for vector inputs
+        """
+        vector1_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+        vector2_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
+        process = geo.CrossesProcess(
+            inputs=[vector1_io, vector2_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'crosses_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
+    def test_touch(self):
+        """
+        Test IntersectsProcess for vector inputs
+        """
+        vector1_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+        vector2_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
+        process = geo.TouchesProcess(
+            inputs=[vector1_io, vector2_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'touches_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
     def test_union(self):
         """
         Test UnionProcess for vector inputs
         """
         vector1_io = VectorFileIO(
-            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'),
+            filters=[('NNAME', 'contains', '^A')])
         vector2_io = VectorFileIO(
-            uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
-        process = pv.UnionProcess(inputs=[vector1_io, vector2_io])
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'),
+            filters=[('NNAME', 'contains', '^B')])
+        process = geo.UnionProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -120,15 +186,15 @@ class TestGaiaProcessors(unittest.TestCase):
             if process:
                 process.purge()
 
-    def test_difference(self):
+    def test_disjoint(self):
         """
-        Test DifferenceProcess for vector inputs
+        Test DisjointProcess for vector inputs
         """
         vector1_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_roads.geojson'))
-        process = pv.DifferenceProcess(inputs=[vector1_io, vector2_io])
+        process = geo.DisjointProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -148,7 +214,7 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         vector1_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
-        process = pv.CentroidProcess(inputs=[vector1_io])
+        process = geo.CentroidProcess(inputs=[vector1_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -170,7 +236,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
         vector2_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
-        process = pv.DistanceProcess(inputs=[vector1_io, vector2_io])
+        process = geo.DistanceProcess(inputs=[vector1_io, vector2_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -195,7 +261,7 @@ class TestGaiaProcessors(unittest.TestCase):
             uri=os.path.join(testfile_path, '2states.geojson'))
         raster_io = RasterFileIO(
             uri=os.path.join(testfile_path, 'globalairtemp.tif'))
-        process = pr.SubsetProcess(inputs=[vector_io, raster_io])
+        process = geo.SubsetProcess(inputs=[raster_io, vector_io])
         try:
             process.compute()
             self.assertEquals(type(process.output.data).__name__, 'Dataset')
@@ -217,12 +283,11 @@ class TestGaiaProcessors(unittest.TestCase):
             name='A', uri=os.path.join(testfile_path, 'globalairtemp.tif'))
         raster2_io = RasterFileIO(
             name='B', uri=os.path.join(testfile_path, 'globalprecip.tif'))
-        args = {
-            'calc': 'A + B',
-            'bands': [1, 1]
-        }
-        process = pr.RasterMathProcess(
-            inputs=[raster1_io, raster2_io], args=args)
+        calc = 'A + B'
+        bands = [1, 1]
+
+        process = geo.RasterMathProcess(
+            inputs=[raster1_io, raster2_io], calc=calc, bands=bands)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))
@@ -255,11 +320,12 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         raster1_io = RasterFileIO(
             name='A', uri=os.path.join(testfile_path, 'globalprecip.tif'))
-        args = {
-            'calc': 'A * 2',
-            'output_type': 'Float32'
-        }
-        process = pr.RasterMathProcess(inputs=[raster1_io, ], args=args)
+        calc = 'A * 2'
+        output_type = 'Float32'
+
+        process = geo.RasterMathProcess(inputs=[raster1_io, ],
+                                        calc=calc,
+                                        output_type=output_type)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))
@@ -292,12 +358,10 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         raster1_io = RasterFileIO(
             name='A', uri=os.path.join(testfile_path, 'globalairtemp.tif'))
-        args = {
-            'calc': 'logical_or('
-                    'logical_and(A >= 27000, A <= 28000), '
-                    'logical_and(A >= 30000, A <= 31000))'
-        }
-        process = pr.RasterMathProcess(inputs=[raster1_io, ], args=args)
+        calc = 'logical_or(logical_and(A >= 27000, A <= 28000), ' \
+               'logical_and(A >= 30000, A <= 31000))'
+
+        process = geo.RasterMathProcess(inputs=[raster1_io, ], calc=calc)
         try:
             process.compute()
             self.assertTrue(os.path.exists(process.output.uri))
@@ -322,6 +386,48 @@ class TestGaiaProcessors(unittest.TestCase):
             if process:
                 process.purge()
 
+    def test_length(self):
+        """
+        Test LengthProcess for vector inputs
+        """
+        vector_roads = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_roads.geojson'),
+            filters=[('type', '=', 'motorway'), ('bridge', '=', 1)])
+        process = geo.LengthProcess(inputs=[vector_roads])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'length_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
+    def test_area(self):
+        """
+        Test AreaProcess for vector inputs
+        """
+        vector1_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'),
+            filters=[('NNAME', 'contains', '^B')])
+        process = geo.AreaProcess(inputs=[vector1_io])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    testfile_path,
+                    'area_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
+
     def test_cluster(self):
         """
         Test ClusterProcess for vector inputs
@@ -329,11 +435,7 @@ class TestGaiaProcessors(unittest.TestCase):
         vector_io = VectorFileIO(
             name='input', uri=os.path.join(testfile_path,
                                            'baghdad_hospitals.geojson'))
-        args = {
-            'var_col': 'num_hospitals'
-        }
-        process = pv.ClusterProcess(
-            inputs=[vector_io], args=args)
+        process = geo.ClusterProcess('num_hospitals', inputs=[vector_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -354,11 +456,8 @@ class TestGaiaProcessors(unittest.TestCase):
         vector_io = VectorFileIO(
             name='input', uri=os.path.join(testfile_path,
                                            'baghdad_hospitals.geojson'))
-        args = {
-            'var_col': 'num_hospitals'
-        }
-        process = pv.AutocorrelationProcess(
-            inputs=[vector_io], args=args)
+        process = geo.AutocorrelationProcess('num_hospitals',
+                                             inputs=[vector_io])
         try:
             process.compute()
             with open(os.path.join(
@@ -379,11 +478,7 @@ class TestGaiaProcessors(unittest.TestCase):
         vector_io = VectorFileIO(
             name='input', uri=os.path.join(testfile_path,
                                            'baghdad_hospitals.geojson'))
-        args = {
-            'weight_type': 'knnW'
-        }
-        process = pv.WeightProcess(
-            inputs=[vector_io], args=args)
+        process = geo.WeightProcess('knnW', inputs=[vector_io])
         try:
             process.compute()
             exp = pysal.open(os.path.join(testfile_path,

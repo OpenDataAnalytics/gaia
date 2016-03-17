@@ -1,12 +1,11 @@
 {
-  "data_inputs": [
+  "_type": "gaia.geo.ClusterProcess",
+  "inputs": [
     {
       "name": "input",
-      "source": "file",
+      "_type": "gaia.inputs.VectorFileIO",
       "uri": "{basepath}/baghdad_hospitals.geojson"
     }
   ],
-  "args": {
-    "var_col": "num_hospitals"
-  }
+  "var_col": "num_hospitals"
 }

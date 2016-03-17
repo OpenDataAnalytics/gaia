@@ -1,12 +1,15 @@
 {
-  "data_inputs": [
+  "_type": "gaia.geo.UnionProcess",
+  "inputs": [
       {
-          "source": "file",
-          "uri": "{basepath}/baghdad_districts.geojson"
+          "_type": "gaia.inputs.VectorFileIO",
+          "uri": "{basepath}/baghdad_districts.geojson",
+          "filters": [["NNAME", "contains", "^B"]]
       },
       {
-          "source": "file",
-          "uri": "{basepath}/iraq_hospitals.geojson"
+          "_type": "gaia.inputs.VectorFileIO",
+          "uri": "{basepath}/baghdad_districts.geojson",
+          "filters": [["NNAME", "contains", "^A"]]
       }
   ]
 }
