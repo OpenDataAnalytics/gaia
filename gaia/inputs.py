@@ -31,7 +31,7 @@ try:
 except ImportError:
     from osgeo import osr
 import gaia.formats as formats
-from gaia.core import GaiaException, config, sqlengines
+from gaia.core import GaiaException, config, sqlengines, get_abspath
 from gaia.filters import filter_pandas, filter_postgis
 
 
@@ -216,7 +216,7 @@ class FileIO(GaiaIO):
         :param kwargs:
         :return:
         """
-        if uri and self.allowed_folder(uri):
+        if uri and not self.allowed_folder(uri):
             raise GaiaException(
                 "Access to this directory is not permitted : {}".format(
                     os.path.dirname(uri)))
@@ -233,12 +233,12 @@ class FileIO(GaiaIO):
         :return: True or False
         """
         allowed_dirs = config['gaia']['fileio_paths'].split(',')
-        if not allowed_dirs:
+        if not allowed_dirs[0]:
             return True
         filepath = os.path.abspath(os.path.dirname(folder))
         allowed = False
         for path in allowed_dirs:
-            if filepath.startswith(path):
+            if filepath.startswith(get_abspath(path)):
                 allowed = True
                 break
         return allowed
