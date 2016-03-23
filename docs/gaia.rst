@@ -15,7 +15,7 @@ gaia.core module
 gaia.datatypes module
 ---------------------
 
-.. automodule:: gaia.datatypes
+.. automodule:: gaia.datasources
     :members:
     :undoc-members:
     :show-inheritance:
@@ -52,10 +52,18 @@ gaia.parser module
     :undoc-members:
     :show-inheritance:
 
-gaia.processes module
+gaia.processes_raster module
 ---------------------
 
-.. automodule:: gaia.processes
+.. automodule:: gaia.processes_raster
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+gaia.processes_vector module
+---------------------
+
+.. automodule:: gaia.processes_vector
     :members:
     :undoc-members:
     :show-inheritance:

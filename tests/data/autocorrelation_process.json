@@ -1,0 +1,11 @@
+{
+  "_type": "gaia.geo.AutocorrelationProcess",
+  "inputs": [
+    {
+      "name": "input",
+      "_type": "gaia.inputs.VectorFileIO",
+      "uri": "{basepath}/baghdad_hospitals.geojson"
+    }
+  ],
+  "var_col": "num_hospitals"
+}

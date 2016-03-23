@@ -1,15 +1,25 @@
 language: python
 
 sudo: required
+dist: trusty
 
 addons:
+  postgresql: "9.3"
   apt:
     packages:
       - python-dev
       - libgdal1-dev
+      - libblas-dev
+      - liblapack-dev
+      - libatlas-base-dev
+      - gfortran
+
+services:
+  - postgresql
 
 python:
   - "2.7"
+  - "3.4"
 
 before_install:
   - sudo apt-get -qq update
@@ -21,6 +31,7 @@ install:
   - pip install -r requirements-dev.txt
   - pip install -e .
 
+
 script:
   - python -m unittest discover
-  - flake8 --config tests/flake8.cfg
+  - flake8 --config tests/flake8.cfg gaia tests

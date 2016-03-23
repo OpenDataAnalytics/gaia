@@ -17,14 +17,12 @@
 #  limitations under the License.
 ###############################################################################
 import json
-
 import os
 
 # Need to set the environment variable before importing girder
 os.environ['GIRDER_PORT'] = os.environ.get('GIRDER_TEST_PORT', '20200')
 testfile_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../tests/data/geoprocess')
-
+    os.path.realpath(__file__)), '../tests/data')
 
 from tests import base
 
@@ -68,7 +66,7 @@ class GeoprocessTestCase(base.TestCase):
         with open(os.path.join(testfile_path,
                                'within_nested_buffer_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
-        path = '/geoprocess/within'
+        path = '/geoprocess'
         response = self.request(
             isJson=False,
             path=path,
