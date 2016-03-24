@@ -11,3 +11,5 @@ minerva_install_root: "{{base_dir}}/minerva"
 minerva_version: "master"
 
 venv_root: "{{base_dir}}/.girderenv"
+
+gaia_version: "master"
