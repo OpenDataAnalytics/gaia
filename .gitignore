@@ -56,3 +56,4 @@ target/
 
 _build*/
 .idea/
+.vagrant/

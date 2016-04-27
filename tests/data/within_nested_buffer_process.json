@@ -1,30 +1,27 @@
 {
-  "data_inputs": [
+  "_type": "gaia.geo.WithinProcess",
+  "inputs": [
       {
+          "_type": "gaia.inputs.VectorFileIO",
           "name": "first",
-          "source": "file",
           "uri": "{basepath}/iraq_hospitals.geojson"
       },
       {
-          "source": "process",
+          "_type": "gaia.inputs.ProcessIO",
           "process": {
+              "_type": "gaia.geo.BufferProcess",
+              "buffer_size": 1000,
               "name": "buffer",
-              "data_inputs": [
+              "inputs": [
                   {
-                      "source": "file",
+                      "_type": "gaia.inputs.VectorFileIO",
                       "uri": "{basepath}/iraq_roads.geojson",
-                      "filter": {
-                          "type": "motorway"
-                      }
+                      "filters": [
+                          ["type","=","motorway"]
+                      ]
                   }
-              ],
-              "args": {
-                  "buffer_size": 10000
-              }
+              ]
           }
       }
-  ],
-    "output": {
-        "source": "file"
-    }
+  ]
 }
