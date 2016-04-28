@@ -29,6 +29,12 @@ Gaia install:
     pip install -r requirements-dev.txt
     pip install -e .
 
+    # Installation issues - Ubuntu:
+    You may run into cpl_port.h No such file or directory. Do the following:
+    sudo apt-get install libgdal-dev
+    export CPLUS_INCLUDE_PATH=/usr/include/gdal
+    export C_INCLUDE_PATH=/usr/include/gdal
+
 Gaia [![Build Status](https://jenkins.epidemi.co/buildStatus/icon?job=deploy-gaia-development)](https://jenkins.epidemi.co/job/deploy-gaia-development/) [![Coverage Status](https://coveralls.io/repos/OpenGeoscience/gaia/badge.svg)](https://coveralls.io/r/OpenGeoscience/gaia) [![Documentation Status](https://readthedocs.org/projects/gaia/badge/?version=latest)](https://readthedocs.org/projects/gaia/?badge=latest) [![Join the chat at https://gitter.im/OpenGeoscience/gaia](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenGeoscience/gaia?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
