@@ -120,6 +120,7 @@ class TestGaiaRequestParser(unittest.TestCase):
             body_text = inf.read().replace('{basepath}', testfile_path)
         process = json.loads(body_text, object_hook=deserialize)
         try:
+            print 'process ', process
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))
             with open(os.path.join(

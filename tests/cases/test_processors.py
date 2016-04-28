@@ -27,7 +27,8 @@ import gaia.geo as geo
 import gaia.geo.processes_vector as pv
 import gaia.geo.processes_raster as pr
 import gaia.geo.processes_twitter as tw
-from gaia.inputs import RasterFileIO, VectorFileIO, FeatureIO, TwitterIO
+
+from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO, TwitterIO
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')

@@ -1,5 +1,5 @@
-from gaia.inputs import TwitterIO, VectorFileIO
-from gaia.geo.processes_base import GaiaProcess
+from gaia.geo.geo_inputs import TwitterIO, VectorFileIO
+from gaia.gaia_process import GaiaProcess
 import gaia.formats as formats
 
 class TwitterProcess(GaiaProcess):

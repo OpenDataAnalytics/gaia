@@ -33,10 +33,11 @@ from geopandas import GeoDataFrame
 import gaia.pysal_weights as wt
 import gaia.formats as formats
 from gaia.core import GaiaException
-from gaia.inputs import WeightFileIO, JsonFileIO
+from gaia.geo.geo_inputs import WeightFileIO
+from gaia.inputs import JsonFileIO
 from gaia.geo import GaiaProcess
 from gaia.geo.gdal_functions import gdal_zonalstats
-from gaia.inputs import VectorFileIO, df_from_postgis
+from gaia.geo.geo_inputs import VectorFileIO, df_from_postgis
 
 logger = logging.getLogger('gaia.geo')
 

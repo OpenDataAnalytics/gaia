@@ -32,7 +32,7 @@ from sqlalchemy import create_engine, text
 import gaia.geo
 import gaia.core
 import gaia.formats as formats
-from gaia.inputs import PostgisIO
+from gaia.geo.geo_inputs import PostgisIO
 
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
