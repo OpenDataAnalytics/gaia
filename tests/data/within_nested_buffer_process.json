@@ -7,7 +7,7 @@
           "uri": "{basepath}/iraq_hospitals.geojson"
       },
       {
-          "_type": "gaia.inputs.ProcessIO",
+          "_type": "gaia.geo.geo_inputs.ProcessIO",
           "process": {
               "_type": "gaia.geo.BufferProcess",
               "buffer_size": 1000,

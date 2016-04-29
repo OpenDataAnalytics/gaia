@@ -16,7 +16,7 @@
             }
       },
       {
-          "_type": "gaia.inputs.ProcessIO",
+          "_type": "gaia.geo.geo_inputs.ProcessIO",
           "process": {
               "name": "buffer",
               "_type": "gaia.geo.BufferProcess",
