@@ -182,6 +182,8 @@ class TestGaiaRequestParser(unittest.TestCase):
                 testfile_path,
                 'within_nested_buffer_features_process.json')) as inf:
                 process = json.load(inf, object_hook=deserialize)
+
+        print 'inf ', inf
         try:
             process.compute()
             output = json.loads(process.output.read(format=formats.JSON))

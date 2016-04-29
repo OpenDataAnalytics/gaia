@@ -2,7 +2,7 @@
   "_type": "gaia.geo.WithinProcess",
   "inputs": [
       {
-          "_type": "gaia.inputs.VectorFileIO",
+          "_type": "gaia.geo.geo_inputs.VectorFileIO",
           "name": "first",
           "uri": "{basepath}/iraq_hospitals.geojson"
       },
@@ -14,7 +14,7 @@
               "name": "buffer",
               "inputs": [
                   {
-                      "_type": "gaia.inputs.VectorFileIO",
+                      "_type": "gaia.geo.geo_inputs.VectorFileIO",
                       "uri": "{basepath}/iraq_roads.geojson",
                       "filters": [
                           ["type","=","motorway"]

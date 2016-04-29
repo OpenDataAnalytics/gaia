@@ -2,12 +2,12 @@
   "_type": "gaia.geo.UnionProcess",
   "inputs": [
       {
-          "_type": "gaia.inputs.VectorFileIO",
+          "_type": "gaia.geo.geo_inputs.VectorFileIO",
           "uri": "{basepath}/baghdad_districts.geojson",
           "filters": [["NNAME", "contains", "^B"]]
       },
       {
-          "_type": "gaia.inputs.VectorFileIO",
+          "_type": "gaia.geo.geo_inputs.VectorFileIO",
           "uri": "{basepath}/baghdad_districts.geojson",
           "filters": [["NNAME", "contains", "^A"]]
       }
