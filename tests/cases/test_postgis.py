@@ -107,7 +107,7 @@ class TestPostGisDB(unittest.TestCase):
             connection.close()
             connection.engine.dispose()
 
-    @patch('gaia.inputs.PostgisIO.get_engine', get_engine)
+    @patch('gaia.geo.geo_inputs.PostgisIO.get_engine', get_engine)
     def test_area_process(self):
         pgio = PostgisIO(table='baghdad_districts',
                          host=self.host,
@@ -129,7 +129,7 @@ class TestPostGisDB(unittest.TestCase):
             if process:
                 process.purge()
 
-    @patch('gaia.inputs.PostgisIO.get_engine', get_engine)
+    @patch('gaia.geo.geo_inputs.PostgisIO.get_engine', get_engine)
     def test_within(self):
         """
         Test WithinProcess for PostGIS inputs
