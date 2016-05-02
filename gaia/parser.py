@@ -34,6 +34,7 @@ valid_classes.extend([x[0] for x in inspect.getmembers(
 valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.geo.geo_inputs, inspect.isclass) if x[0].endswith('IO')])
 
+
 def deserialize(dct):
     """
     Convert a JSON object into a class

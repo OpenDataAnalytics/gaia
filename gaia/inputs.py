@@ -151,7 +151,6 @@ class GaiaIO(object):
         raise NotImplementedError()
 
 
-
 class FileIO(GaiaIO):
     """Abstract class to read and write file data."""
 
@@ -195,6 +194,7 @@ class FileIO(GaiaIO):
         """
         if os.path.exists(self.uri):
             shutil.rmtree(os.path.dirname(self.uri))
+
 
 class GirderIO(GaiaIO):
     """Read and write Girder files/items/metadata"""

@@ -37,7 +37,7 @@ except ImportError:
     from osgeo import osr
 import gaia.formats as formats
 
-from gaia.inputs import GaiaIO, FileIO
+from gaia.inputs import GaiaIO, FileIO, UnsupportedFormatException
 
 from gaia.core import GaiaException, config, sqlengines, get_abspath
 from gaia.filters import filter_pandas, filter_postgis
@@ -125,10 +125,11 @@ class TwitterIO(FileIO):
         resolver = carmen.get_resolver()
         resolver.load_locations()
         location = resolver.resolve_tweet(tweet)
-        if location != None:
+        if location is not None:
             for x in location:
-                if (x != False):
-                    location_string = x.country + ',' + x.state + ',' + x.county + ',' + x.city
+                if x:
+                    location_string = (x.country + ',' + x.state + ',' +
+                                       x.county + ',' + x.city)
                     coord = geolocator.geocode(location_string)
             return coord
 
@@ -171,7 +172,8 @@ class TwitterIO(FileIO):
 
                 for i, tweet in enumerate(data, 1):
                     coord = self.get_coordinates_from_tweet(tweet)
-                    geojson["geometry"]["coordinates"] = [coord.longitude, coord.latitude]
+                    geojson["geometry"]["coordinates"] = [coord.longitude,
+                                                          coord.latitude]
                     # Iterate over the tweet and create properties
                     for property in tweet:
                         geojson["properties"][property] = tweet[property]
@@ -212,30 +214,24 @@ class TwitterIO(FileIO):
 
             authorize_url = twitter.get_authorize_url(request_token)
 
-            print ''
-            print 'I will try to start a browser to visit the following Twitter page'
-            print 'if a browser will not start, copy the URL to your browser'
-            print 'and retrieve the pincode to be used'
-            print 'in the next step to obtaining an Authentication Token:'
-            print ''
-            print authorize_url
-            print ''
-
             webbrowser.open(authorize_url)
             pincode = raw_input('Enter PIN from browser: ')
 
             session = twitter.get_auth_session(request_token,
-                                       request_token_secret,
-                                       method='POST',
-                                       data={'oauth_verifier': pincode})
+                                               request_token_secret,
+                                               method='POST',
+                                               data={'oauth_verifier': pincode})
 
-            params = {'include_rts': self.data['include_retweets'],  # Include retweets
-                'count': self.data['count']}
+            # Include retweets
+            params = {'include_rts': self.data['include_retweets'],
+                      'count': self.data['count']}
 
-            r = session.get('statuses/home_timeline.json', params=params, verify=True)
+            r = session.get('statuses/home_timeline.json',
+                            params=params, verify=True)
 
             # Convert twitter data into geojson
-            # Create Feature if one tweet was found, otherwise create FeatureCollection
+            # Create Feature if one tweet was found,
+            # otherwise create FeatureCollection
             self.convertToGeojson(r.json())
         if format == formats.JSON:
             result = self.data.to_json()
@@ -523,6 +519,7 @@ class PostgisIO(GaiaIO):
         else:
             return out_data
 
+
 class WeightFileIO(FileIO):
     """Read vector and write weight file data (such as .gal)"""
 
@@ -588,7 +585,6 @@ def reproject(dataset, epsg):
     :param epsg: EPSG code to reproject to
     :return: Reprojected data
     """
-    from gaia.geo import gdal_reproject
     dataclass = dataset.__class__.__name__
     # Run appropriate reprojection method
     if dataclass == 'GeoDataFrame':

@@ -500,7 +500,8 @@ class TestGaiaProcessors(unittest.TestCase):
         """
         Test TwitterProcess for twitter data
         """
-        twitterData = open(os.path.join(testfile_path, 'twitter_feed.json')).read()
+        twitterData = open(os.path.join(testfile_path,
+                           'twitter_feed.json')).read()
         twitterIO = TwitterIO()
 
         geojson = twitterIO.convertToGeojson(twitterData)
