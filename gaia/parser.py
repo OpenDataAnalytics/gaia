@@ -30,6 +30,10 @@ valid_classes.extend([x[0] for x in inspect.getmembers(
 valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.inputs, inspect.isclass) if x[0].endswith('IO')])
 
+# TODO: Need a method to register classes from domain specific code
+valid_classes.extend([x[0] for x in inspect.getmembers(
+    gaia.geo.geo_inputs, inspect.isclass) if x[0].endswith('IO')])
+
 
 def deserialize(dct):
     """

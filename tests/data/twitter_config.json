@@ -1,0 +1,12 @@
+{
+  "data_inputs": {
+    "consumer_key": "",
+    "consumer_secret": "",
+    "request_token_url": "",
+    "access_token_url": "",
+    "authorize_url": "",
+    "base_url": "",
+    "count": 1,
+    "include_retweets": 1
+  }
+}

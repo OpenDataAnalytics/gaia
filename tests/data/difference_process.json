@@ -2,11 +2,11 @@
   "_type": "gaia.geo.DisjointProcess",
   "inputs": [
       {
-          "_type": "gaia.inputs.VectorFileIO",
+          "_type": "gaia.geo.geo_inputs.VectorFileIO",
            "uri": "{basepath}/baghdad_districts.geojson"
       },
       {
-          "_type": "gaia.inputs.VectorFileIO",
+          "_type": "gaia.geo.geo_inputs.VectorFileIO",
           "uri": "{basepath}/iraq_roads.geojson"
       }
   ]

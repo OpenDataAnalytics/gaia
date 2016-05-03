@@ -2,19 +2,19 @@
   "_type": "gaia.geo.WithinProcess",
   "inputs": [
       {
-          "_type": "gaia.inputs.VectorFileIO",
+          "_type": "gaia.geo.geo_inputs.VectorFileIO",
           "name": "first",
           "uri": "{basepath}/iraq_hospitals.geojson"
       },
       {
-          "_type": "gaia.inputs.ProcessIO",
+          "_type": "gaia.geo.geo_inputs.ProcessIO",
           "process": {
               "_type": "gaia.geo.BufferProcess",
               "buffer_size": 1000,
               "name": "buffer",
               "inputs": [
                   {
-                      "_type": "gaia.inputs.VectorFileIO",
+                      "_type": "gaia.geo.geo_inputs.VectorFileIO",
                       "uri": "{basepath}/iraq_roads.geojson",
                       "filters": [
                           ["type","=","motorway"]

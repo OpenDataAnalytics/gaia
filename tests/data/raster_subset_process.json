@@ -3,12 +3,12 @@
   "inputs": [
       {
           "name": "raster",
-          "_type": "gaia.inputs.RasterFileIO",
+          "_type": "gaia.geo.geo_inputs.RasterFileIO",
           "uri": "{basepath}/globalairtemp.tif"
       },
       {
           "name": "clip",
-          "_type": "gaia.inputs.VectorFileIO",
+          "_type": "gaia.geo.geo_inputs.VectorFileIO",
           "uri": "{basepath}/2states.geojson"
       }
   ]
