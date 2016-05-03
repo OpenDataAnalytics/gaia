@@ -394,6 +394,7 @@ class PostgisIO(GaiaIO):
         """
         super(PostgisIO, self).__init__(**kwargs)
         self.table = table
+        print 'config ', config
         self.host = kwargs.get('host') or config['gaia_postgis']['host']
         self.dbname = kwargs.get('dbname') or config['gaia_postgis']['dbname']
         self.user = kwargs.get('user') or config['gaia_postgis']['user']
