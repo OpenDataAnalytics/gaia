@@ -21,6 +21,13 @@ python:
   - "2.7"
   - "3.4"
 
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
 before_install:
   - sudo apt-get -qq update
 

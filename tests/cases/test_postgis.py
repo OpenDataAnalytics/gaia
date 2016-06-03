@@ -74,7 +74,6 @@ class TestPostGisDB(unittest.TestCase):
             connection = cls.get_connection()
         except OperationalError:
             raise unittest.SkipTest()
-
         iso_level = connection.connection.connection.isolation_level
         connection.connection.connection.set_isolation_level(0)
         try:
