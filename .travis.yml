@@ -7,6 +7,7 @@ addons:
   postgresql: "9.4"
   apt:
     packages:
+      - postgresql-9.4-postgis-2.2
       - python-dev
       - libgdal1-dev
       - libblas-dev
@@ -38,6 +39,9 @@ install:
   - pip install -r requirements-dev.txt
   - pip install -e .
 
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - psql -c 'CREATE EXTENSION postgis;' -U postgres -d travis_ci_test
 
 script:
   - python -m unittest discover
