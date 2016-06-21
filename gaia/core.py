@@ -54,9 +54,7 @@ def get_config(config_file=None):
     :return: configuration
     """
     if not config_file:
-        config_file = os.path.join(base_dir, 'conf/gaia.local.cfg')
-    if not os.path.exists(config_file):
-        shutil.copy(config_file.replace('local', 'dist'), config_file)
+        config_file = os.path.join(base_dir, 'conf/gaia.cfg')
     parser = ConfigParser()
     parser.read(config_file)
     config_dict = {}

@@ -63,7 +63,7 @@ class TestPostGisDB(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config_file = os.path.join(base_dir, '../conf/test.local.cfg')
+        config_file = os.path.join(base_dir, '../../gaia/conf/gaia.cfg')
         config = gaia.core.get_config(config_file)
         cls.user = config['gaia_postgis']['user']
         cls.password = config['gaia_postgis']['password']
@@ -74,7 +74,6 @@ class TestPostGisDB(unittest.TestCase):
             connection = cls.get_connection()
         except OperationalError:
             raise unittest.SkipTest()
-
         iso_level = connection.connection.connection.isolation_level
         connection.connection.connection.set_isolation_level(0)
         try:
@@ -107,54 +106,54 @@ class TestPostGisDB(unittest.TestCase):
             connection.close()
             connection.engine.dispose()
 
-    # @patch('gaia.geo.geo_inputs.PostgisIO.get_engine', get_engine)
-    # def test_area_process(self):
-    #     pgio = PostgisIO(table='baghdad_districts',
-    #                      host=self.host,
-    #                      dbname=self.dbname,
-    #                      user=self.user,
-    #                      password=self.password,
-    #                      filters=[('nname', 'LIKE', 'B%')])
-    #     process = gaia.geo.AreaProcess(inputs=[pgio])
-    #     try:
-    #         process.compute()
-    #         with open(os.path.join(
-    #                 base_dir,
-    #                 '../data/area_process_results.json')) as exp:
-    #             expected_json = json.load(exp)
-    #         actual_json = json.loads(process.output.read(format=formats.JSON))
-    #         self.assertEquals(len(expected_json['features']),
-    #                           len(actual_json['features']))
-    #     finally:
-    #         if process:
-    #             process.purge()
+    @patch('gaia.geo.geo_inputs.PostgisIO.get_engine', get_engine)
+    def test_area_process(self):
+        pgio = PostgisIO(table='baghdad_districts',
+                         host=self.host,
+                         dbname=self.dbname,
+                         user=self.user,
+                         password=self.password,
+                         filters=[('nname', 'LIKE', 'B%')])
+        process = gaia.geo.AreaProcess(inputs=[pgio])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    base_dir,
+                    '../data/area_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()
 
-    # @patch('gaia.geo.geo_inputs.PostgisIO.get_engine', get_engine)
-    # def test_within(self):
-    #     """
-    #     Test WithinProcess for PostGIS inputs
-    #     """
-    #     pg_hospitals = PostgisIO(table='iraq_hospitals',
-    #                              host=self.host,
-    #                              dbname=self.dbname,
-    #                              user=self.user,
-    #                              password=self.password)
-    #     pg_districts = PostgisIO(table='baghdad_districts',
-    #                              host=self.host,
-    #                              dbname=self.dbname,
-    #                              user=self.user,
-    #                              password=self.password,
-    #                              filters=[('nname', 'LIKE', 'A%')])
-    #     process = gaia.geo.WithinProcess(inputs=[pg_hospitals, pg_districts])
-    #     try:
-    #         process.compute()
-    #         with open(os.path.join(
-    #                 base_dir,
-    #                 '../data/within_process_results.json')) as exp:
-    #             expected_json = json.load(exp)
-    #         actual_json = json.loads(process.output.read(format=formats.JSON))
-    #         self.assertEquals(len(expected_json['features']),
-    #                           len(actual_json['features']))
-    #     finally:
-    #         if process:
-    #             process.purge()
+    @patch('gaia.geo.geo_inputs.PostgisIO.get_engine', get_engine)
+    def test_within(self):
+        """
+        Test WithinProcess for PostGIS inputs
+        """
+        pg_hospitals = PostgisIO(table='iraq_hospitals',
+                                 host=self.host,
+                                 dbname=self.dbname,
+                                 user=self.user,
+                                 password=self.password)
+        pg_districts = PostgisIO(table='baghdad_districts',
+                                 host=self.host,
+                                 dbname=self.dbname,
+                                 user=self.user,
+                                 password=self.password,
+                                 filters=[('nname', 'LIKE', 'A%')])
+        process = gaia.geo.WithinProcess(inputs=[pg_hospitals, pg_districts])
+        try:
+            process.compute()
+            with open(os.path.join(
+                    base_dir,
+                    '../data/within_process_results.json')) as exp:
+                expected_json = json.load(exp)
+            actual_json = json.loads(process.output.read(format=formats.JSON))
+            self.assertEquals(len(expected_json['features']),
+                              len(actual_json['features']))
+        finally:
+            if process:
+                process.purge()

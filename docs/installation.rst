@@ -64,13 +64,6 @@ Install of Gaia as a Girder plugin
     cd GIRDER_DIR
     npm install
 
--  copy the ``gaia.dist.cfg`` file, located in the GIRDER_DIR/plugins/gaia/server/conf
-   directory, to ``gaia.local.cfg`` in that same directory. Any
-   property in ``gaia.local.cfg`` will take precedent over any
-   property with the same name in ``gaia.dist.cfg``. If the
-   ``gaia.local.cfg`` file is absent, values will be read from
-   ``gaia.dist.cfg``.
-
 
 -  Run the Girder server
 

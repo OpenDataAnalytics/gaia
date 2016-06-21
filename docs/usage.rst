@@ -80,7 +80,7 @@ Girder Geoserver proxy
 
 Gaia provides a proxy to the Geoserver instance of your choice.
 
-  - Modify the 'ogc_url' setting in your gaia.local.cfg file to the URL of your Geoserver instance.
+  - Modify the 'ogc_url' setting in your gaia.cfg file to the URL of your Geoserver instance.
 
    - Make proxy requests to Geoserver from http://your-girder-url/geo/*::
 
