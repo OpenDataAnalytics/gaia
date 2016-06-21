@@ -23,7 +23,7 @@ from girder.plugins.gaia.geoservice_proxy import GeoserviceProxy
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Read the configuration files
-_cfgs = ('gaia.dist.cfg', 'gaia.local.cfg')
+_cfgs = ('gaia.cfg',)
 for f in _cfgs:
     configPath = os.path.join(PACKAGE_DIR, '../gaia/conf', f)
     if os.path.exists(configPath):
