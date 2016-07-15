@@ -45,7 +45,7 @@ def load_plugins():
     plugin_modules = []
     for ep in pr.iter_entry_points(group='gaia.plugins'):
         module = ep.load()
-        plugin_modules.append(importlib.import_module(module.__name__, package='gaia.plugins'))
+        plugin_modules.append(importlib.import_module(module.__name__))
         logger.debug("Loaded plugin {}: {}".format(ep.name, module))
 
     for plugin in plugin_modules:
