@@ -16,13 +16,18 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ###############################################################################
+import pkg_resources as pr
 import argparse
 import importlib
 import inspect
 import json
+import logging
 import gaia.inputs
 import gaia.geo
 from gaia.core import GaiaException
+
+
+logger = logging.getLogger('gaia.parser')
 
 valid_classes = []
 valid_classes.extend([x[0] for x in inspect.getmembers(
@@ -35,12 +40,26 @@ valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.geo.geo_inputs, inspect.isclass) if x[0].endswith('IO')])
 
 
+# Import plugin classes
+def load_plugins():
+    plugin_modules = []
+    for ep in pr.iter_entry_points(group='gaia.plugins'):
+        module = ep.load()
+        plugin_modules.append(importlib.import_module(module.__name__, package='gaia.plugins'))
+        logger.debug("Loaded plugin {}: {}".format(ep.name, module))
+
+    for plugin in plugin_modules:
+        valid_classes.extend([x[0] for x in inspect.getmembers(
+            plugin, inspect.isclass)])
+
+
 def deserialize(dct):
     """
     Convert a JSON object into a class
     :param dct: The JSON object
     :return: An object of class which the JSON represents
     """
+    load_plugins()
     if "_type" in dct.keys():
         cls_name = dct['_type'].split(".")[-1]
         module_name = ".".join(dct['_type'].split(".")[:-1])
