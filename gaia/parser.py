@@ -47,10 +47,8 @@ def load_plugins():
         module = ep.load()
         plugin_modules.append(importlib.import_module(module.__name__))
         logger.debug("Loaded plugin {}: {}".format(ep.name, module))
-
-    for plugin in plugin_modules:
         valid_classes.extend([x[0] for x in inspect.getmembers(
-            plugin, inspect.isclass)])
+            module, inspect.isclass)])
 
 
 def deserialize(dct):
