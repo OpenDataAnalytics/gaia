@@ -17,14 +17,14 @@
 #  limitations under the License.
 ###############################################################################
 import pkg_resources as pr
+import os
 import argparse
 import importlib
 import inspect
 import json
 import logging
-import gaia.inputs
 import gaia.geo
-from gaia.core import GaiaException
+from gaia.core import config, get_config
 
 
 logger = logging.getLogger('gaia.parser')
@@ -40,12 +40,17 @@ valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.geo.geo_inputs, inspect.isclass) if x[0].endswith('IO')])
 
 
-# Import plugin classes
 def load_plugins():
+    """
+    Import any installed Gaia plugins and their configurations
+    """
     plugin_modules = []
     for ep in pr.iter_entry_points(group='gaia.plugins'):
         module = ep.load()
         plugin_modules.append(importlib.import_module(module.__name__))
+        plugin_config = get_config(
+            config_file='{}/gaia.cfg'.format(os.path.dirname(module.__file__)))
+        config.update(plugin_config)
         logger.debug("Loaded plugin {}: {}".format(ep.name, module))
         valid_classes.extend([x[0] for x in inspect.getmembers(
             module, inspect.isclass)])
