@@ -83,7 +83,6 @@ def get_plugins():
         plugin_config = get_config(
             config_file='{}/gaia.cfg'.format(os.path.dirname(module.__file__)))
         config.update(plugin_config)
-        print(module.__name__)
     return installed_plugins
 
 plugins = get_plugins()
