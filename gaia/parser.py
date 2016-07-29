@@ -22,7 +22,7 @@ import inspect
 import json
 import logging
 import gaia.geo
-from gaia.core import plugins
+from gaia.core import get_plugins
 
 
 logger = logging.getLogger('gaia.parser')
@@ -36,7 +36,7 @@ valid_classes.extend([x[0] for x in inspect.getmembers(
 # TODO: Need a method to register classes from domain specific code
 valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.geo.geo_inputs, inspect.isclass) if x[0].endswith('IO')])
-for plugin in plugins:
+for plugin in get_plugins():
     valid_classes.extend([x[0] for x in inspect.getmembers(
         plugin, inspect.isclass)])
 
