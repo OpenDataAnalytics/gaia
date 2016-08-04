@@ -38,7 +38,7 @@ valid_classes.extend([x[0] for x in inspect.getmembers(
     gaia.geo.geo_inputs, inspect.isclass) if x[0].endswith('IO')])
 for plugin in get_plugins():
     valid_classes.extend([x[0] for x in inspect.getmembers(
-        plugin, inspect.isclass)])
+        plugin, inspect.isclass) if x[1] in plugin.PLUGIN_CLASS_EXPORTS])
 
 
 def deserialize(dct):

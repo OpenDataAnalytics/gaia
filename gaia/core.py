@@ -80,7 +80,6 @@ def get_plugins():
         module = ep.load()
         importlib.import_module(module.__name__)
         installed_plugins.append(module)
-        plugin_config = get_config(
-            config_file='{}/gaia.cfg'.format(os.path.dirname(module.__file__)))
-        config.update(plugin_config)
+        if hasattr(module, 'get_config'):
+            config.update(module.get_config())
     return installed_plugins

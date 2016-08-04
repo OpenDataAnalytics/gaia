@@ -74,7 +74,7 @@ class TestGaiaRequestParser(unittest.TestCase):
                 process.purge()
 
     def test_process_disjoint(self):
-        """Test Difference Process"""
+        """Test Disjoint Process"""
         with open(os.path.join(testfile_path,
                                'difference_process.json')) as inf:
             body_text = inf.read().replace('{basepath}', testfile_path)
