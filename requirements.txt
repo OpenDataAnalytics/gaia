@@ -1,23 +1,23 @@
 # This requirements file is parsed by setup.py, it should be
 # formatted as follows:
 #
-#   * only lines beginning with `#` are counted as comments
-#   * lines starting with `# optional:` indicate the begining
-#     of an extra_requires block
-#   * lines ending in `python_version < '2.7'` are recognized,
-#     but all other python_version requirements are ignored
+#   * only lines beginning with `#` are counted as comments
+#   * lines starting with `# optional:` indicate the begining
+#     of an extra_requires block
+#   * lines ending in `python_version < '2.7'` are recognized,
+#     but all other python_version requirements are ignored
 
 # This is needed to support `; python_version` conditionals.
 pip>=6.0
 
 # All main requirements must go here, optional sections
 # last until the next optional tag or to the end of the file.
+shapely==1.2.18
+geopandas==0.1.1
 numpy==1.10.4
 six==1.9.0
 requests==2.7.0
 argparse==1.3.0
-shapely==1.5.13
-geopandas==0.1.1
 pillow==3.1.1
 gdal==1.10
 celery==3.1.20
@@ -26,4 +26,4 @@ geoalchemy2==0.2.6
 pysal==1.11.0
 scipy==0.17.0
 carmen==0.0.3
-
+rauth==0.7.2

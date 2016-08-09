@@ -1,0 +1,14 @@
+{
+  "_type": "gaia.geo.leastCostPathProcess",
+  "inputs": [
+      {
+        "start": [-71.590526, 42.659566]
+      },
+      {
+        "end": [-122.817426, 46.561380]
+      },
+      {
+        "raster": "../tests/data/globalprecip.tif"
+      }
+  ]
+}
