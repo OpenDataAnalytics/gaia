@@ -16,9 +16,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ##############################################################################
-
+import importlib
+import inspect
 import os
-import shutil
+import pkg_resources as pr
 try:
     from ConfigParser import ConfigParser
 except ImportError:
@@ -26,6 +27,8 @@ except ImportError:
 
 base_dir = os.path.join(
     os.path.dirname(os.path.realpath(__file__)))
+
+sqlengines = {}
 
 
 class GaiaException(Exception):
@@ -66,4 +69,17 @@ def get_config(config_file=None):
 
 config = get_config()
 
-sqlengines = {}
+
+def get_plugins():
+    """
+    Load and return a list of installed plugin modules
+    :return: list of plugin modules
+    """
+    installed_plugins = []
+    for ep in pr.iter_entry_points(group='gaia.plugins'):
+        module = ep.load()
+        importlib.import_module(module.__name__)
+        installed_plugins.append(module)
+        if hasattr(module, 'get_config'):
+            config.update(module.get_config())
+    return installed_plugins
