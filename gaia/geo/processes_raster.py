@@ -22,6 +22,8 @@ import gdal, ogr, os
 import numpy as np
 import itertools
 
+import matplotlib.pyplot as plt
+
 try:
     import osr
 except ImportError:
@@ -255,3 +257,73 @@ class leastCostPathProcess(GaiaProcess):
         self.output.write()
         logger.debug(self.output)
 
+class densityComputationsProcess(GaiaProcess):
+    """
+    Density Computations Process
+    """
+
+    required_args = ()
+    default_output = formats.JSON
+
+    def __init__(self, **kwargs):
+        super(densityComputationsProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = RasterFileIO(name='result', uri=self.get_outpath())
+
+        if self.inputs:
+            self.url = self.inputs['uri']
+            self.resolution = self.inputs['resolution']
+            self.outputWidth = self.inputs['outputWidth']
+
+    def calculateDensity(self):
+
+        shpDriver = ogr.GetDriverByName('GeoJSON')
+
+        dataSource = shpDriver.Open(self.url, 0)
+        if dataSource is None:
+            print 'Could not open file ' + shpFile
+            sys.exit(1)
+        # Get the layer
+        layer = dataSource.GetLayer()
+
+        # open the layer
+        # The global bounding box
+        xmin = -180.0
+        ymin = -90.0
+        xmax = 180.0
+        ymax = 90.0
+
+        # Number of columns and rows
+        nbrColumns = self.resolution['nCol']
+        nbrRows = self.resolution['nRow']
+
+        # Caculate the cell size in x and y direction
+        csx = (xmax - xmin) / nbrColumns
+        csy = (ymax - ymin) / nbrRows
+
+        rows = []
+        i = ymax
+        while i > ymin:
+            j = xmin
+            cols = []
+            while j < xmax:
+                # Set a spatial filter
+                layer.SetSpatialFilterRect(j, (i-csy), (j+csx), i)
+                # And count the features
+                cols.append(layer.GetFeatureCount())
+                j += csx
+            rows.append(cols)
+            i -= csy
+
+
+        fig = plt.figure()
+        fig.set_size_inches((self.outputWidth / 100.0), ((self.outputWidth / 2.0) / 100.0), forward=True)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+
+        ax.imshow(rows, extent=[xmin, xmax, ymin, ymax], interpolation='nearest')
+        plt.savefig('../tests/data/output/density_computations.tif')
+
+    def compute(self):
+        self.calculateDensity()
