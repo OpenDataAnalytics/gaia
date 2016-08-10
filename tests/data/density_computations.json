@@ -1,0 +1,11 @@
+{
+  "_type": "gaia.geo.densityComputationsProcess",
+  "inputs": {
+    "uri": "../tests/data/ports_and_harbours.geojson",
+    "resolution": {
+      "nCol": 200,
+      "nRow": 300
+    },
+    "outputWidth": 1000
+  }
+}
