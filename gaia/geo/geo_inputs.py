@@ -18,16 +18,9 @@
 ###############################################################################
 import json
 import os
-import errno
 import fiona
-import pysal
 import geopandas
-
-import webbrowser
-import carmen
-
 import gdal
-import shutil
 from sqlalchemy import create_engine, MetaData, Table, text
 from geoalchemy2 import Geometry
 
@@ -42,10 +35,6 @@ from gaia.inputs import GaiaIO, FileIO, UnsupportedFormatException
 from gaia.core import GaiaException, config, sqlengines, get_abspath
 from gaia.filters import filter_pandas, filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
-from rauth import OAuth1Service
-from geopy.geocoders import Nominatim
-from geopandas import GeoDataFrame
-geolocator = Nominatim()
 
 
 class FeatureIO(GaiaIO):
@@ -113,131 +102,6 @@ class FeatureIO(GaiaIO):
         :return:
         """
         self.data = None
-
-
-class TwitterIO(FileIO):
-    """
-    Convert twitter data into geojson
-    """
-
-    def get_coordinates_from_tweet(self, tweet):
-        # Get location from a tweet using Carmen and geolocator
-        resolver = carmen.get_resolver()
-        resolver.load_locations()
-        location = resolver.resolve_tweet(tweet)
-        if location is not None:
-            for x in location:
-                if x:
-                    location_string = (x.country + ',' + x.state + ',' +
-                                       x.county + ',' + x.city)
-                    coord = geolocator.geocode(location_string)
-            return coord
-
-    def convertToGeojson(self, data):
-            if len(data) > 1:
-                geojson = {
-                    "type": "FeatureCollection",
-                    "features": []
-                }
-
-                if type(data) is str:
-                    data = json.loads(data)
-
-                for i, tweet in enumerate(data, 1):
-                    coord = self.get_coordinates_from_tweet(tweet)
-                    feature = {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": [coord.longitude, coord.latitude]
-                        },
-                        "properties": {
-
-                        }
-                    }
-                    # Iterate over the tweet and create properties
-                    for property in tweet:
-                        feature["properties"][property] = tweet[property]
-                    geojson['features'].append(feature)
-
-            else:
-                geojson = {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": []
-                    },
-                    "properties": {}
-                }
-
-                for i, tweet in enumerate(data, 1):
-                    coord = self.get_coordinates_from_tweet(tweet)
-                    geojson["geometry"]["coordinates"] = [coord.longitude,
-                                                          coord.latitude]
-                    # Iterate over the tweet and create properties
-                    for property in tweet:
-                        geojson["properties"][property] = tweet[property]
-
-            class geoEmptyClass:
-                pass
-
-            if geojson["type"] == "Feature":
-                results = geoEmptyClass()
-                results.__geo_interface__ = geojson
-                self.data = GeoDataFrame.from_features([results])
-                if format == formats.JSON:
-                    return self.data.to_json()
-                else:
-                    return self.data
-            else:
-                self.data = GeoDataFrame.from_features(geojson["features"])
-
-            return self.data.to_json()
-
-    def read(self, uri=None, format=None):
-        if not format:
-            format = self.default_output
-        super(TwitterIO, self).read()
-        if self.data is None:
-            self.data = open(self.uri).read()
-            self.data = json.loads(self.data)['data_inputs']
-            twitter = OAuth1Service(
-                consumer_key=self.data['consumer_key'],
-                consumer_secret=self.data['consumer_secret'],
-                request_token_url=self.data['request_token_url'],
-                access_token_url=self.data['access_token_url'],
-                authorize_url=self.data['authorize_url'],
-                base_url=self.data['base_url']
-            )
-
-            request_token, request_token_secret = twitter.get_request_token()
-
-            authorize_url = twitter.get_authorize_url(request_token)
-
-            webbrowser.open(authorize_url)
-            pincode = raw_input('Enter PIN from browser: ')
-
-            session = twitter.get_auth_session(request_token,
-                                               request_token_secret,
-                                               method='POST',
-                                               data={'oauth_verifier': pincode})
-
-            # Include retweets
-            params = {'include_rts': self.data['include_retweets'],
-                      'count': self.data['count']}
-
-            r = session.get('statuses/home_timeline.json',
-                            params=params, verify=True)
-
-            # Convert twitter data into geojson
-            # Create Feature if one tweet was found,
-            # otherwise create FeatureCollection
-            self.convertToGeojson(r.json())
-        if format == formats.JSON:
-            result = self.data.to_json()
-            return result
-        else:
-            return self.data
 
 
 class VectorFileIO(FileIO):
@@ -518,45 +382,6 @@ class PostgisIO(GaiaIO):
             return out_data.to_json()
         else:
             return out_data
-
-
-class WeightFileIO(FileIO):
-    """Read vector and write weight file data (such as .gal)"""
-
-    default_output = formats.WEIGHT
-
-    def read(self, format=None):
-        if not format:
-            format = self.default_output
-        if self.ext not in formats.WEIGHT:
-            raise UnsupportedFormatException(
-                "Only the following weight formats are supported: {}".format(
-                    ','.join(formats.WEIGHT)
-                )
-            )
-        if self.data is None:
-            weightfile = pysal.open(self.uri, 'r')
-            self.data = weightfile.read()
-            weightfile.close()
-        return self.data
-
-    def write(self, filename=None, as_type='gal'):
-        """
-        Write data (assumed pysal weight object) to gal binary weight files
-        :param filename: Base filename
-        :param as_type: gal
-        :return: location of file
-        """
-        if not filename:
-            filename = self.uri
-        self.create_output_dir(filename)
-        if as_type == 'gal':
-            gal = pysal.open(filename, 'w')
-            gal.write(self.data)
-            gal.close()
-        else:
-            raise NotImplementedError('{} not a valid type'.format(as_type))
-        return self.uri
 
 
 def df_from_postgis(engine, query, params, geocolumn, epsg):
