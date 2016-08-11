@@ -425,4 +425,3 @@ class TestGaiaProcessors(unittest.TestCase):
         finally:
             if process:
                 process.purge()
-
