@@ -16,8 +16,8 @@ Table of Contents
 
    installation
    usage
-   gaia
    plugins
+   gaia
 
 .. _Girder: http://www.github.com/Girder/girder
 .. _Kitware: http://www.kitware.com
