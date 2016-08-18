@@ -20,16 +20,8 @@ import json
 import os
 import errno
 import fiona
-import pysal
-import geopandas
-
-import webbrowser
-import carmen
-
-import gdal
 import shutil
-from sqlalchemy import create_engine, MetaData, Table, text
-from geoalchemy2 import Geometry
+
 
 try:
     import osr
@@ -38,12 +30,7 @@ except ImportError:
 import gaia.formats as formats
 
 
-from gaia.core import GaiaException, config, sqlengines, get_abspath
-from gaia.filters import filter_pandas, filter_postgis
-from rauth import OAuth1Service
-from geopy.geocoders import Nominatim
-from geopandas import GeoDataFrame
-geolocator = Nominatim()
+from gaia.core import GaiaException, config, get_abspath
 
 
 class MissingParameterError(GaiaException):

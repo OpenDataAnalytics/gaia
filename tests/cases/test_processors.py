@@ -20,15 +20,9 @@ import json
 import os
 import unittest
 from zipfile import ZipFile
-import pysal
-
 from gaia import formats
 import gaia.geo as geo
-import gaia.geo.processes_vector as pv
-import gaia.geo.processes_raster as pr
-import gaia.geo.processes_twitter as tw
-
-from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO, TwitterIO
+from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
@@ -431,84 +425,3 @@ class TestGaiaProcessors(unittest.TestCase):
         finally:
             if process:
                 process.purge()
-
-    def test_cluster(self):
-        """
-        Test ClusterProcess for vector inputs
-        """
-        vector_io = VectorFileIO(
-            name='input', uri=os.path.join(testfile_path,
-                                           'baghdad_hospitals.geojson'))
-        process = geo.ClusterProcess('num_hospitals', inputs=[vector_io])
-        try:
-            process.compute()
-            with open(os.path.join(
-                    testfile_path,
-                    'cluster_process_results.json')) as exp:
-                expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
-            self.assertEquals(len(expected_json['features']),
-                              len(actual_json['features']))
-        finally:
-            if process:
-                process.purge()
-
-    def test_autocorrelation(self):
-        """
-        Test AutocorrelationProcess for vector inputs
-        """
-        vector_io = VectorFileIO(
-            name='input', uri=os.path.join(testfile_path,
-                                           'baghdad_hospitals.geojson'))
-        process = geo.AutocorrelationProcess('num_hospitals',
-                                             inputs=[vector_io])
-        try:
-            process.compute()
-            with open(os.path.join(
-                    testfile_path,
-                    'autocorrelation_process_results.json')) as exp:
-                expected_json = json.load(exp)
-            actual_json = process.output.read(format=formats.JSON)
-            self.assertEquals(expected_json['I'],
-                              actual_json['I'])
-        finally:
-            if process:
-                process.purge()
-
-    def test_weight(self):
-        """
-        Test WeightProcess for vector inputs
-        """
-        vector_io = VectorFileIO(
-            name='input', uri=os.path.join(testfile_path,
-                                           'baghdad_hospitals.geojson'))
-        process = geo.WeightProcess('knnW', inputs=[vector_io])
-        try:
-            process.compute()
-            exp = pysal.open(os.path.join(testfile_path,
-                                          'weight_process_result.gal'), 'r')
-            expected_w = exp.read()
-            exp.close()
-            actual = process.output.read(format=formats.WEIGHT)
-            self.assertEquals(expected_w.n,
-                              actual.n)
-        finally:
-            if process:
-                process.purge()
-
-    def test_twitter_process(self):
-        """
-        Test TwitterProcess for twitter data
-        """
-        twitterData = open(os.path.join(testfile_path,
-                           'twitter_feed.json')).read()
-        twitterIO = TwitterIO()
-
-        geojson = twitterIO.convertToGeojson(twitterData)
-        with open(os.path.join(
-                testfile_path,
-                'twitter_process_results.json')) as exp:
-            expected_json = json.load(exp)
-        actual_json = json.loads(geojson)
-        self.assertEquals(len(expected_json['features']),
-                          len(actual_json['features']))

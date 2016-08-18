@@ -63,7 +63,7 @@ class TestPostGisDB(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config_file = os.path.join(base_dir, '../../gaia/conf/gaia.cfg')
+        config_file = os.path.join(base_dir, '../conf/test.dist.cfg')
         config = gaia.core.get_config(config_file)
         cls.user = config['gaia_postgis']['user']
         cls.password = config['gaia_postgis']['password']

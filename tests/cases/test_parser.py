@@ -22,7 +22,6 @@ import unittest
 from zipfile import ZipFile
 from gaia import formats
 from gaia.parser import deserialize
-import pysal
 
 testfile_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../data')
@@ -192,71 +191,6 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertIn('features', output)
             self.assertEquals(len(expected_json['features']),
                               len(output['features']))
-            self.assertIsNotNone(process.id)
-            self.assertIn(process.id, process.output.uri)
-        finally:
-            if process:
-                process.purge()
-
-    def test_process_cluster(self):
-        """Test Cluster Process"""
-        with open(os.path.join(testfile_path,
-                               'cluster_process.json')) as inf:
-            body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=deserialize)
-        try:
-            process.compute()
-            output = json.loads(process.output.read(format=formats.JSON))
-            with open(os.path.join(
-                    testfile_path,
-                    'cluster_process_results.json')) as gj:
-                expected_json = json.load(gj)
-            self.assertIn('features', output)
-            self.assertEquals(len(expected_json['features']),
-                              len(output['features']))
-            self.assertIsNotNone(process.id)
-            self.assertIn(process.id, process.output.uri)
-        finally:
-            if process:
-                process.purge()
-
-    def test_process_autocorrelation(self):
-        """Test Autocorrelation Process"""
-        with open(os.path.join(testfile_path,
-                               'autocorrelation_process.json')) as inf:
-            body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=deserialize)
-        try:
-            process.compute()
-            output = process.output.read(format=formats.JSON)
-            with open(os.path.join(
-                    testfile_path,
-                    'autocorrelation_process_results.json')) as exp:
-                expected_json = json.load(exp)
-            self.assertIn('I', output)
-            self.assertEquals(expected_json['I'],
-                              output['I'])
-            self.assertIsNotNone(process.id)
-            self.assertIn(process.id, process.output.uri)
-        finally:
-            if process:
-                process.purge()
-
-    def test_process_weight(self):
-        """Test Weight Process"""
-        with open(os.path.join(testfile_path,
-                               'weight_process.json')) as inf:
-            body_text = inf.read().replace('{basepath}', testfile_path)
-        process = json.loads(body_text, object_hook=deserialize)
-        try:
-            process.compute()
-            output = process.output.read(format=formats.WEIGHT)
-            exp = pysal.open(os.path.join(testfile_path,
-                                          'weight_process_result.gal'), 'r')
-            expected_w = exp.read()
-            exp.close()
-            self.assertEquals(expected_w.n,
-                              output.n)
             self.assertIsNotNone(process.id)
             self.assertIn(process.id, process.output.uri)
         finally:
