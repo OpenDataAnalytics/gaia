@@ -53,6 +53,10 @@ Official Gaia Plugins
 
 - gaia-spatialstats-plugin_
 - gaia-twitter-plugin_
+- gaia-densitycomputations-plugin_
+- gaia-leastcostpath-plugin_
 
 .. _gaia-spatialstats-plugin: http://gaia-spatialstats-plugin.readthedocs.io/
 .. _gaia-twitter-plugin: http://gaia-twitter-plugin.readthedocs.io/
+.. _gaia-densitycomputations-plugin: http://gaia-densitycomputations-plugin.readthedocs.io/
+.. _gaia-leastcostpath-plugin: http://gaia-leastcostpath-plugin.readthedocs.io/
