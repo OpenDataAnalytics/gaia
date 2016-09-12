@@ -18,6 +18,7 @@
 ###############################################################################
 import operator
 
+#: Dict of mathematical operators for equations
 ops = {
     "=": operator.eq,
     "!=": operator.ne,
@@ -33,6 +34,7 @@ def filter_pandas(df, filters):
     Filter a GeoPandas DataFrame, return a new filtered DataFrame.
     Currently all filters are joined by 'AND'
     TODO: Support for 'OR', parentheses?
+
     :param df: The DataFrame to filter
     :param filters: An array of (attribute, operator, value) arrays\
     for example [('city', 'in', ['Boston', 'New York']), ('id', '>', 10)]
@@ -57,6 +59,7 @@ def filter_postgis(filters):
     r"""
     Generate a SQL statement to be used as a WHERE clause.
     TODO: Support parentheses?
+
     :param filters: list of filters in the form of
     (attribute, operator, values [, join option (AND, OR)])\
     for example [('city', 'in', ['Boston', 'New York']), ('id', '>', 10)]

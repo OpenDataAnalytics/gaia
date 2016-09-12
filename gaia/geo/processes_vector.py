@@ -44,8 +44,11 @@ class BufferProcess(GaiaProcess):
     and the unit of measure should be meters.  If inputs are not in a
     metric projection they will be reprojected to EPSG:3857.
     """
+    #: Required vector inputs as tuple
     required_inputs = (('input', formats.VECTOR),)
+    #: Required arguments
     required_args = ('buffer_size',)
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, inputs=None, buffer_size=None, **kwargs):
@@ -57,6 +60,11 @@ class BufferProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate the buffer using pandas GeoDataFrames
+
+        :return: Buffer as a pandas GeoDataFrame
+        """
         featureio = self.inputs[0]
         original_projection = featureio.get_epsg()
         epsg = original_projection
@@ -77,6 +85,11 @@ class BufferProcess(GaiaProcess):
         return buffer_df
 
     def calc_postgis(self):
+        """
+        Calculate the buffer using PostGIS
+
+        :return: Buffer as a pandas GeoDataFrame
+        """
         pg_io = self.inputs[0]
         original_projection = pg_io.epsg
         io_query, params = pg_io.get_query()
@@ -103,6 +116,11 @@ class BufferProcess(GaiaProcess):
                                pg_io.geom_column, pg_io.epsg)
 
     def compute(self):
+        """
+        Run the buffer process.
+
+        :return: None
+        """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
         else:
@@ -118,8 +136,11 @@ class WithinProcess(GaiaProcess):
     polygons of a second vector dataset.
     """
 
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -130,6 +151,11 @@ class WithinProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate the within process using pandas GeoDataFrames
+
+        :return: within result as a GeoDataFrame
+        """
         first, second = self.inputs[0], self.inputs[1]
         first_df = first.read()
         second_df = second.read(epsg=first.get_epsg())
@@ -138,6 +164,11 @@ class WithinProcess(GaiaProcess):
         return first_within
 
     def calc_postgis(self):
+        """
+        Calculate the within process using PostGIS
+
+        :return: within result as a GeoDataFrame
+        """
         first = self.inputs[0]
         within_queries = []
         within_params = []
@@ -157,6 +188,11 @@ class WithinProcess(GaiaProcess):
         return df_from_postgis(first.engine, query, params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the Within process
+
+        :return: None
+        """
         if len(self.inputs) != 2:
             raise GaiaException('WithinProcess requires 2 inputs')
         input_classes = list(self.get_input_classes())
@@ -173,8 +209,11 @@ class IntersectsProcess(GaiaProcess):
     the features of the second vector dataset.
     """
 
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -185,6 +224,11 @@ class IntersectsProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate the intersection using pandas GeoDataFrame
+
+        :return: intersection as a DataFrame object
+        """
         first, second = self.inputs[0], self.inputs[1]
         first_df = first.read()
         second_df = second.read(epsg=first.get_epsg())
@@ -193,6 +237,11 @@ class IntersectsProcess(GaiaProcess):
         return first_intersects
 
     def calc_postgis(self):
+        """
+        Calculate the intersection using PostGIS
+
+        :return: intersection as a GeoDataFrame object
+        """
         int_queries = []
         int_params = []
         first = self.inputs[0]
@@ -214,6 +263,11 @@ class IntersectsProcess(GaiaProcess):
                                query, int_params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the intersection process
+
+        :return: None
+        """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
                        input_classes[0] == 'PostgisIO')
@@ -229,8 +283,11 @@ class DisjointProcess(GaiaProcess):
     intersect the features of the second dataset.
     """
 
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -241,6 +298,11 @@ class DisjointProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculat the disjoin between inputs using pandas GeoDataFrames
+
+        :return: disjoin as a GeoDataFrame object
+        """
         first, second = self.inputs[0], self.inputs[1]
         first_df = first.read()
         second_df = second.read(epsg=first.get_epsg())
@@ -249,6 +311,11 @@ class DisjointProcess(GaiaProcess):
         return first_difference
 
     def calc_postgis(self):
+        """
+        Calculat the disjoin between inputs using PostGIS
+
+        :return: disjoin as a GeoDataFrame object
+        """
         diff_queries = []
         diff_params = []
         first = self.inputs[0]
@@ -268,6 +335,11 @@ class DisjointProcess(GaiaProcess):
         return df_from_postgis(first.engine, query, diff_params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the disjoint process
+
+        :return: None
+        """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
                        input_classes[0] == 'PostgisIO')
@@ -280,11 +352,14 @@ class DisjointProcess(GaiaProcess):
 class UnionProcess(GaiaProcess):
     """
     Combines two vector datasets into one.
-    They should have the same columns.
+    They datasets should have the same columns.
     """
 
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -295,6 +370,11 @@ class UnionProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate the union using pandas GeoDataFrames
+
+        :return: union result as a GeoDataFrame
+        """
         first, second = self.inputs[0], self.inputs[1]
         first_df = first.read()
         second_df = second.read(epsg=first.get_epsg())
@@ -304,6 +384,11 @@ class UnionProcess(GaiaProcess):
         return uniondf
 
     def calc_postgis(self):
+        """
+        Calculate the union using PostGIS
+
+        :return: union result as a GeoDataFrame
+        """
         union_queries = []
         union_params = []
         first = self.inputs[0]
@@ -327,6 +412,11 @@ class UnionProcess(GaiaProcess):
                                query, union_params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the union process.
+
+        :return: None
+        """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
                        input_classes[0] == 'PostgisIO')
@@ -341,8 +431,11 @@ class CentroidProcess(GaiaProcess):
     Calculates the centroid point of a vector dataset.
     """
 
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR),)
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, combined=False, **kwargs):
@@ -353,6 +446,11 @@ class CentroidProcess(GaiaProcess):
                                        uri=self.get_outpath())
 
     def calc_pandas(self):
+        """
+        Calculate the centroid using pandas GeoDataFrames
+
+        :return: centroid as a GeoDataFrame
+        """
         df_in = self.inputs[0].read()
         df = GeoDataFrame(df_in.copy(), geometry=df_in.geometry.name)
         if self.combined:
@@ -364,6 +462,11 @@ class CentroidProcess(GaiaProcess):
             return df
 
     def calc_postgis(self):
+        """
+        Calculate the centroid using PostGIS
+
+        :return: centroid as a GeoDataFrame
+        """
         pg_io = self.inputs[0]
         io_query, params = pg_io.get_query()
         geom0, epsg = pg_io.geom_column, pg_io.epsg
@@ -378,6 +481,11 @@ class CentroidProcess(GaiaProcess):
         return df_from_postgis(pg_io.engine, query, params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the centroid process
+
+        :return: None
+        """
         use_postgis = self.inputs[0].__class__.__name__ == 'PostgisIO'
         data = self.calc_postgis() if use_postgis else self.calc_pandas()
         self.output.data = data
@@ -390,8 +498,12 @@ class DistanceProcess(GaiaProcess):
     Calculates the minimum distance from each feature of the first dataset
     to the nearest feature of the second dataset.
     """
+
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -402,6 +514,12 @@ class DistanceProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate the minimum distance between features using pandas
+        GeoDataFrames.
+
+        :return: Minimum distance results as a GeoDataFrame
+        """
         first = self.inputs[0]
         original_projection = first.get_epsg()
         epsg = original_projection
@@ -431,7 +549,10 @@ class DistanceProcess(GaiaProcess):
 
     def calc_postgis(self):
         """
-        Uses K-Nearest Neighbor (KNN) query
+        Calculate the minimum distance between features using PostGIS
+        K-Nearest Neighbor (KNN) query
+
+        :return: Minimum distance results as a GeoDataFrame
         """
         diff_queries = []
         diff_params = []
@@ -471,6 +592,11 @@ class DistanceProcess(GaiaProcess):
         return df_from_postgis(first.engine, query, diff_params, geom0, epsg)
 
     def compute(self):
+        """
+        Rune the distance process
+
+        :return: None
+        """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
                        input_classes[0] == 'PostgisIO')
@@ -487,10 +613,13 @@ class NearProcess(GaiaProcess):
     metric projection they will be reprojected to EPSG:3857.
     Returns the features in the second input within a specified distance
     of the point in the first input.
-
     """
+
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ('distance',)
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, distance=None, **kwargs):
@@ -502,6 +631,11 @@ class NearProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculates the features within the specified distance using pandas
+
+        :return: results as a GeoDataFrame
+        """
         features = self.inputs[0]
         original_projection = self.inputs[0].get_epsg()
         epsg = original_projection
@@ -532,7 +666,10 @@ class NearProcess(GaiaProcess):
 
     def calc_postgis(self):
         """
-        Uses DWithin plus K-Nearest Neighbor (KNN) query
+        Calculates the features within the specified distance using PostGIS
+        via DWithin plus K-Nearest Neighbor (KNN) query
+
+        :return: results as a GeoDataFrame
         """
         featureio = self.inputs[0]
         pointio = self.inputs[1]
@@ -584,6 +721,11 @@ class NearProcess(GaiaProcess):
                                query, params, feature_geom, epsg)
 
     def compute(self):
+        """
+        Run the process
+
+        :return: None
+        """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
         else:
@@ -598,8 +740,12 @@ class AreaProcess(GaiaProcess):
     If the dataset projection is not in metric units, it will
     be temporarily reprojected to EPSG:3857 to calculate the area.
     """
+
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR),)
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -610,6 +756,11 @@ class AreaProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate the areas using pandas
+
+        :return: result as a GeoDataFrame
+        """
         featureio = self.inputs[0]
         original_projection = featureio.get_epsg()
         epsg = original_projection
@@ -628,6 +779,11 @@ class AreaProcess(GaiaProcess):
         return feature_df
 
     def calc_postgis(self):
+        """
+        Calculate the areas using PostGIS
+
+        :return: result as a GeoDataFrame
+        """
         pg_io = self.inputs[0]
         geom0, epsg = pg_io.geom_column, pg_io.epsg
         srs = osr.SpatialReference()
@@ -642,6 +798,11 @@ class AreaProcess(GaiaProcess):
         return df_from_postgis(pg_io.engine, query, params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the area process
+
+        :return: None
+        """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
         else:
@@ -656,8 +817,12 @@ class LengthProcess(GaiaProcess):
     If the dataset projection is not in metric units, it will
     be temporarily reprojected to EPSG:3857 to calculate the area.
     """
+
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR),)
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -668,6 +833,11 @@ class LengthProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate lengths using pandas
+
+        :return: Result as a GeoDataFrame
+        """
         featureio = self.inputs[0]
         original_projection = featureio.get_epsg()
         epsg = original_projection
@@ -686,6 +856,11 @@ class LengthProcess(GaiaProcess):
         return feature_df
 
     def calc_postgis(self):
+        """
+        Calculate lengths using PostGIS
+
+        :return: Result as a GeoDataFrame
+        """
         featureio = self.inputs[0]
         geom0, epsg = featureio.geom_column, featureio.epsg
         srs = osr.SpatialReference()
@@ -704,6 +879,11 @@ class LengthProcess(GaiaProcess):
         return df_from_postgis(featureio.engine, query, params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the length process
+
+        :return: None
+        """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
         else:
@@ -717,8 +897,12 @@ class CrossesProcess(GaiaProcess):
     Calculates the features within the first vector dataset that cross
     the combined features of the second vector dataset.
     """
+
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -729,6 +913,11 @@ class CrossesProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate the process using pandas
+
+        :return: result as a GeoDataFrame
+        """
         first, second = self.inputs[0], self.inputs[1]
         first_df = first.read()
         second_df = second.read(epsg=first.get_epsg())
@@ -737,6 +926,11 @@ class CrossesProcess(GaiaProcess):
         return first_intersects
 
     def calc_postgis(self):
+        """
+        Calculate the process using PostGIS
+
+        :return: result as a GeoDataFrame
+        """
         cross_queries = []
         cross_params = []
         first = self.inputs[0]
@@ -756,6 +950,11 @@ class CrossesProcess(GaiaProcess):
         return df_from_postgis(first.engine, query, cross_params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the crosses process
+
+        :return: None
+        """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
                        input_classes[0] == 'PostgisIO')
@@ -770,8 +969,12 @@ class TouchesProcess(GaiaProcess):
     Calculates the features within the first vector dataset that touch
     the features of the second vector dataset.
     """
+
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -782,6 +985,11 @@ class TouchesProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculates which features touch using pandas
+
+        :return: result as a GeoDataFrame
+        """
         first, second = self.inputs[0], self.inputs[1]
         first_df = first.read()
         second_df = second.read(epsg=first.get_epsg())
@@ -790,6 +998,11 @@ class TouchesProcess(GaiaProcess):
         return first_intersects
 
     def calc_postgis(self):
+        """
+        Calculates which features touch using PostGIS
+
+        :return: result as a GeoDataFrame
+        """
         cross_queries = []
         cross_params = []
         first = self.inputs[0]
@@ -809,6 +1022,11 @@ class TouchesProcess(GaiaProcess):
         return df_from_postgis(first.engine, query, cross_params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the touches process
+
+        :return: None
+        """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
                        input_classes[0] == 'PostgisIO')
@@ -820,12 +1038,15 @@ class TouchesProcess(GaiaProcess):
 
 class EqualsProcess(GaiaProcess):
     """
-    Calculates the features within the first vector dataset that touch
+    Calculates the features within the first vector dataset that are the same as
     the features of the second vector dataset.
     """
 
+    #: Required inputs
     required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.JSON
 
     def __init__(self, **kwargs):
@@ -836,6 +1057,11 @@ class EqualsProcess(GaiaProcess):
         self.validate()
 
     def calc_pandas(self):
+        """
+        Calculate which features are equal using pandas
+
+        :return: result as a GeoDataFrame
+        """
         first, second = self.inputs[0], self.inputs[1]
         first_df = first.read()
         second_df = second.read(epsg=first.get_epsg())
@@ -854,6 +1080,11 @@ class EqualsProcess(GaiaProcess):
         return output_df
 
     def calc_postgis(self):
+        """
+        Calculate which features are equal using PostGIS
+
+        :return: result as a GeoDataFrame
+        """
         equals_queries = []
         equals_params = []
         first = self.inputs[0]
@@ -874,6 +1105,11 @@ class EqualsProcess(GaiaProcess):
         return df_from_postgis(first.engine, query, equals_params, geom0, epsg)
 
     def compute(self):
+        """
+        Run the process
+
+        :return: None
+        """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
                        input_classes[0] == 'PostgisIO')
@@ -888,8 +1124,12 @@ class ZonalStatsProcess(GaiaProcess):
     Calculates statistical values from a raster dataset for each polygon
     in a vector dataset.
     """
+
+    #: Required inputs
     required_inputs = (('raster', formats.RASTER), ('zones', formats.VECTOR),)
+    #: Required arguments
     required_args = ()
+    #: Default output format
     default_output = formats.VECTOR
 
     def __init__(self, **kwargs):
@@ -900,6 +1140,11 @@ class ZonalStatsProcess(GaiaProcess):
         self.validate()
 
     def compute(self):
+        """
+        Run the process
+
+        :return: None
+        """
         self.output.create_output_dir(self.output.uri)
         features = gdal_zonalstats(
             self.inputs[1].read(format=formats.JSON,

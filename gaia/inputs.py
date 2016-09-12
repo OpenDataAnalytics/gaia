@@ -57,6 +57,7 @@ class GaiaIO(object):
     def __init__(self, **kwargs):
         """
         Create a GaiaIO object, assigning attributes based on kwargs
+
         :param kwargs:
         :return:
         """
@@ -66,6 +67,7 @@ class GaiaIO(object):
     def read(self, *args, **kwargs):
         """
         Abstract class for reading data, not implemented here
+
         :param args:
         :param kwargs:
         :return:
@@ -75,6 +77,7 @@ class GaiaIO(object):
     def write(self, *args, **kwargs):
         """
         Abstract class for writing data
+
         :param args:
         :param kwargs:
         :return:
@@ -84,6 +87,7 @@ class GaiaIO(object):
     def create_output_dir(self, filepath):
         """
         Create an output directory if it doesn't exist
+
         :param filepath: Directory to create
         :return:
         """
@@ -97,6 +101,7 @@ class GaiaIO(object):
     def get_epsg(self):
         """
         Get the EPSG code of the data
+
         :return: EPSG code (integer)
         """
         if self.data is None:
@@ -133,6 +138,7 @@ class GaiaIO(object):
     def delete(self):
         """
         Abstract class for deleting the IO source
+
         :return:
         """
         raise NotImplementedError()
@@ -160,6 +166,7 @@ class FileIO(GaiaIO):
         """
         Return true or false if folder is in list of
         allowed folders from config
+
         :param folder: folder to check
         :return: True or False
         """
@@ -177,20 +184,11 @@ class FileIO(GaiaIO):
     def delete(self):
         """
         Remove file of IO object
-        :return:
+
+        :return: None
         """
         if os.path.exists(self.uri):
             shutil.rmtree(os.path.dirname(self.uri))
-
-
-class GirderIO(GaiaIO):
-    """Read and write Girder files/items/metadata"""
-
-    default_output = None
-
-    def __init__(self, name, girder_uris=[], auth=None, **kwargs):
-        super(GirderIO, self).__init__(**kwargs)
-        raise NotImplementedError
 
 
 class JsonFileIO(FileIO):
@@ -198,9 +196,13 @@ class JsonFileIO(FileIO):
 
     default_output = formats.JSON
 
-    def read(self, format=None):
-        if not format:
-            format = self.default_output
+    def read(self, format=formats.JSON):
+        """
+        Load GeoJSON data into a python object
+
+        :param format: input format
+        :return: Python dict object
+        """
         if self.ext not in formats.JSON:
             raise UnsupportedFormatException(
                 "Only the following weight formats are supported: {}".format(
@@ -215,6 +217,7 @@ class JsonFileIO(FileIO):
     def write(self, filename=None, as_type='json'):
         """
         Write data (assumed dictionary object) to json file
+
         :param filename: Base filename
         :param as_type: json
         :return: location of file

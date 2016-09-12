@@ -43,7 +43,8 @@ for plugin in get_plugins():
 
 def deserialize(dct):
     """
-    Convert a JSON object into a class
+    Convert a JSON representation of a Gaia IO or Process
+    into a Python object of the appropriate class
     :param dct: The JSON object
     :return: An object of class which the JSON represents
     """

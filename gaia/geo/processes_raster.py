@@ -37,6 +37,7 @@ class SubsetProcess(GaiaProcess):
     def __init__(self, **kwargs):
         """
         Create a process to subset a raster by a vector polygon
+
         :param clip_io: IO object containing vector polygon data
         :param raster_io: IO object containing raster data
         :param kwargs:
@@ -48,6 +49,11 @@ class SubsetProcess(GaiaProcess):
         self.validate()
 
     def compute(self):
+        """
+        Runs the subset computation, creating a raster dataset as output.
+
+        :return: None
+        """
         raster, clip = self.inputs[0], self.inputs[1]
         raster_img = raster.read()
         clip_df = clip.read(epsg=raster.get_epsg())
@@ -66,16 +72,29 @@ class RasterMathProcess(GaiaProcess):
     Example: "A + B / (C * 2.4)".  The letters in the equation
     should correspond to the names of the inputs.
     """
+    #: Tuple of required input IO objects
     required_inputs = (('A', formats.RASTER),)
+    #: Required arguments for the process
     required_args = ('calc',)
+    #: Default output format for the process
     default_output = formats.RASTER
 
+    #: Default input raster bands to process
     bands = None
+    #: Default NODATA value for raster input
     nodata = None
-    all_bands = None
+    #: Use all bands in raster input (default: False)
+    all_bands = False
+    #: Default data type for raster (UInt32, Float, etc)
     output_type = None
 
     def __init__(self, calc=None, **kwargs):
+        """
+        Initialize a RasterMathProcess object.
+
+        :param calc: A text representation of the calculation to make.
+        :param kwargs: Other keyword arguments
+        """
         super(RasterMathProcess, self).__init__(**kwargs)
         self.calc = calc
         if not self.output:
@@ -83,6 +102,11 @@ class RasterMathProcess(GaiaProcess):
         self.validate()
 
     def compute(self):
+        """
+        Run the RasterMath process, generating a raster output dataset.
+
+        :return: None
+        """
         first = self.inputs[0]
         epsg = first.get_epsg()
         rasters = [x.read(epsg=epsg) for x in self.inputs]

@@ -23,7 +23,6 @@ import geopandas
 import gdal
 from sqlalchemy import create_engine, MetaData, Table, text
 from geoalchemy2 import Geometry
-
 try:
     import osr
 except ImportError:

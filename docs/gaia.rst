@@ -1,6 +1,13 @@
 gaia package
 ============
 
+Subpackages
+-----------
+
+.. toctree::
+
+    gaia.geo
+
 Submodules
 ----------
 
@@ -12,10 +19,10 @@ gaia.core module
     :undoc-members:
     :show-inheritance:
 
-gaia.datatypes module
----------------------
+gaia.filters module
+-------------------
 
-.. automodule:: gaia.datasources
+.. automodule:: gaia.filters
     :members:
     :undoc-members:
     :show-inheritance:
@@ -28,10 +35,10 @@ gaia.formats module
     :undoc-members:
     :show-inheritance:
 
-gaia.gdal_functions module
---------------------------
+gaia.gaia_process module
+------------------------
 
-.. automodule:: gaia.gdal_functions
+.. automodule:: gaia.gaia_process
     :members:
     :undoc-members:
     :show-inheritance:
@@ -52,29 +59,14 @@ gaia.parser module
     :undoc-members:
     :show-inheritance:
 
-gaia.processes_raster module
----------------------
+gaia.tasks module
+-----------------
 
-.. automodule:: gaia.processes_raster
+.. automodule:: gaia.tasks
     :members:
     :undoc-members:
     :show-inheritance:
 
-gaia.processes_vector module
----------------------
-
-.. automodule:: gaia.processes_vector
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-gaia.processes_twitter module
----------------------
-
-.. automodule:: gaia.processes_twitter
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 Module contents
 ---------------

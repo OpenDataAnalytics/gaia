@@ -28,6 +28,7 @@ except ImportError:
 base_dir = os.path.join(
     os.path.dirname(os.path.realpath(__file__)))
 
+#: Holder for database connection settings
 sqlengines = {}
 
 
@@ -41,6 +42,7 @@ class GaiaException(Exception):
 def get_abspath(inpath):
     """
     Get absolute path of a path string
+
     :param inpath: file path string
     :return: absolute path as string
     """
@@ -54,6 +56,7 @@ def get_config(config_file=None):
     """
     Retrieve app configuration parameters
     such as database connections
+
     :return: configuration
     """
     if not config_file:
@@ -73,6 +76,7 @@ config = get_config()
 def get_plugins():
     """
     Load and return a list of installed plugin modules
+
     :return: list of plugin modules
     """
     installed_plugins = []

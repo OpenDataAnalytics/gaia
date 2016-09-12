@@ -18,12 +18,26 @@
 ###############################################################################
 import itertools
 
+"""
+Lists of acceptable file extensions by format, for example:
 JSON = ['.json', '.geojson']
-SHP = ['.shp']
-PANDAS = ['pandas']
-VECTOR = list(itertools.chain.from_iterable([JSON, SHP, PANDAS]))
 RASTER = ['.tif', '.tiff', '.geotif', '.geotiff']
+"""
+#: File extensions for GeoJSON files
+JSON = ['.json', '.geojson']
+#: File extension for shapefiles
+SHP = ['.shp']
+#: File extension for pandas dataframes
+PANDAS = ['pandas']
+#: File extensions for all vector datasets
+VECTOR = list(itertools.chain.from_iterable([JSON, SHP, PANDAS]))
+#: File extensions for raster datasets (geotiff only for now)
+RASTER = ['.tif', '.tiff', '.geotif', '.geotiff']
+#: File extensions for all datasets
 ALL = VECTOR + RASTER
+#: File extensions for text-based datasets
 TEXT = list(itertools.chain.from_iterable([JSON]))
+#: File extensions for bindary datasets
 BINARY = list(itertools.chain.from_iterable([RASTER, SHP]))
+#: File extensions for spatial analysis weight files
 WEIGHT = ['.gal', '.gwt']
