@@ -205,7 +205,7 @@ class WithinProcess(GaiaProcess):
 
 class IntersectsProcess(GaiaProcess):
     """
-    Calculates the features within the first vector dataset that touch
+    Calculates the features within the first vector dataset that intersect
     the features of the second vector dataset.
     """
 
@@ -967,7 +967,7 @@ class CrossesProcess(GaiaProcess):
 class TouchesProcess(GaiaProcess):
     """
     Calculates the features within the first vector dataset that touch
-    the features of the second vector dataset.
+    edges but do not overlap in any way the features of the 2nd vector dataset.
     """
 
     #: Required inputs

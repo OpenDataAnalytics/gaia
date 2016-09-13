@@ -48,8 +48,9 @@ def filter_pandas(df, filters):
             df = df[df[attribute].isin(values)]
         elif operator.lower() == "not in":
             df = df[~df[attribute].isin(values)]
-        elif operator.lower() == "contains":
-            df = df[df[attribute].str.contains(r'{}'.format(values))]
+        elif operator.lower() in ["contains", "startswith", "endswith"]:
+            str_func = getattr(df[attribute].str, operator.lower())
+            df = df[str_func(r'{}'.format(values))]
         elif operator in ops.keys():
             df = df[ops[operator](df[attribute], values)]
     return df

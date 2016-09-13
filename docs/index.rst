@@ -9,31 +9,6 @@ Welcome to Gaia's documentation!
 Gaia is a geospatial analysis library jointly developed by Kitware_ and Epidemico_.
 It can work with vector data (geoJSON, shapefiles, PostGIS databases) and raster data (geotiff images).
 
-Available analyses possible with the core Gaia library include:
-  * `Vector processes <gaia.geo.html#module-gaia.geo.processes_vector>`__
-
-    * Calculate areas of polygons
-
-    * Buffer geometries
-
-    * Calculate centroids
-
-    * Nearest distance
-
-    * Intersections
-
-    * and more.
-
-  * `Raster processes <gaia.geo.html#module-gaia.geo.processes_raster>`__
-
-    * Subset
-
-    * Raster math
-
-
-There are also official plugins that expand Gaia's capabilities, and you are
-encouraged to `write your own <plugins.html#development>`__.
-
 
 Table of Contents
 -----------------
@@ -46,6 +21,10 @@ Table of Contents
    plugins
    gaia
 
+
+
+
 .. _Girder: http://www.github.com/Girder/girder
 .. _Kitware: http://www.kitware.com
 .. _Epidemico: http://epidemico.com
+
