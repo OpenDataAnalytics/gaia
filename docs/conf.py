@@ -30,7 +30,8 @@ class Mock(MagicMock):
             return Mock()
 
 MOCK_MODULES = ['gdal',  'gdalconst', 'osgeo', 'ogr', 'osr', 'osgeo.gdal_array',
-                'numpy', 'pandas', 'geopandas', 'psycopg2']
+                'numpy', 'pandas', 'geopandas', 'psycopg2', 'PIL', 'PIL.Image',
+                'fiona', 'sqlalchemy', 'geoalchemy2', 'celery']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ------------------------------------------------
