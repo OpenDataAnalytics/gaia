@@ -45,6 +45,7 @@ class FeatureIO(GaiaIO):
     def __init__(self,  features=None, **kwargs):
         """
         Create a FeatureIO object
+
         :param features: GeoJSON features/FeatureCollection
         :param kwargs:
         :return: FeatureIO object
@@ -55,6 +56,7 @@ class FeatureIO(GaiaIO):
     def read(self, format=None, epsg=None):
         """
         Parse the FeatureIO.features and return as a GeoDataFrame or GeoJSON
+
         :param format: Format of output (default is GeoDataFrame)
         :param epsg: EPSG code of projection to reproject output to
         :return: Dataset in requested format
@@ -98,7 +100,6 @@ class FeatureIO(GaiaIO):
     def delete(self):
         """
         Reset the IO data to None
-        :return:
         """
         self.data = None
 
@@ -111,6 +112,7 @@ class VectorFileIO(FileIO):
     def read(self, format=None, epsg=None):
         """
         Read vector data from a file (JSON, Shapefile, etc)
+
         :param format: Format to return data in (default is GeoDataFrame)
         :param epsg: EPSG code to reproject data to
         :return: Data in requested format (GeoDataFrame, GeoJSON)
@@ -141,6 +143,7 @@ class VectorFileIO(FileIO):
     def write(self, filename=None, as_type='json'):
         """
         Write data (assumed geopandas) to geojson or shapefile
+
         :param filename: Base filename
         :param as_type: shapefile or json
         :return: location of file
@@ -160,7 +163,6 @@ class VectorFileIO(FileIO):
     def filter_data(self):
         """
         Apply filters to the dataset
-        :return:
         """
         self.data = filter_pandas(self.data, self.filters)
 
@@ -173,6 +175,7 @@ class RasterFileIO(FileIO):
     def read(self, epsg=None):
         """
         Read data from a raster dataset
+
         :param epsg: EPSG code to reproject data to
         :return: GDAL Dataset
         """
@@ -193,9 +196,11 @@ class RasterFileIO(FileIO):
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
+
     def __init__(self, process=None, parent=None, **kwargs):
         """
         Create an IO object containing a GaiaProcess to run
+
         :param process: GaiaProcess to run
         :param parent: Parent process id if any
         :param kwargs:
@@ -208,7 +213,6 @@ class ProcessIO(GaiaIO):
     def get_epsg(self):
         """
         Return the EPSG code of the dataset
-        :return:
         """
         if hasattr(self.process, 'output') and self.process.output.data \
                 is not None:
@@ -219,6 +223,7 @@ class ProcessIO(GaiaIO):
     def read(self, epsg=None):
         """
         Return the process output dataset
+
         :param epsg: EPSG code to reproject data to
         :return: Output dataset
         """
@@ -233,6 +238,7 @@ class ProcessIO(GaiaIO):
 
 class PostgisIO(GaiaIO):
     """Read PostGIS data"""
+
     default_output = formats.JSON
 
     hostname = None
@@ -251,9 +257,10 @@ class PostgisIO(GaiaIO):
     def __init__(self, table, **kwargs):
         """
         Instantiate a PostgisIO object for querying a PostGIS table
+
         :param table: PostgreSQL table name
-        :param kwargs:
-        :return:
+        :param kwargs: Optional connection arguments,
+        obtained from config if not present
         """
         super(PostgisIO, self).__init__(**kwargs)
         self.table = table
@@ -267,6 +274,12 @@ class PostgisIO(GaiaIO):
         self.verify()
 
     def get_engine(self, connection_string):
+        """
+        Create and return a SQLAlchemy engine object
+
+        :param connection_string: Database connection string
+        :return: SQLAlchemy Engine object
+        """
         if connection_string not in sqlengines:
             sqlengines[connection_string] = create_engine(
                 self.get_connection_string())
@@ -275,7 +288,6 @@ class PostgisIO(GaiaIO):
     def verify(self):
         """
         Make sure that all PostgisIO columns exist in the actual table
-        :return:
         """
         for col in self.columns:
             if col not in self.table_obj.columns.keys():
@@ -285,6 +297,7 @@ class PostgisIO(GaiaIO):
     def get_connection_string(self):
         """
         Get connection string based on host, dbname, username, password
+
         :return: Postgres connection string for SQLAlchemy
         """
         auth = ''
@@ -301,16 +314,17 @@ class PostgisIO(GaiaIO):
 
     def get_epsg(self):
         """
-        Return the EPSG code of the data
-        :return:
+        Get the EPSG code of the data
+
+        :return: EPSG code
         """
         return self.epsg
 
     def get_table_info(self):
         """
         Use SQLALchemy reflection to gather data on the table, including the
-        geometry column, geometry type, and EPSG code
-        :return:
+        geometry column, geometry type, and EPSG code, and assign to the
+        PostgisIO object's attributes.
         """
         epsg = None
         meta = MetaData()
@@ -339,8 +353,9 @@ class PostgisIO(GaiaIO):
 
     def get_geometry_type(self):
         """
-        Return the geometry type of the data
-        :return:
+        Get the geometry type of the data
+
+        :return: Geometry type
         """
         return self.geometry_type
 
@@ -348,7 +363,8 @@ class PostgisIO(GaiaIO):
         """
         Formulate a query string and parameter list based on the
         table name, columns, and filter
-        :return:
+
+        :return: Query string
         """
         columns = ','.join(['"{}"'.format(x) for x in self.columns])
         query = 'SELECT {} FROM "{}"'.format(columns, self.table)
@@ -363,6 +379,7 @@ class PostgisIO(GaiaIO):
         """
         Load the table data into a GeoDataFrame, and return as a GeoDataFrame
         or GeoJSON object
+
         :param format: Output format (default is GeoDataFrame)
         :param epsg: EPSG code to reproject the data to
         :return: data in requested format
@@ -386,6 +403,7 @@ class PostgisIO(GaiaIO):
 def df_from_postgis(engine, query, params, geocolumn, epsg):
     """
     Run a PostGIS query and return results as a GeoDataFrame
+
     :param engine: SQLAlchemy database connection engine
     :param query: Query to run
     :param params: Query parameter list
@@ -405,6 +423,7 @@ def df_from_postgis(engine, query, params, geocolumn, epsg):
 def reproject(dataset, epsg):
     """
     Reproject a dataset to the specified EPSG code
+
     :param dataset: Dataset to reproject
     :param epsg: EPSG code to reproject to
     :return: Reprojected data

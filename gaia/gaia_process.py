@@ -43,8 +43,6 @@ class GaiaProcess(object):
     def validate(self):
         """
         Ensure that all required inputs and arguments are present.
-
-        :return:
         """
         if len(self.inputs) < len(self.required_inputs):
             raise GaiaException("Process requires a minimum of {} inputs".
@@ -56,15 +54,12 @@ class GaiaProcess(object):
     def compute(self):
         """
         Abstract method for running process
-        :return:
         """
         raise NotImplementedError()
 
     def purge(self):
         """
         Delete the process output
-
-        :return: None
         """
         self.output.delete()
 

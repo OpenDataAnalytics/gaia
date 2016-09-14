@@ -131,7 +131,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     :param raster_output: raster output filepath
     :param polygon_json: polygon as geojson string
     :param nodata: nodata value for output raster file
-    :return:
+    :return: GDAL Dataset
     """
 
     def image_to_array(i):
@@ -563,8 +563,8 @@ def get_dataset(object):
     """
     Given an object, try returning a GDAL Dataset
 
-    :param object:
-    :return:
+    :param object: GDAL Dataset or file path to raster image
+    :return: GDAL Dataset
     """
     if type(object).__name__ == 'Dataset':
         return object

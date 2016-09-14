@@ -58,29 +58,26 @@ class GaiaIO(object):
         """
         Create a GaiaIO object, assigning attributes based on kwargs
 
-        :param kwargs:
-        :return:
+        :param kwargs: Keyword arguments
         """
         for k, v in kwargs.items():
             setattr(self, k, v)
 
     def read(self, *args, **kwargs):
         """
-        Abstract class for reading data, not implemented here
+        Abstract method for reading data
 
-        :param args:
-        :param kwargs:
-        :return:
+        :param args: Required arguments
+        :param kwargs: Keyword arguments
         """
         raise NotImplementedError()
 
     def write(self, *args, **kwargs):
         """
-        Abstract class for writing data
+        Abstract method for writing data
 
-        :param args:
-        :param kwargs:
-        :return:
+        :param args: Required arguments
+        :param kwargs: Keyword arguments
         """
         pass
 
@@ -89,7 +86,6 @@ class GaiaIO(object):
         Create an output directory if it doesn't exist
 
         :param filepath: Directory to create
-        :return:
         """
         if not os.path.exists(os.path.dirname(filepath)):
             try:
@@ -137,9 +133,7 @@ class GaiaIO(object):
 
     def delete(self):
         """
-        Abstract class for deleting the IO source
-
-        :return:
+        Abstract method for deleting the IO source
         """
         raise NotImplementedError()
 

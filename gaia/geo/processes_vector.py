@@ -118,8 +118,6 @@ class BufferProcess(GaiaProcess):
     def compute(self):
         """
         Run the buffer process.
-
-        :return: None
         """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
@@ -190,8 +188,6 @@ class WithinProcess(GaiaProcess):
     def compute(self):
         """
         Run the Within process
-
-        :return: None
         """
         if len(self.inputs) != 2:
             raise GaiaException('WithinProcess requires 2 inputs')
@@ -265,8 +261,6 @@ class IntersectsProcess(GaiaProcess):
     def compute(self):
         """
         Run the intersection process
-
-        :return: None
         """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
@@ -337,8 +331,6 @@ class DisjointProcess(GaiaProcess):
     def compute(self):
         """
         Run the disjoint process
-
-        :return: None
         """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
@@ -414,8 +406,6 @@ class UnionProcess(GaiaProcess):
     def compute(self):
         """
         Run the union process.
-
-        :return: None
         """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
@@ -483,8 +473,6 @@ class CentroidProcess(GaiaProcess):
     def compute(self):
         """
         Run the centroid process
-
-        :return: None
         """
         use_postgis = self.inputs[0].__class__.__name__ == 'PostgisIO'
         data = self.calc_postgis() if use_postgis else self.calc_pandas()
@@ -593,9 +581,7 @@ class DistanceProcess(GaiaProcess):
 
     def compute(self):
         """
-        Rune the distance process
-
-        :return: None
+        Run the distance process
         """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
@@ -723,8 +709,6 @@ class NearProcess(GaiaProcess):
     def compute(self):
         """
         Run the process
-
-        :return: None
         """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
@@ -800,8 +784,6 @@ class AreaProcess(GaiaProcess):
     def compute(self):
         """
         Run the area process
-
-        :return: None
         """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
@@ -881,8 +863,6 @@ class LengthProcess(GaiaProcess):
     def compute(self):
         """
         Run the length process
-
-        :return: None
         """
         if self.inputs[0].__class__.__name__ == 'PostgisIO':
             data = self.calc_postgis()
@@ -952,8 +932,6 @@ class CrossesProcess(GaiaProcess):
     def compute(self):
         """
         Run the crosses process
-
-        :return: None
         """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
@@ -1024,8 +1002,6 @@ class TouchesProcess(GaiaProcess):
     def compute(self):
         """
         Run the touches process
-
-        :return: None
         """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
@@ -1107,8 +1083,6 @@ class EqualsProcess(GaiaProcess):
     def compute(self):
         """
         Run the process
-
-        :return: None
         """
         input_classes = list(self.get_input_classes())
         use_postgis = (len(input_classes) == 1 and
@@ -1142,8 +1116,6 @@ class ZonalStatsProcess(GaiaProcess):
     def compute(self):
         """
         Run the process
-
-        :return: None
         """
         self.output.create_output_dir(self.output.uri)
         features = gdal_zonalstats(

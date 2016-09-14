@@ -51,8 +51,6 @@ class SubsetProcess(GaiaProcess):
     def compute(self):
         """
         Runs the subset computation, creating a raster dataset as output.
-
-        :return: None
         """
         raster, clip = self.inputs[0], self.inputs[1]
         raster_img = raster.read()
@@ -104,8 +102,6 @@ class RasterMathProcess(GaiaProcess):
     def compute(self):
         """
         Run the RasterMath process, generating a raster output dataset.
-
-        :return: None
         """
         first = self.inputs[0]
         epsg = first.get_epsg()
