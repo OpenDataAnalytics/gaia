@@ -25,7 +25,6 @@ import gdalconst
 import numpy
 import gdal
 from gaia.core import GaiaException
-
 try:
     import gdalnumeric
 except ImportError:
@@ -42,6 +41,7 @@ logger = logging.getLogger('gaia.geo.gdal_functions')
 gdal.UseExceptions()
 gdal.PushErrorHandler('CPLQuietErrorHandler')
 
+#: Map of raster data types to max values
 ndv_lookup = {
     'Byte': 255,
     'UInt16': 65535,
@@ -59,6 +59,7 @@ def gdal_reproject(src, dst,
                    resampling=gdal.GRA_NearestNeighbour):
     """
     Reproject a raster image
+
     :param src: The source image
     :param dst: The filepath/name of the output image
     :param epsg: The EPSG code to reproject to
@@ -94,6 +95,7 @@ def gdal_reproject(src, dst,
 def gdal_resize(raster, dimensions, projection, transform):
     """
     Transform a dataset to the specified dimensions and projection/bounds
+
     :param dataset: Dataset to be resized
     :param dimensions: dimensions to resize to (X, Y)
     :param projection: Projection of of resized dataset
@@ -124,11 +126,12 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     This function will subset a raster by a vector polygon.
     Adapted from the GDAL/OGR Python Cookbook at
     https://pcjericks.github.io/py-gdalogr-cookbook
+
     :param raster_input: raster input filepath
     :param raster_output: raster output filepath
     :param polygon_json: polygon as geojson string
     :param nodata: nodata value for output raster file
-    :return:
+    :return: GDAL Dataset
     """
 
     def image_to_array(i):
@@ -246,9 +249,10 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
 
 
 def gdal_calc(calculation, raster_output, rasters,
-              bands=None, nodata=None, allBands=None, output_type=None):
+              bands=None, nodata=None, allBands=False, output_type=None):
     """
     Adopted from GDAL 1.10 gdal_calc.py script.
+
     :param calculation: equation to calculate, such as A + (B / 2)
     :param raster_output: Raster file to save output as
     :param rasters: array of rasters, should equal # of letters in calculation
@@ -429,11 +433,25 @@ def gdal_calc(calculation, raster_output, rasters,
 
 
 def gdal_zonalstats(zones, raster):
+    """
+    Return a list of zonal statistics.
+
+    :param zones: vector dataset in JSON format representing polygons (zones)
+    :param raster: Raster file to generate statistics from in each polygon
+    :return: list of polygon features with statistics properties appended.
+    """
     return list(gen_zonalstats(zones, raster))
 
 
 def gen_zonalstats(zones_json, raster):
+    """
+    Generator function that yields the statistics of a raster dataset
+    within each polygon (zone) of a vector dataset.
 
+    :param zones_json: Polygons in GeoJSON format
+    :param raster: Raster dataset
+    :return: Polygons with additional properties for calculated raster stats.
+    """
     # Open data
     raster = get_dataset(raster)
     shp = None
@@ -544,8 +562,9 @@ def gen_zonalstats(zones_json, raster):
 def get_dataset(object):
     """
     Given an object, try returning a GDAL Dataset
-    :param object:
-    :return:
+
+    :param object: GDAL Dataset or file path to raster image
+    :return: GDAL Dataset
     """
     if type(object).__name__ == 'Dataset':
         return object

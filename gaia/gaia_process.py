@@ -23,7 +23,7 @@ from gaia.core import get_abspath, config, GaiaException
 
 class GaiaProcess(object):
     """
-    Defines a process to run on geospatial inputs
+    Abstract class to define a geospatial process
     """
 
     # TODO: Enforce required inputs and args
@@ -41,6 +41,9 @@ class GaiaProcess(object):
             setattr(self, k, v)
 
     def validate(self):
+        """
+        Ensure that all required inputs and arguments are present.
+        """
         if len(self.inputs) < len(self.required_inputs):
             raise GaiaException("Process requires a minimum of {} inputs".
                                 format(len(self.required_inputs)))
@@ -49,12 +52,24 @@ class GaiaProcess(object):
                 raise GaiaException('Missing required argument {}'.format(arg))
 
     def compute(self):
+        """
+        Abstract method for running process
+        """
         raise NotImplementedError()
 
     def purge(self):
+        """
+        Delete the process output
+        """
         self.output.delete()
 
     def get_outpath(self, uri=config['gaia']['output_path']):
+        """
+        Get the output path of the process
+
+        :param uri: base output path
+        :return: Process output path
+        """
         ids_path = '{}/{}'.format(
             self.parent, self.id) if self.parent else self.id
         return get_abspath(
@@ -63,8 +78,9 @@ class GaiaProcess(object):
 
     def get_input_classes(self):
         """
-        Return a unique set of input classes
-        :return:
+        Get the unique set of input classes
+
+        :return: set of classes
         """
         io_classes = set()
         for input in self.inputs:
