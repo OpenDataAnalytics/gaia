@@ -17,6 +17,8 @@
 #  limitations under the License.
 ###############################################################################
 import json
+import uuid
+
 import os
 import fiona
 import geopandas
@@ -39,8 +41,13 @@ class FeatureIO(GaiaIO):
     """
     GeoJSON Feature Collection IO
     """
-    format = formats.VECTOR
+    #: Data type (vector or raster)
     type = types.VECTOR
+
+    #: acceptable data format extensions
+    format = formats.VECTOR
+
+    #: Default output format
     default_output = formats.PANDAS
 
     def __init__(self,  features=None, **kwargs):
@@ -111,9 +118,19 @@ class VectorFileIO(FileIO):
     Data will be read into a geopandas dataframe.
     """
 
+    #: Data type (vector or raster)
     type = types.VECTOR
+
+    #: acceptable data format extensions
     format = formats.VECTOR
+
+    #: Default output format
     default_output = formats.PANDAS
+
+    #: Optional arguments
+    optional_args = {
+        'filters': list
+    }
 
     def read(self, format=None, epsg=None):
         """
@@ -176,8 +193,13 @@ class VectorFileIO(FileIO):
 class RasterFileIO(FileIO):
     """Read and write raster data (GeoTIFF)"""
 
+    #: Data type (vector or raster)
     type = types.RASTER
+
+    #: acceptable data format extensions
     format = formats.RASTER
+
+    #: Default output format
     default_output = formats.RASTER
 
     def read(self, epsg=None):
@@ -205,7 +227,13 @@ class RasterFileIO(FileIO):
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
 
+    #: Data type
     type = types.PROCESS
+
+    #: Optional arguments
+    optional_args = {
+        'parent': uuid.UUID
+    }
 
     def __init__(self, process=None, parent=None, **kwargs):
         """
@@ -249,8 +277,13 @@ class ProcessIO(GaiaIO):
 class PostgisIO(GaiaIO):
     """Read PostGIS data"""
 
-    type = formats.VECTOR
+    #: Data type (vector or raster)
+    type = types.VECTOR
+
+    #: acceptable data format extensions
     format = formats.VECTOR
+
+    #: Default output format
     default_output = formats.JSON
 
     hostname = None

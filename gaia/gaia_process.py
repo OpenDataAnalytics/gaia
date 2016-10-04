@@ -30,7 +30,9 @@ class GaiaProcess(object):
     # TODO: Enforce required inputs and args
     required_inputs = {}
     required_args = {}
-    optional_args = {}
+    optional_args = {
+        'parent': uuid.UUID
+    }
     default_output = None
     args = None
 
@@ -43,6 +45,19 @@ class GaiaProcess(object):
             setattr(self, k, v)
         self.validate()
 
+    def test_arg_type(self, arg, arg_type):
+        """
+        Try to cast a process argument to its required type. Raise an
+        exception if not successful.
+        :param arg: The argument property
+        :param arg_type: The required argument type (int, str, etc)
+        """
+        try:
+            arg_type(getattr(self, arg))
+        except Exception:
+            raise GaiaException('Required argument {} must be of type {}'
+                                .format(arg, arg_type))
+
     def validate(self):
         """
         Ensure that all required inputs and arguments are present.
@@ -54,8 +69,8 @@ class GaiaProcess(object):
             type = input.type
             if type == types.PROCESS:
                 for t in [i for i in dir(types) if not i.startswith("__")]:
-                    if any((True for x in self.default_output if x in getattr(
-                            formats, t, None))):
+                    if any((True for x in input.default_output if x in getattr(
+                            formats, t, []))):
                         type = getattr(types, t)
                         break
             input_types[type] = input_types.setdefault(type, 0) + 1
@@ -79,11 +94,11 @@ class GaiaProcess(object):
             arg, arg_type = item[0], item[1]
             if not hasattr(self, arg) or getattr(self, arg) is None:
                 raise GaiaException('Missing required argument {}'.format(arg))
-            try:
-                arg_type(getattr(self, arg))
-            except:
-                raise GaiaException('Required argument {} must be of type {}'
-                                    .format(arg, arg_type))
+            self.test_arg_type(arg, arg_type)
+        for item in self.optional_args.items():
+            arg, arg_type = item[0], item[1]
+            if hasattr(self, arg) and getattr(self, arg) is not None:
+                self.test_arg_type(arg, arg_type)
 
     def compute(self):
         """

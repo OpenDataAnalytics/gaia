@@ -31,13 +31,13 @@ class SubsetProcess(GaiaProcess):
     Generates a raster dataset representing the portion of the input raster
     dataset that is contained within a vector polygon.
     """
-    required_inputs = (('raster', formats.RASTER), ('clip', formats.VECTOR))\
-
+    #: Tuple of required input IO objects
     required_inputs = {
         types.RASTER: {"min": 1},
         types.VECTOR: {"min": 1}
     }
 
+    #: Default output format for the process
     default_output = formats.RASTER
 
     def __init__(self, **kwargs):

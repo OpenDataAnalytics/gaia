@@ -295,9 +295,6 @@ class DisjointProcess(GaiaProcess):
         types.VECTOR: {"min": 2}
     }
 
-    #: Required arguments, data types as dict
-    required_args = {}
-
     #: Default output format
     default_output = formats.JSON
 
@@ -449,6 +446,10 @@ class CentroidProcess(GaiaProcess):
 
     #: Required arguments, data types as dict
     required_args = {}
+
+    optional_args = {
+        'combined': bool
+    }
 
     #: Default output format
     default_output = formats.JSON
@@ -1157,9 +1158,6 @@ class ZonalStatsProcess(GaiaProcess):
         types.RASTER: {"min": 1},
         types.VECTOR: {"min": 1}
     }
-
-    #: Required arguments, data types as dict
-    required_args = {}
 
     #: Default output format
     default_output = formats.JSON

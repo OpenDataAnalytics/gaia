@@ -425,3 +425,8 @@ class TestGaiaProcessors(unittest.TestCase):
         finally:
             if process:
                 process.purge()
+
+    def test_validation(self):
+        """
+        Test the GaiaProcess.validate() function
+        """
