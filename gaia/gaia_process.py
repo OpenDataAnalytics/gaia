@@ -19,6 +19,7 @@
 import os
 import uuid
 from gaia.core import get_abspath, config, GaiaException
+from gaia import types, formats
 
 
 class GaiaProcess(object):
@@ -27,9 +28,10 @@ class GaiaProcess(object):
     """
 
     # TODO: Enforce required inputs and args
-    required_inputs = tuple()
-    required_args = tuple()
-
+    required_inputs = {}
+    required_args = {}
+    optional_args = {}
+    default_output = None
     args = None
 
     def __init__(self, inputs=None, output=None, parent=None, **kwargs):
@@ -39,17 +41,49 @@ class GaiaProcess(object):
         self.id = str(uuid.uuid4())
         for k, v in kwargs.items():
             setattr(self, k, v)
+        self.validate()
 
     def validate(self):
         """
         Ensure that all required inputs and arguments are present.
         """
-        if len(self.inputs) < len(self.required_inputs):
-            raise GaiaException("Process requires a minimum of {} inputs".
-                                format(len(self.required_inputs)))
-        for arg in self.required_args:
+        # for input in self.inputs:
+        #     if input.
+        input_types = {}
+        for input in self.inputs:
+            type = input.type
+            if type == types.PROCESS:
+                for t in [i for i in dir(types) if not i.startswith("__")]:
+                    if any((True for x in self.default_output if x in getattr(
+                            formats, t, None))):
+                        type = getattr(types, t)
+                        break
+            input_types[type] = input_types.setdefault(type, 0) + 1
+
+        errors = []
+        for input in self.required_inputs:
+            min = self.required_inputs[input].get("min", 1)
+            max = self.required_inputs[input].get("max", min)
+            if input not in input_types.keys():
+                errors.append(
+                    "{} input(s) of type {} required for this process".format(
+                        min, input))
+            else:
+                if input_types[input] < min:
+                    errors.append("Not enough inputs of type {}".format(input))
+                if max is not None and input_types[input] > max:
+                    errors.append("Too many inputs of type {}".format(input))
+        if errors:
+            raise Exception(','.join(errors))
+        for item in self.required_args.items():
+            arg, arg_type = item[0], item[1]
             if not hasattr(self, arg) or getattr(self, arg) is None:
                 raise GaiaException('Missing required argument {}'.format(arg))
+            try:
+                arg_type(getattr(self, arg))
+            except:
+                raise GaiaException('Required argument {} must be of type {}'
+                                    .format(arg, arg_type))
 
     def compute(self):
         """

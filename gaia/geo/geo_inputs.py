@@ -28,9 +28,8 @@ try:
 except ImportError:
     from osgeo import osr
 import gaia.formats as formats
-
+import gaia.types as types
 from gaia.inputs import GaiaIO, FileIO, UnsupportedFormatException
-
 from gaia.core import GaiaException, config, sqlengines, get_abspath
 from gaia.filters import filter_pandas, filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
@@ -40,6 +39,8 @@ class FeatureIO(GaiaIO):
     """
     GeoJSON Feature Collection IO
     """
+    format = formats.VECTOR
+    type = types.VECTOR
     default_output = formats.PANDAS
 
     def __init__(self,  features=None, **kwargs):
@@ -105,8 +106,13 @@ class FeatureIO(GaiaIO):
 
 
 class VectorFileIO(FileIO):
-    """Read and write vector file data (such as GeoJSON)"""
+    """
+    Read and write vector file data (such as GeoJSON)
+    Data will be read into a geopandas dataframe.
+    """
 
+    type = types.VECTOR
+    format = formats.VECTOR
     default_output = formats.PANDAS
 
     def read(self, format=None, epsg=None):
@@ -135,7 +141,7 @@ class VectorFileIO(FileIO):
             out_data[out_data.geometry.name] = \
                 self.data.geometry.to_crs(epsg=epsg)
             out_data.crs = fiona.crs.from_epsg(epsg)
-        if format == formats.JSON:
+        if format == formats.JSON and self.default_output == formats.PANDAS:
             return out_data.to_json()
         else:
             return out_data
@@ -170,6 +176,8 @@ class VectorFileIO(FileIO):
 class RasterFileIO(FileIO):
     """Read and write raster data (GeoTIFF)"""
 
+    type = types.RASTER
+    format = formats.RASTER
     default_output = formats.RASTER
 
     def read(self, epsg=None):
@@ -196,6 +204,8 @@ class RasterFileIO(FileIO):
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
+
+    type = types.PROCESS
 
     def __init__(self, process=None, parent=None, **kwargs):
         """
@@ -239,6 +249,8 @@ class ProcessIO(GaiaIO):
 class PostgisIO(GaiaIO):
     """Read PostGIS data"""
 
+    type = formats.VECTOR
+    format = formats.VECTOR
     default_output = formats.JSON
 
     hostname = None

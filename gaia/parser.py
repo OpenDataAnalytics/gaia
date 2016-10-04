@@ -23,22 +23,33 @@ import json
 import logging
 import gaia.geo
 from gaia.core import get_plugins
-
+from gaia.gaia_process import GaiaProcess
+from gaia.inputs import GaiaIO
 
 logger = logging.getLogger('gaia.parser')
 
-valid_classes = []
-valid_classes.extend([x[0] for x in inspect.getmembers(
-    gaia.geo, inspect.isclass) if x[0].endswith('Process')])
-valid_classes.extend([x[0] for x in inspect.getmembers(
-    gaia.inputs, inspect.isclass) if x[0].endswith('IO')])
 
-# TODO: Need a method to register classes from domain specific code
-valid_classes.extend([x[0] for x in inspect.getmembers(
-    gaia.geo.geo_inputs, inspect.isclass) if x[0].endswith('IO')])
+def add_to_dict(x):
+    if issubclass(x[1], GaiaProcess):
+        valid_processes.append({x[0]: {y: getattr(x[1], y) for y in (
+            'required_inputs', 'required_args',
+            'optional_args', 'default_output')}})
+    elif issubclass(x[1], GaiaIO):
+        valid_inputs.append({x[0]: {y: getattr(x[1], y) for y in (
+            'type', 'default_output')}})
+
+valid_processes = []
+valid_inputs = []
+
+for mod in (gaia.geo.geo_inputs, gaia.inputs, gaia.geo):
+    for x in inspect.getmembers(mod, inspect.isclass):
+        add_to_dict(x)
 for plugin in get_plugins():
-    valid_classes.extend([x[0] for x in inspect.getmembers(
-        plugin, inspect.isclass) if x[1] in plugin.PLUGIN_CLASS_EXPORTS])
+    for x in inspect.getmembers(plugin, inspect.isclass):
+        if x[1] in plugin.PLUGIN_CLASS_EXPORTS:
+            add_to_dict(x)
+valid_classes = [x.keys()[0] for x in valid_inputs] +\
+                [y.keys()[0] for y in valid_processes]
 
 
 def deserialize(dct):

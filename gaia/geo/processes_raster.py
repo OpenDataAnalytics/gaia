@@ -21,7 +21,7 @@ import gaia.formats as formats
 from gaia.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
-
+from gaia import types
 
 logger = logging.getLogger('gaia.geo')
 
@@ -31,7 +31,13 @@ class SubsetProcess(GaiaProcess):
     Generates a raster dataset representing the portion of the input raster
     dataset that is contained within a vector polygon.
     """
-    required_inputs = (('raster', formats.RASTER), ('clip', formats.JSON))
+    required_inputs = (('raster', formats.RASTER), ('clip', formats.VECTOR))\
+
+    required_inputs = {
+        types.RASTER: {"min": 1},
+        types.VECTOR: {"min": 1}
+    }
+
     default_output = formats.RASTER
 
     def __init__(self, **kwargs):
@@ -46,7 +52,6 @@ class SubsetProcess(GaiaProcess):
         super(SubsetProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = RasterFileIO(name='result', uri=self.get_outpath())
-        self.validate()
 
     def compute(self):
         """
@@ -71,9 +76,11 @@ class RasterMathProcess(GaiaProcess):
     should correspond to the names of the inputs.
     """
     #: Tuple of required input IO objects
-    required_inputs = (('A', formats.RASTER),)
+    required_inputs = {
+        types.RASTER: {"min": 1, "max": None},
+    }
     #: Required arguments for the process
-    required_args = ('calc',)
+    required_args = {'calc': str}
     #: Default output format for the process
     default_output = formats.RASTER
 
@@ -93,11 +100,10 @@ class RasterMathProcess(GaiaProcess):
         :param calc: A text representation of the calculation to make.
         :param kwargs: Other keyword arguments
         """
-        super(RasterMathProcess, self).__init__(**kwargs)
         self.calc = calc
+        super(RasterMathProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = RasterFileIO(name='result', uri=self.get_outpath())
-        self.validate()
 
     def compute(self):
         """
