@@ -16,10 +16,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ###############################################################################
+import os
+import json
 import unittest
 from zipfile import ZipFile
 import gaia.geo as geo
-from gaia.geo import *
 from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO
 
 testfile_path = os.path.join(os.path.dirname(
@@ -65,7 +66,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'zonalstats_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -105,7 +107,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'intersects_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -128,7 +131,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'crosses_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -151,7 +155,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'touches_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -175,7 +180,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'union_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -197,7 +203,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'difference_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -217,7 +224,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'centroid_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -239,7 +247,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'distance_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -396,7 +405,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'length_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -417,7 +427,8 @@ class TestGaiaProcessors(unittest.TestCase):
                     testfile_path,
                     'area_process_results.json')) as exp:
                 expected_json = json.load(exp)
-            actual_json = json.loads(process.output.read(format=formats.JSON))
+            actual_json = json.loads(process.output.read(
+                format=geo.formats.JSON))
             self.assertEquals(len(expected_json['features']),
                               len(actual_json['features']))
         finally:
@@ -431,8 +442,8 @@ class TestGaiaProcessors(unittest.TestCase):
         raster_io = RasterFileIO(uri='/fake/path')
         vector_io = VectorFileIO(uri='/fake/path')
         try:
-            ZonalStatsProcess(inputs=[raster_io, vector_io])
-        except GaiaException as ge:
+            geo.ZonalStatsProcess(inputs=[raster_io, vector_io])
+        except geo.GaiaException:
             self.fail("ZonalProcess should have passed validation but did not")
 
     def test_validationInputsOrder(self):
@@ -442,8 +453,8 @@ class TestGaiaProcessors(unittest.TestCase):
         raster_iO = RasterFileIO(uri='/fake/path1')
         vector_io = VectorFileIO(uri='/fake/path2')
 
-        with self.assertRaises(GaiaException) as ge:
-            ZonalStatsProcess(inputs=[vector_io, raster_iO])
+        with self.assertRaises(geo.GaiaException) as ge:
+            geo.ZonalStatsProcess(inputs=[vector_io, raster_iO])
         self.assertIn('Input #1 is of incorrect type.', str(ge.exception))
 
     def test_validationInputsMin(self):
@@ -452,8 +463,8 @@ class TestGaiaProcessors(unittest.TestCase):
         """
 
         vector_io = VectorFileIO(uri='/fake/path1')
-        with self.assertRaises(GaiaException) as ge:
-            IntersectsProcess(inputs=[vector_io])
+        with self.assertRaises(geo.GaiaException) as ge:
+            geo.IntersectsProcess(inputs=[vector_io])
         self.assertIn('Not enough inputs for process', str(ge.exception))
 
     def test_validationInputsNoMax(self):
@@ -465,8 +476,8 @@ class TestGaiaProcessors(unittest.TestCase):
         raster_io2 = RasterFileIO(uri='/fake/path2')
 
         try:
-            RasterMathProcess(inputs=[raster_io1, raster_io2], calc='A+B')
-        except GaiaException:
+            geo.RasterMathProcess(inputs=[raster_io1, raster_io2], calc='A+B')
+        except geo.GaiaException:
             self.fail("Multiple inputs should have passed validation")
 
     def test_validationInputsMax(self):
@@ -477,6 +488,6 @@ class TestGaiaProcessors(unittest.TestCase):
         vector_io1 = VectorFileIO(uri='/fake/path')
         vector_io2 = VectorFileIO(uri='/fake/path')
 
-        with self.assertRaises(GaiaException) as ge:
-            LengthProcess(inputs=[vector_io1, vector_io2])
+        with self.assertRaises(geo.GaiaException) as ge:
+            geo.LengthProcess(inputs=[vector_io1, vector_io2])
         self.assertIn('Incorrect # of inputs; expected 1', str(ge.exception))
