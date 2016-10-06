@@ -16,12 +16,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ###############################################################################
-import json
-import os
 import unittest
 from zipfile import ZipFile
-from gaia import formats
 import gaia.geo as geo
+from gaia.geo import *
 from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO
 
 testfile_path = os.path.join(os.path.dirname(
@@ -426,7 +424,59 @@ class TestGaiaProcessors(unittest.TestCase):
             if process:
                 process.purge()
 
-    def test_validation(self):
+    def test_validationInputsPass(self):
         """
-        Test the GaiaProcess.validate() function
+        Test the GaiaProcess.validate() function - pass on valid input
         """
+        raster_io = RasterFileIO(uri='/fake/path')
+        vector_io = VectorFileIO(uri='/fake/path')
+        try:
+            ZonalStatsProcess(inputs=[raster_io, vector_io])
+        except GaiaException as ge:
+            self.fail("ZonalProcess should have passed validation but did not")
+
+    def test_validationInputsOrder(self):
+        """
+        Test the GaiaProcess.validate() function - fail on incorrect order
+        """
+        raster_iO = RasterFileIO(uri='/fake/path1')
+        vector_io = VectorFileIO(uri='/fake/path2')
+
+        with self.assertRaises(GaiaException) as ge:
+            ZonalStatsProcess(inputs=[vector_io, raster_iO])
+        self.assertIn('Input #1 is of incorrect type.', str(ge.exception))
+
+    def test_validationInputsMin(self):
+        """
+        Test the GaiaProcess.validate() function - fail on < minimum input types
+        """
+
+        vector_io = VectorFileIO(uri='/fake/path1')
+        with self.assertRaises(GaiaException) as ge:
+            IntersectsProcess(inputs=[vector_io])
+        self.assertIn('Not enough inputs for process', str(ge.exception))
+
+    def test_validationInputsNoMax(self):
+        """
+        Test the GaiaProcess.validate() function - pass on no max input types
+        """
+
+        raster_io1 = RasterFileIO(uri='/fake/path1')
+        raster_io2 = RasterFileIO(uri='/fake/path2')
+
+        try:
+            RasterMathProcess(inputs=[raster_io1, raster_io2], calc='A+B')
+        except GaiaException:
+            self.fail("Multiple inputs should have passed validation")
+
+    def test_validationInputsMax(self):
+        """
+        Test the GaiaProcess.validate() function - fail on > max input types
+        """
+
+        vector_io1 = VectorFileIO(uri='/fake/path')
+        vector_io2 = VectorFileIO(uri='/fake/path')
+
+        with self.assertRaises(GaiaException) as ge:
+            LengthProcess(inputs=[vector_io1, vector_io2])
+        self.assertIn('Incorrect # of inputs; expected 1', str(ge.exception))

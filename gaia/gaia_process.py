@@ -28,11 +28,17 @@ class GaiaProcess(object):
     """
 
     # TODO: Enforce required inputs and args
-    required_inputs = {}
-    required_args = {}
-    optional_args = {
-        'parent': uuid.UUID
-    }
+    required_inputs = []
+    required_args = []
+    optional_args = [
+        {
+            'name': 'parent',
+            'title': 'Parent ID',
+            'description': 'Parent ID (UUID format)',
+            'type': str
+        }
+
+    ]
     default_output = None
     args = None
 
@@ -64,7 +70,9 @@ class GaiaProcess(object):
         """
         # for input in self.inputs:
         #     if input.
-        input_types = {}
+        input_types = []
+        errors = []
+
         for input in self.inputs:
             type = input.type
             if type == types.PROCESS:
@@ -73,30 +81,32 @@ class GaiaProcess(object):
                             formats, t, []))):
                         type = getattr(types, t)
                         break
-            input_types[type] = input_types.setdefault(type, 0) + 1
+            input_types.append(type)
 
-        errors = []
-        for input in self.required_inputs:
-            min = self.required_inputs[input].get("min", 1)
-            max = self.required_inputs[input].get("max", min)
-            if input not in input_types.keys():
-                errors.append(
-                    "{} input(s) of type {} required for this process".format(
-                        min, input))
+        for i, req_input in enumerate(self.required_inputs):
+            if i >= len(input_types):
+                errors.append("Not enough inputs for process")
+            elif req_input['type'] != input_types[i]:
+                errors.append("Input #{} is of incorrect type.".format(i+1))
+
+        if len(input_types) > len(self.required_inputs):
+            if self.required_inputs[-1]['max'] is not None:
+                errors.append("Incorrect # of inputs; expected {}".format(
+                    len(self.required_inputs)))
             else:
-                if input_types[input] < min:
-                    errors.append("Not enough inputs of type {}".format(input))
-                if max is not None and input_types[input] > max:
-                    errors.append("Too many inputs of type {}".format(input))
+                for i in range(len(self.required_inputs)-1, len(input_types)):
+                    if input_types[i] != self.required_inputs[-1]['type']:
+                        errors.append(
+                            "Input #{} is of incorrect type.".format(i + 1))
         if errors:
-            raise Exception(','.join(errors))
-        for item in self.required_args.items():
-            arg, arg_type = item[0], item[1]
+            raise GaiaException('\n'.join(errors))
+        for item in self.required_args:
+            arg, arg_type = item['name'], item['type']
             if not hasattr(self, arg) or getattr(self, arg) is None:
                 raise GaiaException('Missing required argument {}'.format(arg))
             self.test_arg_type(arg, arg_type)
-        for item in self.optional_args.items():
-            arg, arg_type = item[0], item[1]
+        for item in self.optional_args:
+            arg, arg_type = item['name'], item['type']
             if hasattr(self, arg) and getattr(self, arg) is not None:
                 self.test_arg_type(arg, arg_type)
 

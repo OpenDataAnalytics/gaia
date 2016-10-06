@@ -26,7 +26,7 @@ from gaia.core import get_plugins
 from gaia.gaia_process import GaiaProcess
 from gaia.inputs import GaiaIO
 
-logger = logging.getLogger('gaia.parser')
+logger = logging.getLogger(__name__)
 
 
 def add_to_dict(x):

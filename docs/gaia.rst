@@ -67,6 +67,14 @@ gaia.tasks module
     :undoc-members:
     :show-inheritance:
 
+gaia.types module
+-----------------
+
+.. automodule:: gaia.types
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

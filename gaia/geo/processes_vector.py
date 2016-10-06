@@ -45,13 +45,24 @@ class BufferProcess(GaiaProcess):
     and the unit of measure should be meters.  If inputs are not in a
     metric projection they will be reprojected to EPSG:3857.
     """
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-        types.VECTOR: {"min": 1}
-    }
+
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Required arguments, data types as dict
-    required_args = {'buffer_size': float}
+    required_args = [
+        {
+            'name': 'buffer_size',
+            'title': 'Buffer Size',
+            'description': 'Size of the buffer in meters',
+            'type': float
+        }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -138,14 +149,17 @@ class WithinProcess(GaiaProcess):
     polygons of a second vector dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Within dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -213,14 +227,17 @@ class IntersectsProcess(GaiaProcess):
     the features of the second vector dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Intersect dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -289,11 +306,17 @@ class DisjointProcess(GaiaProcess):
     intersect the features of the second dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Disjoint dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -360,14 +383,17 @@ class UnionProcess(GaiaProcess):
     They datasets should have the same columns.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'First dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Second dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -438,18 +464,21 @@ class CentroidProcess(GaiaProcess):
     Calculates the centroid point of a vector dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
+    #: List of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Line/Polygon dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
-        types.VECTOR: {"min": 1}
-    }
+    optional_args = [{
+        'name': 'combined',
+        'title': 'Combined',
+        'description': 'Get centroid of features combined (default False)',
+        'type': bool,
 
-    #: Required arguments, data types as dict
-    required_args = {}
-
-    optional_args = {
-        'combined': bool
-    }
+    }]
 
     #: Default output format
     default_output = formats.JSON
@@ -513,14 +542,17 @@ class DistanceProcess(GaiaProcess):
     to the nearest feature of the second dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'From dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'To dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -627,18 +659,29 @@ class NearProcess(GaiaProcess):
     the first a vector dataset. Requires a distance argument, and the unit of
     measure should be meters.  If inputs are not in a
     metric projection they will be reprojected to EPSG:3857.
-    Returns the features in the second input within a specified distance
-    of the point in the first input.
+    Returns the features in the first input within a specified distance
+    of the point in the second input.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Features',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Point',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Required arguments, data types as dict
-    required_args = {'distance': float}
+    required_args = [{
+        'name': 'distance',
+        'title': 'Distance',
+        'description': 'Distance to search for features, in meters',
+        'type': float
+    }]
 
     #: Default output format
     default_output = formats.JSON
@@ -759,14 +802,13 @@ class AreaProcess(GaiaProcess):
     be temporarily reprojected to EPSG:3857 to calculate the area.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 1}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Polygon dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -838,14 +880,13 @@ class LengthProcess(GaiaProcess):
     be temporarily reprojected to EPSG:3857 to calculate the area.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 1}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Line/Polygon dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -920,14 +961,17 @@ class CrossesProcess(GaiaProcess):
     the combined features of the second vector dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Crosses dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -994,14 +1038,17 @@ class TouchesProcess(GaiaProcess):
     edges but do not overlap in any way the features of the 2nd vector dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Touches dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -1068,14 +1115,17 @@ class EqualsProcess(GaiaProcess):
     the features of the second vector dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-
-        types.VECTOR: {"min": 2}
-    }
-
-    #: Required arguments, data types as dict
-    required_args = {}
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'First dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Second dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON
@@ -1153,11 +1203,17 @@ class ZonalStatsProcess(GaiaProcess):
     in a vector dataset.
     """
 
-    #: Required input types & numbers; max=unlimited if None or min if missing
-    required_inputs = {
-        types.RASTER: {"min": 1},
-        types.VECTOR: {"min": 1}
-    }
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Raster image',
+         'type': types.RASTER,
+         'max': 1
+         },
+        {'description': 'Zones',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format
     default_output = formats.JSON

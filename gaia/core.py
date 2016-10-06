@@ -17,13 +17,18 @@
 #  limitations under the License.
 ##############################################################################
 import importlib
-import inspect
+import traceback
+
 import os
 import pkg_resources as pr
+import logging
+
 try:
     from ConfigParser import ConfigParser
 except ImportError:
     from configparser import ConfigParser
+
+logger = logging.getLogger(__name__)
 
 base_dir = os.path.join(
     os.path.dirname(os.path.realpath(__file__)))
@@ -81,9 +86,13 @@ def get_plugins():
     """
     installed_plugins = []
     for ep in pr.iter_entry_points(group='gaia.plugins'):
-        module = ep.load()
-        importlib.import_module(module.__name__)
-        installed_plugins.append(module)
-        if hasattr(module, 'get_config'):
-            config.update(module.get_config())
+        try:
+            module = ep.load()
+            importlib.import_module(module.__name__)
+            installed_plugins.append(module)
+            if hasattr(module, 'get_config'):
+                config.update(module.get_config())
+        except ImportError:
+            logger.error('Could not load module: {}'.format(
+                traceback.print_exc()))
     return installed_plugins

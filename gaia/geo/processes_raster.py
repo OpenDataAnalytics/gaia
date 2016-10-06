@@ -31,11 +31,17 @@ class SubsetProcess(GaiaProcess):
     Generates a raster dataset representing the portion of the input raster
     dataset that is contained within a vector polygon.
     """
-    #: Tuple of required input IO objects
-    required_inputs = {
-        types.RASTER: {"min": 1},
-        types.VECTOR: {"min": 1}
-    }
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Image to subset',
+         'type': types.RASTER,
+         'max': 1
+         },
+        {'description': 'Subset area:',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
 
     #: Default output format for the process
     default_output = formats.RASTER
@@ -75,12 +81,20 @@ class RasterMathProcess(GaiaProcess):
     Example: "A + B / (C * 2.4)".  The letters in the equation
     should correspond to the names of the inputs.
     """
-    #: Tuple of required input IO objects
-    required_inputs = {
-        types.RASTER: {"min": 1, "max": None},
-    }
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Image',
+         'type': types.RASTER,
+         'max': None
+         }
+    ]
     #: Required arguments for the process
-    required_args = {'calc': str}
+    required_args = [{
+        'name': 'calc',
+        'title': 'Calculation',
+        'description': 'Equation to apply to rasters (ex: "(A+B)/2"',
+        'type': str
+    }]
     #: Default output format for the process
     default_output = formats.RASTER
 
