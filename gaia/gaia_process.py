@@ -90,7 +90,9 @@ class GaiaProcess(object):
                 errors.append("Input #{} is of incorrect type.".format(i+1))
 
         if len(input_types) > len(self.required_inputs):
-            if self.required_inputs[-1]['max'] is not None:
+            if (self.required_inputs[-1]['max'] is not None and
+                len(input_types) > len(self.required_inputs) +
+                    self.required_inputs[-1]['max']-1):
                 errors.append("Incorrect # of inputs; expected {}".format(
                     len(self.required_inputs)))
             else:
