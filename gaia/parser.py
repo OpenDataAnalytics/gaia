@@ -31,9 +31,10 @@ logger = logging.getLogger(__name__)
 
 def add_to_dict(x):
     if issubclass(x[1], GaiaProcess):
-        valid_processes.append({x[0]: {y: getattr(x[1], y) for y in (
-            'required_inputs', 'required_args',
-            'optional_args', 'default_output')}})
+        if x[1].required_inputs:
+            valid_processes.append({x[0]: {y: getattr(x[1], y) for y in (
+                'required_inputs', 'required_args',
+                'optional_args', 'default_output')}})
     elif issubclass(x[1], GaiaIO):
         valid_inputs.append({x[0]: {y: getattr(x[1], y) for y in (
             'type', 'default_output')}})
