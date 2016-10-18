@@ -21,7 +21,7 @@ import gaia.formats as formats
 from gaia.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
-
+from gaia import types
 
 logger = logging.getLogger('gaia.geo')
 
@@ -31,7 +31,19 @@ class SubsetProcess(GaiaProcess):
     Generates a raster dataset representing the portion of the input raster
     dataset that is contained within a vector polygon.
     """
-    required_inputs = (('raster', formats.RASTER), ('clip', formats.JSON))
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Image to subset',
+         'type': types.RASTER,
+         'max': 1
+         },
+        {'description': 'Subset area:',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
+    #: Default output format for the process
     default_output = formats.RASTER
 
     def __init__(self, **kwargs):
@@ -46,7 +58,6 @@ class SubsetProcess(GaiaProcess):
         super(SubsetProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = RasterFileIO(name='result', uri=self.get_outpath())
-        self.validate()
 
     def compute(self):
         """
@@ -70,10 +81,20 @@ class RasterMathProcess(GaiaProcess):
     Example: "A + B / (C * 2.4)".  The letters in the equation
     should correspond to the names of the inputs.
     """
-    #: Tuple of required input IO objects
-    required_inputs = (('A', formats.RASTER),)
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Image',
+         'type': types.RASTER,
+         'max': None
+         }
+    ]
     #: Required arguments for the process
-    required_args = ('calc',)
+    required_args = [{
+        'name': 'calc',
+        'title': 'Calculation',
+        'description': 'Equation to apply to rasters (ex: "(A+B)/2"',
+        'type': str
+    }]
     #: Default output format for the process
     default_output = formats.RASTER
 
@@ -93,11 +114,10 @@ class RasterMathProcess(GaiaProcess):
         :param calc: A text representation of the calculation to make.
         :param kwargs: Other keyword arguments
         """
-        super(RasterMathProcess, self).__init__(**kwargs)
         self.calc = calc
+        super(RasterMathProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = RasterFileIO(name='result', uri=self.get_outpath())
-        self.validate()
 
     def compute(self):
         """

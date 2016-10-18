@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 ###############################################################################
-#  Copyright Kitware Inc.
+#  Copyright Kitware Inc. and Epidemico Inc.
 #
 #  Licensed under the Apache License, Version 2.0 ( the "License" );
 #  you may not use this file except in compliance with the License.
@@ -16,20 +16,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ###############################################################################
-import os
-from girder.utility.config import _mergeConfig
-from girder.plugins.gaia.rest import geoprocess
-from girder.plugins.gaia.geoservice_proxy import GeoserviceProxy
-PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Read the configuration files
-_cfgs = ('gaia.cfg',)
-for f in _cfgs:
-    configPath = os.path.join(PACKAGE_DIR, '../gaia/conf', f)
-    if os.path.exists(configPath):
-        _mergeConfig(configPath)
-
-
-def load(info):
-    info['serverRoot'].geo = GeoserviceProxy()
-    info['apiRoot'].geoprocess = geoprocess.GeoProcess()
+VECTOR = "vector"
+RASTER = "raster"
+PROCESS = "process"

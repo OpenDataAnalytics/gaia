@@ -17,6 +17,8 @@
 #  limitations under the License.
 ###############################################################################
 import json
+import uuid
+
 import os
 import fiona
 import geopandas
@@ -28,9 +30,8 @@ try:
 except ImportError:
     from osgeo import osr
 import gaia.formats as formats
-
+import gaia.types as types
 from gaia.inputs import GaiaIO, FileIO, UnsupportedFormatException
-
 from gaia.core import GaiaException, config, sqlengines, get_abspath
 from gaia.filters import filter_pandas, filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
@@ -40,6 +41,13 @@ class FeatureIO(GaiaIO):
     """
     GeoJSON Feature Collection IO
     """
+    #: Data type (vector or raster)
+    type = types.VECTOR
+
+    #: acceptable data format extensions
+    format = formats.VECTOR
+
+    #: Default output format
     default_output = formats.PANDAS
 
     def __init__(self,  features=None, **kwargs):
@@ -105,9 +113,24 @@ class FeatureIO(GaiaIO):
 
 
 class VectorFileIO(FileIO):
-    """Read and write vector file data (such as GeoJSON)"""
+    """
+    Read and write vector file data (such as GeoJSON)
+    Data will be read into a geopandas dataframe.
+    """
 
+    #: Data type (vector or raster)
+    type = types.VECTOR
+
+    #: acceptable data format extensions
+    format = formats.VECTOR
+
+    #: Default output format
     default_output = formats.PANDAS
+
+    #: Optional arguments
+    optional_args = {
+        'filters': list
+    }
 
     def read(self, format=None, epsg=None):
         """
@@ -135,7 +158,7 @@ class VectorFileIO(FileIO):
             out_data[out_data.geometry.name] = \
                 self.data.geometry.to_crs(epsg=epsg)
             out_data.crs = fiona.crs.from_epsg(epsg)
-        if format == formats.JSON:
+        if format == formats.JSON and self.default_output == formats.PANDAS:
             return out_data.to_json()
         else:
             return out_data
@@ -170,6 +193,13 @@ class VectorFileIO(FileIO):
 class RasterFileIO(FileIO):
     """Read and write raster data (GeoTIFF)"""
 
+    #: Data type (vector or raster)
+    type = types.RASTER
+
+    #: acceptable data format extensions
+    format = formats.RASTER
+
+    #: Default output format
     default_output = formats.RASTER
 
     def read(self, epsg=None):
@@ -196,6 +226,14 @@ class RasterFileIO(FileIO):
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
+
+    #: Data type
+    type = types.PROCESS
+
+    #: Optional arguments
+    optional_args = {
+        'parent': uuid.UUID
+    }
 
     def __init__(self, process=None, parent=None, **kwargs):
         """
@@ -239,6 +277,13 @@ class ProcessIO(GaiaIO):
 class PostgisIO(GaiaIO):
     """Read PostGIS data"""
 
+    #: Data type (vector or raster)
+    type = types.VECTOR
+
+    #: acceptable data format extensions
+    format = formats.VECTOR
+
+    #: Default output format
     default_output = formats.JSON
 
     hostname = None

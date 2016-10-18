@@ -29,6 +29,7 @@ except ImportError:
 from geopandas import GeoSeries
 from geopandas import GeoDataFrame
 import gaia.formats as formats
+import gaia.types as types
 from gaia.core import GaiaException
 from gaia.geo import GaiaProcess
 from gaia.geo.gdal_functions import gdal_zonalstats
@@ -44,20 +45,34 @@ class BufferProcess(GaiaProcess):
     and the unit of measure should be meters.  If inputs are not in a
     metric projection they will be reprojected to EPSG:3857.
     """
-    #: Required vector inputs as tuple
-    required_inputs = (('input', formats.VECTOR),)
-    #: Required arguments
-    required_args = ('buffer_size',)
+
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
+    #: Required arguments, data types as dict
+    required_args = [
+        {
+            'name': 'buffer_size',
+            'title': 'Buffer Size',
+            'description': 'Size of the buffer in meters',
+            'type': float
+        }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
     def __init__(self, inputs=None, buffer_size=None, **kwargs):
-        super(BufferProcess, self).__init__(inputs, **kwargs)
         self.buffer_size = buffer_size
+        super(BufferProcess, self).__init__(inputs, **kwargs)
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -134,10 +149,18 @@ class WithinProcess(GaiaProcess):
     polygons of a second vector dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Within dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -146,7 +169,6 @@ class WithinProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -205,10 +227,18 @@ class IntersectsProcess(GaiaProcess):
     the features of the second vector dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Intersect dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -217,7 +247,6 @@ class IntersectsProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -277,10 +306,18 @@ class DisjointProcess(GaiaProcess):
     intersect the features of the second dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Disjoint dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -289,7 +326,6 @@ class DisjointProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -347,10 +383,18 @@ class UnionProcess(GaiaProcess):
     They datasets should have the same columns.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'First dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Second dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -359,7 +403,6 @@ class UnionProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -421,10 +464,22 @@ class CentroidProcess(GaiaProcess):
     Calculates the centroid point of a vector dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR),)
-    #: Required arguments
-    required_args = ()
+    #: List of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Line/Polygon dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
+    optional_args = [{
+        'name': 'combined',
+        'title': 'Combined',
+        'description': 'Get centroid of features combined (default False)',
+        'type': bool,
+
+    }]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -487,10 +542,18 @@ class DistanceProcess(GaiaProcess):
     to the nearest feature of the second dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'From dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'To dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -499,7 +562,6 @@ class DistanceProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -597,14 +659,30 @@ class NearProcess(GaiaProcess):
     the first a vector dataset. Requires a distance argument, and the unit of
     measure should be meters.  If inputs are not in a
     metric projection they will be reprojected to EPSG:3857.
-    Returns the features in the second input within a specified distance
-    of the point in the first input.
+    Returns the features in the first input within a specified distance
+    of the point in the second input.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ('distance',)
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Features',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Point',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
+    #: Required arguments, data types as dict
+    required_args = [{
+        'name': 'distance',
+        'title': 'Distance',
+        'description': 'Distance to search for features, in meters',
+        'type': float
+    }]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -614,7 +692,6 @@ class NearProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -725,10 +802,14 @@ class AreaProcess(GaiaProcess):
     be temporarily reprojected to EPSG:3857 to calculate the area.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR),)
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Polygon dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -737,7 +818,6 @@ class AreaProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -800,10 +880,14 @@ class LengthProcess(GaiaProcess):
     be temporarily reprojected to EPSG:3857 to calculate the area.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR),)
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Line/Polygon dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -812,7 +896,6 @@ class LengthProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -878,10 +961,18 @@ class CrossesProcess(GaiaProcess):
     the combined features of the second vector dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Crosses dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -890,7 +981,6 @@ class CrossesProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -948,10 +1038,18 @@ class TouchesProcess(GaiaProcess):
     edges but do not overlap in any way the features of the 2nd vector dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Feature dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Touches dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -960,7 +1058,6 @@ class TouchesProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -1018,10 +1115,18 @@ class EqualsProcess(GaiaProcess):
     the features of the second vector dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('first', formats.VECTOR), ('second', formats.VECTOR))
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'First dataset',
+         'type': types.VECTOR,
+         'max': 1
+         },
+        {'description': 'Second dataset',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
     default_output = formats.JSON
 
@@ -1030,7 +1135,6 @@ class EqualsProcess(GaiaProcess):
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def calc_pandas(self):
         """
@@ -1099,19 +1203,26 @@ class ZonalStatsProcess(GaiaProcess):
     in a vector dataset.
     """
 
-    #: Required inputs
-    required_inputs = (('raster', formats.RASTER), ('zones', formats.VECTOR),)
-    #: Required arguments
-    required_args = ()
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Raster image',
+         'type': types.RASTER,
+         'max': 1
+         },
+        {'description': 'Zones',
+         'type': types.VECTOR,
+         'max': 1
+         }
+    ]
+
     #: Default output format
-    default_output = formats.VECTOR
+    default_output = formats.JSON
 
     def __init__(self, **kwargs):
         super(ZonalStatsProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = VectorFileIO(name='result',
                                        uri=self.get_outpath())
-        self.validate()
 
     def compute(self):
         """

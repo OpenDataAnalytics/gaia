@@ -19,6 +19,7 @@
 import os
 import uuid
 from gaia.core import get_abspath, config, GaiaException
+from gaia import types, formats
 
 
 class GaiaProcess(object):
@@ -27,9 +28,18 @@ class GaiaProcess(object):
     """
 
     # TODO: Enforce required inputs and args
-    required_inputs = tuple()
-    required_args = tuple()
+    required_inputs = []
+    required_args = []
+    optional_args = [
+        {
+            'name': 'parent',
+            'title': 'Parent ID',
+            'description': 'Parent ID (UUID format)',
+            'type': str
+        }
 
+    ]
+    default_output = None
     args = None
 
     def __init__(self, inputs=None, output=None, parent=None, **kwargs):
@@ -39,17 +49,68 @@ class GaiaProcess(object):
         self.id = str(uuid.uuid4())
         for k, v in kwargs.items():
             setattr(self, k, v)
+        self.validate()
+
+    def test_arg_type(self, arg, arg_type):
+        """
+        Try to cast a process argument to its required type. Raise an
+        exception if not successful.
+        :param arg: The argument property
+        :param arg_type: The required argument type (int, str, etc)
+        """
+        try:
+            arg_type(getattr(self, arg))
+        except Exception:
+            raise GaiaException('Required argument {} must be of type {}'
+                                .format(arg, arg_type))
 
     def validate(self):
         """
         Ensure that all required inputs and arguments are present.
         """
-        if len(self.inputs) < len(self.required_inputs):
-            raise GaiaException("Process requires a minimum of {} inputs".
-                                format(len(self.required_inputs)))
-        for arg in self.required_args:
+        # for input in self.inputs:
+        #     if input.
+        input_types = []
+        errors = []
+
+        for input in self.inputs:
+            type = input.type
+            if type == types.PROCESS:
+                for t in [i for i in dir(types) if not i.startswith("__")]:
+                    if any((True for x in input.default_output if x in getattr(
+                            formats, t, []))):
+                        type = getattr(types, t)
+                        break
+            input_types.append(type)
+
+        for i, req_input in enumerate(self.required_inputs):
+            if i >= len(input_types):
+                errors.append("Not enough inputs for process")
+            elif req_input['type'] != input_types[i]:
+                errors.append("Input #{} is of incorrect type.".format(i+1))
+
+        if len(input_types) > len(self.required_inputs):
+            if (self.required_inputs[-1]['max'] is not None and
+                len(input_types) > len(self.required_inputs) +
+                    self.required_inputs[-1]['max']-1):
+                errors.append("Incorrect # of inputs; expected {}".format(
+                    len(self.required_inputs)))
+            else:
+                for i in range(len(self.required_inputs)-1, len(input_types)):
+                    if input_types[i] != self.required_inputs[-1]['type']:
+                        errors.append(
+                            "Input #{} is of incorrect type.".format(i + 1))
+        if errors:
+            raise GaiaException('\n'.join(errors))
+        for item in self.required_args:
+            arg, arg_type = item['name'], item['type']
             if not hasattr(self, arg) or getattr(self, arg) is None:
                 raise GaiaException('Missing required argument {}'.format(arg))
+            self.test_arg_type(arg, arg_type)
+        for item in self.optional_args:
+            arg, arg_type = item['name'], item['type']
+            if hasattr(self, arg) and getattr(self, arg) is not None:
+                self.test_arg_type(arg, arg_type)
 
     def compute(self):
         """

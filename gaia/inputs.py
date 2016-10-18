@@ -52,6 +52,9 @@ class GaiaIO(object):
     """Abstract IO class for importing/exporting data from a certain source"""
     data = None
     filters = None
+
+    type = None
+    format = None
     default_output = None
 
     def __init__(self, **kwargs):
@@ -192,7 +195,7 @@ class JsonFileIO(FileIO):
 
     def read(self, format=formats.JSON):
         """
-        Load GeoJSON data into a python object
+        Load JSON data into a python object
 
         :param format: input format
         :return: Python dict object

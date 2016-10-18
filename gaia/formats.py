@@ -39,5 +39,3 @@ ALL = VECTOR + RASTER
 TEXT = list(itertools.chain.from_iterable([JSON]))
 #: File extensions for bindary datasets
 BINARY = list(itertools.chain.from_iterable([RASTER, SHP]))
-#: File extensions for spatial analysis weight files
-WEIGHT = ['.gal', '.gwt']
