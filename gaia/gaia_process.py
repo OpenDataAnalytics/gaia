@@ -107,10 +107,16 @@ class GaiaProcess(object):
             if not hasattr(self, arg) or getattr(self, arg) is None:
                 raise GaiaException('Missing required argument {}'.format(arg))
             self.test_arg_type(arg, arg_type)
+            if 'options' in item and getattr(self, arg) not in item['options']:
+                raise GaiaException('Invalid value for {}'.format(item['name']))
         for item in self.optional_args:
             arg, arg_type = item['name'], item['type']
             if hasattr(self, arg) and getattr(self, arg) is not None:
                 self.test_arg_type(arg, arg_type)
+                argval = getattr(self, arg)
+                if 'options' in item and argval not in item['options']:
+                    raise GaiaException(
+                        'Invalid value for {}'.format(item['name']))
 
     def compute(self):
         """

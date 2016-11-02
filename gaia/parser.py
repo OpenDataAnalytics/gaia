@@ -30,14 +30,17 @@ logger = logging.getLogger(__name__)
 
 
 def add_to_dict(x):
+    class_name = '{}.{}'.format(x[1].__module__, x[1].__name__)
     if issubclass(x[1], GaiaProcess):
         if x[1].required_inputs:
-            valid_processes.append({x[0]: {y: getattr(x[1], y) for y in (
-                'required_inputs', 'required_args',
-                'optional_args', 'default_output')}})
+            valid_processes.append(
+                {class_name: {y: getattr(x[1], y) for y in (
+                    'required_inputs', 'required_args',
+                    'optional_args', 'default_output')}})
     elif issubclass(x[1], GaiaIO):
-        valid_inputs.append({x[0]: {y: getattr(x[1], y) for y in (
+        valid_inputs.append({class_name: {y: getattr(x[1], y) for y in (
             'type', 'default_output')}})
+
 
 valid_processes = []
 valid_inputs = []
@@ -49,8 +52,8 @@ for plugin in get_plugins():
     for x in inspect.getmembers(plugin, inspect.isclass):
         if x[1] in plugin.PLUGIN_CLASS_EXPORTS:
             add_to_dict(x)
-valid_classes = [x.keys()[0] for x in valid_inputs] +\
-                [y.keys()[0] for y in valid_processes]
+valid_classes = [x.keys()[0].split('.')[-1] for x in valid_inputs] +\
+                [y.keys()[0].split('.')[-1] for y in valid_processes]
 
 
 def deserialize(dct):
