@@ -20,14 +20,20 @@ import os
 import json
 import unittest
 from zipfile import ZipFile
+import gaia
 import gaia.geo as geo
 from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO
 
-testfile_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../data')
+base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+testfile_path = os.path.join(base_dir, '../data')
 
 
 class TestGaiaProcessors(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        config_file = os.path.join(base_dir, '../../gaia/conf/gaia.cfg')
+        gaia.get_config(config_file)
 
     def test_zonalstats(self):
         vector_io = FeatureIO(features=[

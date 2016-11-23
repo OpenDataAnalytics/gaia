@@ -29,10 +29,11 @@ try:
     import osr
 except ImportError:
     from osgeo import osr
+import gaia
 import gaia.formats as formats
 import gaia.types as types
+from gaia import GaiaException, sqlengines, get_abspath
 from gaia.inputs import GaiaIO, FileIO, UnsupportedFormatException
-from gaia.core import GaiaException, config, sqlengines, get_abspath
 from gaia.filters import filter_pandas, filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
 
@@ -309,11 +310,12 @@ class PostgisIO(GaiaIO):
         """
         super(PostgisIO, self).__init__(**kwargs)
         self.table = table
-        self.host = kwargs.get('host') or config['gaia_postgis']['host']
-        self.dbname = kwargs.get('dbname') or config['gaia_postgis']['dbname']
-        self.user = kwargs.get('user') or config['gaia_postgis']['user']
+        self.host = kwargs.get('host') or gaia.config['gaia_postgis']['host']
+        self.dbname = kwargs.get(
+            'dbname') or gaia.config['gaia_postgis']['dbname']
+        self.user = kwargs.get('user') or gaia.config['gaia_postgis']['user']
         self.password = kwargs.get(
-            'password') or config['gaia_postgis']['password']
+            'password') or gaia.config['gaia_postgis']['password']
         self.engine = self.get_engine(self.get_connection_string())
         self.get_table_info()
         self.verify()

@@ -24,7 +24,7 @@ import logging
 import gdalconst
 import numpy
 import gdal
-from gaia.core import GaiaException
+from gaia import GaiaException
 try:
     import gdalnumeric
 except ImportError:
@@ -249,7 +249,8 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
 
 
 def gdal_calc(calculation, raster_output, rasters,
-              bands=None, nodata=None, allBands=False, output_type=None):
+              bands=None, nodata=None, allBands=False, output_type=None,
+              format='GTiff'):
     """
     Adopted from GDAL 1.10 gdal_calc.py script.
 
@@ -426,7 +427,7 @@ def gdal_calc(calculation, raster_output, rasters,
                                xoff=x_offset, yoff=y_offset)
 
     if raster_output:
-        output_driver = gdal.GetDriverByName('GTiff')
+        output_driver = gdal.GetDriverByName(format)
         outfile = output_driver.CreateCopy(raster_output, output_dataset, False)
         logger.debug(str(outfile))
     return output_dataset

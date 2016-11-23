@@ -30,7 +30,7 @@ except ImportError:
     from unittest.mock import patch
 from sqlalchemy import create_engine, text
 import gaia.geo
-import gaia.core
+import gaia
 import gaia.formats as formats
 from gaia.geo.geo_inputs import PostgisIO
 
@@ -38,10 +38,10 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
 
 def get_engine(self, connection_string):
-    if connection_string not in gaia.core.sqlengines:
-        gaia.core.sqlengines[connection_string] = create_engine(
+    if connection_string not in gaia.sqlengines:
+        gaia.sqlengines[connection_string] = create_engine(
             self.get_connection_string(), poolclass=NullPool)
-    return gaia.core.sqlengines[connection_string]
+    return gaia.sqlengines[connection_string]
 
 
 class TestPostGisDB(unittest.TestCase):
@@ -64,7 +64,7 @@ class TestPostGisDB(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config_file = os.path.join(base_dir, '../conf/test.dist.cfg')
-        config = gaia.core.get_config(config_file)
+        config = gaia.get_config(config_file)
         cls.user = config['gaia_postgis']['user']
         cls.password = config['gaia_postgis']['password']
         cls.host = config['gaia_postgis']['host']

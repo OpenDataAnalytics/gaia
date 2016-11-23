@@ -30,7 +30,7 @@ from geopandas import GeoSeries
 from geopandas import GeoDataFrame
 import gaia.formats as formats
 import gaia.types as types
-from gaia.core import GaiaException
+from gaia import GaiaException
 from gaia.geo import GaiaProcess
 from gaia.geo.gdal_functions import gdal_zonalstats
 from gaia.geo.geo_inputs import VectorFileIO, df_from_postgis

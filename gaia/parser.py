@@ -22,7 +22,7 @@ import inspect
 import json
 import logging
 import gaia.geo
-from gaia.core import get_plugins
+from gaia import get_plugins
 from gaia.gaia_process import GaiaProcess
 from gaia.inputs import GaiaIO
 

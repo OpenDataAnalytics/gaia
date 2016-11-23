@@ -21,16 +21,14 @@ import os
 import errno
 import fiona
 import shutil
-
+import gaia
+from gaia import GaiaException, get_abspath
 
 try:
     import osr
 except ImportError:
     from osgeo import osr
 import gaia.formats as formats
-
-
-from gaia.core import GaiaException, config, get_abspath
 
 
 class MissingParameterError(GaiaException):
@@ -167,8 +165,8 @@ class FileIO(GaiaIO):
         :param folder: folder to check
         :return: True or False
         """
-        allowed_dirs = config['gaia']['fileio_paths'].split(',')
-        if not allowed_dirs[0]:
+        allowed_dirs = gaia.config['gaia']['fileio_paths'].split(',')
+        if not allowed_dirs[0] or allowed_dirs[0] == '':
             return True
         filepath = os.path.abspath(os.path.dirname(folder))
         allowed = False

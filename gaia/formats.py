@@ -31,8 +31,11 @@ SHP = ['.shp']
 PANDAS = ['pandas']
 #: File extensions for all vector datasets
 VECTOR = list(itertools.chain.from_iterable([JSON, SHP, PANDAS]))
-#: File extensions for raster datasets (geotiff only for now)
-RASTER = ['.tif', '.tiff', '.geotif', '.geotiff']
+#: File extensions for raster datasets
+GEOTIFF = ['.tif', '.tiff', '.geotif', '.geotiff']
+PNG = ['.png']
+JPG = ['.jpg', '.jpeg']
+RASTER = GEOTIFF + PNG + JPG
 #: File extensions for all datasets
 ALL = VECTOR + RASTER
 #: File extensions for text-based datasets
