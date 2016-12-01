@@ -19,8 +19,8 @@
 import json
 import os
 import errno
-import fiona
 import shutil
+from fiona import crs as fiona_crs
 import gaia
 from gaia import GaiaException, get_abspath
 
@@ -105,9 +105,17 @@ class GaiaIO(object):
             self.read()
         if self.data.__class__.__name__ == 'GeoDataFrame':
             if self.data.crs is None:
-                # Assume EPSG:4326
-                self.data.crs = fiona.crs.from_epsg(4326)
-                self.epsg = 4326
+                # Make educated guess about projection based on longitude coords
+                minx = min(self.data.geometry.bounds['minx'])
+                maxx = max(self.data.geometry.bounds['maxx'])
+                if minx >= -180.0 and maxx <= 180.0:
+                    self.data.crs = fiona_crs.from_epsg(4326)
+                    self.epsg = 4326
+                elif minx >= -20026376.39 and maxx <= 20026376.39:
+                    self.data.crs = fiona_crs.from_epsg(3857)
+                    self.epsg = 3857
+                else:
+                    raise GaiaException('Could not determine data projection.')
                 return self.epsg
             else:
                 crs = self.data.crs.get('init', None)
@@ -119,7 +127,7 @@ class GaiaIO(object):
                 else:
                     # Assume EPSG:4326
                     self.epsg = 4326
-                    self.data.crs = fiona.crs.from_epsg(4326)
+                    self.data.crs = fiona_crs.from_epsg(4326)
                     return self.epsg
         elif self.data.__class__.__name__ == 'Dataset':
             projection = self.data.GetProjection()

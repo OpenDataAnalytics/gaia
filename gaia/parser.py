@@ -52,8 +52,8 @@ for plugin in get_plugins():
     for x in inspect.getmembers(plugin, inspect.isclass):
         if x[1] in plugin.PLUGIN_CLASS_EXPORTS:
             add_to_dict(x)
-valid_classes = [x.keys()[0].split('.')[-1] for x in valid_inputs] +\
-                [y.keys()[0].split('.')[-1] for y in valid_processes]
+valid_classes = [list(x.keys())[0].split('.')[-1] for x in valid_inputs] +\
+                [list(y.keys())[0].split('.')[-1] for y in valid_processes]
 
 
 def deserialize(dct):
