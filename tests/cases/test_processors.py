@@ -501,7 +501,7 @@ class TestGaiaProcessors(unittest.TestCase):
     def test_mercator_geojson(self):
         vector_io = VectorFileIO(
             uri=os.path.join(testfile_path, 'iraq_hospitals_3857.json'))
-        self.assertEquals(vector_io.get_epsg(), '3857')
+        self.assertEquals(vector_io.get_epsg(), 3857)
         jsonwm = json.loads(vector_io.read(format=geo.formats.JSON))
         self.assertEquals(jsonwm['crs']['properties']['name'], 'EPSG:3857')
         self.assertEquals(jsonwm['features'][0]['geometry']['coordinates'],
@@ -517,7 +517,7 @@ class TestGaiaProcessors(unittest.TestCase):
         raw_json = json.loads(vector_io.read(format=geo.formats.JSON))
         self.assertFalse(hasattr(raw_json, 'crs'))
         epsg = vector_io.get_epsg()
-        self.assertEquals(epsg, '4326')
+        self.assertEquals(epsg, 4326)
 
     def test_nocrs_mercator_geojson(self):
         with open(os.path.join(testfile_path,
@@ -525,7 +525,7 @@ class TestGaiaProcessors(unittest.TestCase):
             json3857 = json.load(injson)
         feature_io = FeatureIO(features=json3857['features'])
         epsg = feature_io.get_epsg()
-        self.assertEquals(epsg, '3857')
+        self.assertEquals(epsg, 3857)
         feature_json = feature_io.read(format=geo.formats.JSON)
         self.assertFalse(hasattr(feature_json, 'crs'))
 

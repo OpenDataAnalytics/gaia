@@ -122,7 +122,7 @@ class GaiaIO(object):
                 if crs and ':' in crs:
                     crs = crs.split(':')[1]
                 if crs.isdigit():
-                    self.epsg = crs
+                    self.epsg = int(crs)
                     return self.epsg
                 else:
                     # Assume EPSG:4326
@@ -133,12 +133,10 @@ class GaiaIO(object):
             projection = self.data.GetProjection()
             data_crs = osr.SpatialReference(wkt=projection)
             try:
-                self.epsg = data_crs.GetAttrValue('AUTHORITY', 1)
+                self.epsg = int(data_crs.GetAttrValue('AUTHORITY', 1))
                 return self.epsg
             except KeyError:
-                # Return the WKT projection instead
-                self.epsg = projection
-                return projection
+                raise GaiaException("EPSG code coud not be determined")
 
     def delete(self):
         """
