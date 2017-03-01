@@ -45,7 +45,7 @@ before_install:
   # install test packages
   - pip install -r requirements-dev.txt
   - source deactivate
-  - source activate
+  - source activate gaia
 
 install:
   - cd $TRAVIS_BUILD_DIR
