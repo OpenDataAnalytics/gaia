@@ -41,7 +41,7 @@ before_install:
   - source activate gaia
   - conda config --add channels conda-forge
   # install main packages
-  - conda install --yes lapack gdal numpy six requests geopandas pillow celery psycopg2 geoalchemy2
+  - conda install -f --yes lapack gdal numpy six requests geopandas pillow celery psycopg2 geoalchemy2
   # install test packages
   - pip install -r requirements-dev.txt
   - source deactivate
