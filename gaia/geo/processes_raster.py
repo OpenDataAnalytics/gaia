@@ -106,6 +106,8 @@ class RasterMathProcess(GaiaProcess):
     all_bands = False
     #: Default data type for raster (UInt32, Float, etc)
     output_type = None
+    #: Image output format (default='GTiff')
+    output_format = 'GTiff'
 
     def __init__(self, calc=None, **kwargs):
         """
@@ -137,4 +139,5 @@ class RasterMathProcess(GaiaProcess):
                                      bands=bands,
                                      nodata=nodata,
                                      allBands=all_bands,
-                                     output_type=otype)
+                                     output_type=otype,
+                                     format=self.output_format)

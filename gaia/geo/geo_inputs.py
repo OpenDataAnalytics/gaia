@@ -29,15 +29,53 @@ try:
     import osr
 except ImportError:
     from osgeo import osr
+import gaia
 import gaia.formats as formats
 import gaia.types as types
+from gaia import GaiaException, sqlengines, get_abspath
 from gaia.inputs import GaiaIO, FileIO, UnsupportedFormatException
-from gaia.core import GaiaException, config, sqlengines, get_abspath
 from gaia.filters import filter_pandas, filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
 
 
-class FeatureIO(GaiaIO):
+class VectorMixin(object):
+    """
+    Mixin class for common vector data IO methods
+    """
+    def transform_data(self, outformat=None, epsg=None):
+        """
+        Transform the IO data into the requested format and projection if
+        necessary.
+        :param format: Output format
+        :param epsg:
+        :return:
+        """
+        out_data = geopandas.GeoDataFrame.copy(self.data)
+        if epsg and str(self.get_epsg()) != epsg:
+            out_data[out_data.geometry.name] = \
+                self.data.geometry.to_crs(epsg=epsg)
+            out_data.crs = fiona.crs.from_epsg(epsg)
+        if outformat == formats.JSON and self.default_output in (
+                formats.PANDAS, formats.JSON):
+            out_json = out_data.to_json()
+            if out_data.crs:
+                gj = json.loads(out_json)
+                gj["crs"] = {
+                    "type": "name",
+                    "properties": {
+                        "name": out_data.crs["init"].upper()
+                    }
+                }
+                return json.dumps(gj)
+            else:
+                return out_json
+        elif outformat in [formats.PANDAS, None]:
+            return out_data
+        else:
+            raise GaiaException("Format {} not supported".format(outformat))
+
+
+class FeatureIO(GaiaIO, VectorMixin):
     """
     GeoJSON Feature Collection IO
     """
@@ -79,31 +117,15 @@ class FeatureIO(GaiaIO):
             if 'type' in features and features['type'] == 'FeatureCollection':
                 self.data = geopandas.GeoDataFrame.from_features(
                     self.features['features'])
-                # Assume EPSG:4326
-                self.data.crs = {'init': 'epsg:4326', 'no_defs': True}
-                if 'crs' in features:
-                    if 'init' in features['crs']['properties']:
-                        self.data.crs = features['crs']['properties']
-
             else:
                 self.data = geopandas.GeoDataFrame.from_features(features)
-                # Assume EPSG:4326
-                self.data.crs = {'init': 'epsg:4326'}
-                if 'crs' in features[0]:
-                    if 'init' in features[0]['crs']['properties']:
-                        self.data.crs = features[0]['crs']['properties']
+        if not self.data.crs:
+            if hasattr(self, 'crs'):
+                self.data.crs = self.crs
+            else:
+                self.get_epsg()
 
-        out_data = self.data
-        if epsg and self.get_epsg() != epsg:
-            out_data = geopandas.GeoDataFrame.copy(out_data)
-            out_data[out_data.geometry.name] = \
-                self.data.geometry.to_crs(epsg=epsg)
-            out_data.crs = fiona.crs.from_epsg(epsg)
-
-        if format == formats.JSON:
-            return out_data.to_json()
-        else:
-            return out_data
+        return self.transform_data(outformat=format, epsg=epsg)
 
     def delete(self):
         """
@@ -112,7 +134,7 @@ class FeatureIO(GaiaIO):
         self.data = None
 
 
-class VectorFileIO(FileIO):
+class VectorFileIO(FileIO, VectorMixin):
     """
     Read and write vector file data (such as GeoJSON)
     Data will be read into a geopandas dataframe.
@@ -152,16 +174,7 @@ class VectorFileIO(FileIO):
             self.data = geopandas.read_file(self.uri)
             if self.filters:
                 self.filter_data()
-        out_data = self.data
-        if epsg and self.get_epsg() != epsg:
-            out_data = geopandas.GeoDataFrame.copy(out_data)
-            out_data[out_data.geometry.name] = \
-                self.data.geometry.to_crs(epsg=epsg)
-            out_data.crs = fiona.crs.from_epsg(epsg)
-        if format == formats.JSON and self.default_output == formats.PANDAS:
-            return out_data.to_json()
-        else:
-            return out_data
+        return self.transform_data(format, epsg)
 
     def write(self, filename=None, as_type='json'):
         """
@@ -176,7 +189,7 @@ class VectorFileIO(FileIO):
         self.create_output_dir(filename)
         if as_type == 'json':
             with open(filename, 'w') as outfile:
-                outfile.write(self.data.to_json())
+                outfile.write(self.transform_data(outformat=formats.JSON))
         elif as_type == 'shapefile':
             self.data.to_file(filename)
         else:
@@ -274,7 +287,7 @@ class ProcessIO(GaiaIO):
         return out_data
 
 
-class PostgisIO(GaiaIO):
+class PostgisIO(GaiaIO, VectorMixin):
     """Read PostGIS data"""
 
     #: Data type (vector or raster)
@@ -309,11 +322,12 @@ class PostgisIO(GaiaIO):
         """
         super(PostgisIO, self).__init__(**kwargs)
         self.table = table
-        self.host = kwargs.get('host') or config['gaia_postgis']['host']
-        self.dbname = kwargs.get('dbname') or config['gaia_postgis']['dbname']
-        self.user = kwargs.get('user') or config['gaia_postgis']['user']
+        self.host = kwargs.get('host') or gaia.config['gaia_postgis']['host']
+        self.dbname = kwargs.get(
+            'dbname') or gaia.config['gaia_postgis']['dbname']
+        self.user = kwargs.get('user') or gaia.config['gaia_postgis']['user']
         self.password = kwargs.get(
-            'password') or config['gaia_postgis']['password']
+            'password') or gaia.config['gaia_postgis']['password']
         self.engine = self.get_engine(self.get_connection_string())
         self.get_table_info()
         self.verify()
@@ -433,16 +447,7 @@ class PostgisIO(GaiaIO):
             query, params = self.get_query()
             self.data = df_from_postgis(self.engine, query, params,
                                         self.geom_column, self.epsg)
-        out_data = self.data
-        if epsg and self.get_epsg() != epsg:
-            out_data = geopandas.GeoDataFrame.copy(self.data)
-            out_data[out_data.geometry.name] = \
-                self.data.geometry.to_crs(epsg=epsg)
-            out_data.crs = fiona.crs.from_epsg(epsg)
-        if format == formats.JSON:
-            return out_data.to_json()
-        else:
-            return out_data
+        return self.transform_data(outformat=format, epsg=epsg)
 
 
 def df_from_postgis(engine, query, params, geocolumn, epsg):

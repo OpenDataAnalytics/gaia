@@ -18,8 +18,7 @@
 ###############################################################################
 import os
 import uuid
-from gaia.core import get_abspath, config, GaiaException
-from gaia import types, formats
+from gaia import get_abspath, config, GaiaException, types, formats
 
 
 class GaiaProcess(object):
