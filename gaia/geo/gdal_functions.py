@@ -33,6 +33,7 @@ import ogr
 import osr
 from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
+import dask
 
 logger = logging.getLogger('gaia.geo.gdal_functions')
 
@@ -476,9 +477,9 @@ def gen_zonalstats(zones_json, raster):
     targetSR.ImportFromWkt(raster.GetProjectionRef())
     coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
 
-    for feature in zones_json['features']:
-        geom = ogr.CreateGeometryFromJson(json.dumps(feature['geometry']))
-        geom.Transform(coordTrans)
+    for feature, json_feature in zip(lyr, zones_json['features']):
+        geom = feature.geometry()
+        #geom.Transform(coordTrans)
 
         # Get extent of feat
         if (geom.GetGeometryName() == 'MULTIPOLYGON'):
@@ -522,10 +523,24 @@ def gen_zonalstats(zones_json, raster):
         # Create memory target raster
         target_ds = gdal.GetDriverByName('MEM').Create(
             '', xcount, ycount, 1, gdal.GDT_Byte)
+        # apply new geotransform of the feature subset
         target_ds.SetGeoTransform((
-            xmin, pixelWidth, 0,
-            ymax, 0, pixelHeight,
+            (xOrigin + (xoff * pixelWidth)), 
+            pixelWidth, 
+            0,
+            (yOrigin + (yoff * pixelHeight)), 
+            0, 
+            pixelHeight,
         ))
+
+        # Create memory vector layer
+        mem_ds = ogr.GetDriverByName('Memory').CreateDataSource('out')
+        mem_layer = mem_ds.CreateLayer(
+            geom.GetGeometryName(),
+            None,
+            geom.GetGeometryType()
+        )
+        mem_layer.CreateFeature(feature.Clone())
 
         # Create for target raster the same projection as for the value raster
         raster_srs = osr.SpatialReference()
@@ -533,7 +548,7 @@ def gen_zonalstats(zones_json, raster):
         target_ds.SetProjection(raster_srs.ExportToWkt())
 
         # Rasterize zone polygon to raster
-        gdal.RasterizeLayer(target_ds, [1], lyr, burn_values=[1])
+        gdal.RasterizeLayer(target_ds, [1], mem_layer, burn_values=[1])
 
         # Read raster as arrays
         banddataraster = raster.GetRasterBand(1)
@@ -548,7 +563,7 @@ def gen_zonalstats(zones_json, raster):
         zoneraster = numpy.ma.masked_array(
             dataraster,  numpy.logical_not(datamask))
 
-        properties = feature['properties']
+        properties = json_feature['properties']
         properties['count'] = zoneraster.count()
         properties['sum'] = zoneraster.sum()
         properties['mean'] = zoneraster.mean()
@@ -556,7 +571,7 @@ def gen_zonalstats(zones_json, raster):
         properties['min'] = zoneraster.min()
         properties['max'] = zoneraster.max()
         properties['stddev'] = zoneraster.std()
-        yield(feature)
+        yield(json_feature)
 
 
 def get_dataset(object):
