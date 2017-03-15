@@ -483,8 +483,8 @@ def gen_zonalstats(zones_json, raster):
     for feat, feature in zip(lyr, zones_json['features']):
         geom = feat.geometry()
 
-        # geotransform of the feature by global 
-        if sourceSR.ExportToWkt() != targetSR.ExportToWkt() and global_transform :
+        # geotransform of the feature by global
+        if sourceSR.ExportToWkt() != targetSR.ExportToWkt() and global_transform:
             geom.Transform(coordTrans)
 
         # Get extent of feat
@@ -532,7 +532,7 @@ def gen_zonalstats(zones_json, raster):
         target_ds = gdal.GetDriverByName('MEM').Create(
             '', xcount, ycount, 1, gdal.GDT_Byte)
         # apply new geotransform of the feature subset
-        if global_transform == False:
+        if global_transform is False:
             target_ds.SetGeoTransform((
                 (xOrigin + (xoff * pixelWidth)),
                 pixelWidth,
