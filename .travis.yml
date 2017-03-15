@@ -41,7 +41,7 @@ before_install:
   - source activate gaia
   - conda config --add channels conda-forge
   # install main packages
-  - conda install -f --yes lapack gdal numpy six requests geopandas pillow celery psycopg2 geoalchemy2
+  - conda install --yes gdal numpy six requests geopandas pillow celery psycopg2 geoalchemy2
   # install test packages
   - pip install -r requirements-dev.txt
   - source deactivate
@@ -49,7 +49,7 @@ before_install:
 
 install:
   - cd $TRAVIS_BUILD_DIR
-  - python setup.py install
+  - pip install -e .
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
