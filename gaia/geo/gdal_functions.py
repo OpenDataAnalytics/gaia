@@ -454,6 +454,8 @@ def gen_zonalstats(zones_json, raster):
     :param raster: Raster dataset
     :return: Polygons with additional properties for calculated raster stats.
     """
+    global_transform = True
+
     # Open data
     raster = get_dataset(raster)
     if type(zones_json) is str:
@@ -478,8 +480,12 @@ def gen_zonalstats(zones_json, raster):
     coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
 
     # TODO: Use a multiprocessing pool to process features more quickly
-    for feature, json_feature in zip(lyr, zones_json['features']):
-        geom = feature.geometry()
+    for feat, feature in zip(lyr, zones_json['features']):
+        geom = feat.geometry()
+
+        # geotransform of the feature by global 
+        if sourceSR.ExportToWkt() != targetSR.ExportToWkt() and global_transform :
+            geom.Transform(coordTrans)
 
         # Get extent of feat
         if geom.GetGeometryName() == 'MULTIPOLYGON':
@@ -526,14 +532,21 @@ def gen_zonalstats(zones_json, raster):
         target_ds = gdal.GetDriverByName('MEM').Create(
             '', xcount, ycount, 1, gdal.GDT_Byte)
         # apply new geotransform of the feature subset
-        target_ds.SetGeoTransform((
-            (xOrigin + (xoff * pixelWidth)),
-            pixelWidth,
-            0,
-            (yOrigin + (yoff * pixelHeight)),
-            0,
-            pixelHeight,
-        ))
+        if global_transform == False:
+            target_ds.SetGeoTransform((
+                (xOrigin + (xoff * pixelWidth)),
+                pixelWidth,
+                0,
+                (yOrigin + (yoff * pixelHeight)),
+                0,
+                pixelHeight,
+            ))
+        else:
+            # apply new geotransform of the global set
+            target_ds.SetGeoTransform((
+                xmin, pixelWidth, 0,
+                ymax, 0, pixelHeight,
+            ))
 
         # Create memory vector layer
         mem_ds = ogr.GetDriverByName('Memory').CreateDataSource('out')
@@ -542,7 +555,7 @@ def gen_zonalstats(zones_json, raster):
             None,
             geom.GetGeometryType()
         )
-        mem_layer.CreateFeature(feature.Clone())
+        mem_layer.CreateFeature(feat.Clone())
 
         # Create for target raster the same projection as for the value raster
         raster_srs = osr.SpatialReference()
@@ -559,10 +572,10 @@ def gen_zonalstats(zones_json, raster):
                 xoff, yoff, xcount, ycount).astype(numpy.float)
         except AttributeError:
             # Nothing within bounds, move on to next polygon
-            properties = json_feature[u'properties']
+            properties = feature[u'properties']
             for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
                 properties[p] = None
-            yield json_feature
+            yield feature
         else:
             # Get no data value of array
             noDataValue = banddataraster.GetNoDataValue()
@@ -578,7 +591,7 @@ def gen_zonalstats(zones_json, raster):
             zoneraster = numpy.ma.masked_array(
                 dataraster,  numpy.logical_not(datamask))
 
-            properties = json_feature['properties']
+            properties = feature['properties']
             properties['count'] = zoneraster.count()
             properties['sum'] = numpy.nansum(zoneraster)
             if type(properties['sum']) == MaskedConstant:
@@ -593,7 +606,7 @@ def gen_zonalstats(zones_json, raster):
                 median = numpy.ma.median(zoneraster)
                 if hasattr(median, 'data') and not numpy.isnan(median.data):
                     properties['median'] = median.data.item()
-            yield(json_feature)
+            yield(feature)
 
 
 def get_dataset(object):
