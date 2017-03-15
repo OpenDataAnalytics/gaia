@@ -33,7 +33,6 @@ import ogr
 import osr
 from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
-import dask
 
 logger = logging.getLogger('gaia.geo.gdal_functions')
 
@@ -479,7 +478,6 @@ def gen_zonalstats(zones_json, raster):
 
     for feature, json_feature in zip(lyr, zones_json['features']):
         geom = feature.geometry()
-        #geom.Transform(coordTrans)
 
         # Get extent of feat
         if (geom.GetGeometryName() == 'MULTIPOLYGON'):
