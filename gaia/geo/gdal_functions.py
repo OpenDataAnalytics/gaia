@@ -24,7 +24,7 @@ import logging
 import gdalconst
 import numpy
 import gdal
-from gaia.core import GaiaException
+from gaia import GaiaException
 try:
     import gdalnumeric
 except ImportError:
@@ -33,6 +33,7 @@ import ogr
 import osr
 from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
+from numpy.ma.core import MaskedConstant
 
 logger = logging.getLogger('gaia.geo.gdal_functions')
 
@@ -110,10 +111,10 @@ def gdal_resize(raster, dimensions, projection, transform):
         nodatavalue = dataset.GetRasterBand(i).GetNoDataValue()
         resized_band = resized_ds.GetRasterBand(i)
         resized_arr = resized_band.ReadAsArray()
-        resized_arr[resized_arr == 0] = nodatavalue
+        if nodatavalue:
+            resized_arr[resized_arr == 0] = nodatavalue
+            resized_band.SetNoDataValue(nodatavalue)
         resized_band.WriteArray(resized_arr)
-        resized_band.SetNoDataValue(nodatavalue)
-
     resized_ds.SetGeoTransform(transform)
     resized_ds.SetProjection(projection)
 
@@ -249,7 +250,8 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
 
 
 def gdal_calc(calculation, raster_output, rasters,
-              bands=None, nodata=None, allBands=False, output_type=None):
+              bands=None, nodata=None, allBands=False, output_type=None,
+              format='GTiff'):
     """
     Adopted from GDAL 1.10 gdal_calc.py script.
 
@@ -426,7 +428,7 @@ def gdal_calc(calculation, raster_output, rasters,
                                xoff=x_offset, yoff=y_offset)
 
     if raster_output:
-        output_driver = gdal.GetDriverByName('GTiff')
+        output_driver = gdal.GetDriverByName(format)
         outfile = output_driver.CreateCopy(raster_output, output_dataset, False)
         logger.debug(str(outfile))
     return output_dataset
@@ -454,7 +456,6 @@ def gen_zonalstats(zones_json, raster):
     """
     # Open data
     raster = get_dataset(raster)
-    shp = None
     if type(zones_json) is str:
         shp = ogr.Open(zones_json)
         zones_json = json.loads(zones_json)
@@ -476,33 +477,36 @@ def gen_zonalstats(zones_json, raster):
     targetSR.ImportFromWkt(raster.GetProjectionRef())
     coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
 
+    # TODO: Use a multiprocessing pool to process features more quickly
     for feature, json_feature in zip(lyr, zones_json['features']):
         geom = feature.geometry()
 
         # Get extent of feat
-        if (geom.GetGeometryName() == 'MULTIPOLYGON'):
+        if geom.GetGeometryName() == 'MULTIPOLYGON':
             count = 0
             pointsX = []
             pointsY = []
             for polygon in geom:
-                geomInner = geom.GetGeometryRef(count)
-                ring = geomInner.GetGeometryRef(0)
+                ring = geom.GetGeometryRef(count).GetGeometryRef(0)
                 numpoints = ring.GetPointCount()
                 for p in range(numpoints):
                         lon, lat, z = ring.GetPoint(p)
-                        pointsX.append(lon)
-                        pointsY.append(lat)
+                        if abs(lon) != float('inf'):
+                            pointsX.append(lon)
+                        if abs(lat) != float('inf'):
+                            pointsY.append(lat)
                 count += 1
-        elif (geom.GetGeometryName() == 'POLYGON'):
+        elif geom.GetGeometryName() == 'POLYGON':
             ring = geom.GetGeometryRef(0)
             numpoints = ring.GetPointCount()
             pointsX = []
             pointsY = []
             for p in range(numpoints):
                     lon, lat, z = ring.GetPoint(p)
-                    pointsX.append(lon)
-                    pointsY.append(lat)
-
+                    if abs(lon) != float('inf'):
+                        pointsX.append(lon)
+                    if abs(lat) != float('inf'):
+                        pointsY.append(lat)
         else:
             raise GaiaException(
                 "ERROR: Geometry needs to be either Polygon or Multipolygon")
@@ -523,11 +527,11 @@ def gen_zonalstats(zones_json, raster):
             '', xcount, ycount, 1, gdal.GDT_Byte)
         # apply new geotransform of the feature subset
         target_ds.SetGeoTransform((
-            (xOrigin + (xoff * pixelWidth)), 
-            pixelWidth, 
+            (xOrigin + (xoff * pixelWidth)),
+            pixelWidth,
             0,
-            (yOrigin + (yoff * pixelHeight)), 
-            0, 
+            (yOrigin + (yoff * pixelHeight)),
+            0,
             pixelHeight,
         ))
 
@@ -550,26 +554,46 @@ def gen_zonalstats(zones_json, raster):
 
         # Read raster as arrays
         banddataraster = raster.GetRasterBand(1)
-        dataraster = banddataraster.ReadAsArray(
-            xoff, yoff, xcount, ycount).astype(numpy.float)
+        try:
+            dataraster = banddataraster.ReadAsArray(
+                xoff, yoff, xcount, ycount).astype(numpy.float)
+        except AttributeError:
+            # Nothing within bounds, move on to next polygon
+            properties = json_feature[u'properties']
+            for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
+                properties[p] = None
+            yield json_feature
+        else:
+            # Get no data value of array
+            noDataValue = banddataraster.GetNoDataValue()
+            if noDataValue:
+                # Updata no data value in array with new value
+                dataraster[dataraster == noDataValue] = numpy.nan
 
-        bandmask = target_ds.GetRasterBand(1)
-        datamask = bandmask.ReadAsArray(
-            0, 0, xcount, ycount).astype(numpy.float)
+            bandmask = target_ds.GetRasterBand(1)
+            datamask = bandmask.ReadAsArray(
+                0, 0, xcount, ycount).astype(numpy.float)
 
-        # Mask zone of raster
-        zoneraster = numpy.ma.masked_array(
-            dataraster,  numpy.logical_not(datamask))
+            # Mask zone of raster
+            zoneraster = numpy.ma.masked_array(
+                dataraster,  numpy.logical_not(datamask))
 
-        properties = json_feature['properties']
-        properties['count'] = zoneraster.count()
-        properties['sum'] = zoneraster.sum()
-        properties['mean'] = zoneraster.mean()
-        properties['median'] = numpy.median(zoneraster)
-        properties['min'] = zoneraster.min()
-        properties['max'] = zoneraster.max()
-        properties['stddev'] = zoneraster.std()
-        yield(json_feature)
+            properties = json_feature['properties']
+            properties['count'] = zoneraster.count()
+            properties['sum'] = numpy.nansum(zoneraster)
+            if type(properties['sum']) == MaskedConstant:
+                # No non-null values for raster data in polygon, skip
+                for p in ['sum', 'mean', 'median', 'min', 'max', 'stddev']:
+                    properties[p] = None
+            else:
+                properties['mean'] = numpy.nanmean(zoneraster)
+                properties['min'] = numpy.nanmin(zoneraster)
+                properties['max'] = numpy.nanmax(zoneraster)
+                properties['stddev'] = numpy.nanstd(zoneraster)
+                median = numpy.ma.median(zoneraster)
+                if hasattr(median, 'data') and not numpy.isnan(median.data):
+                    properties['median'] = median.data.item()
+            yield(json_feature)
 
 
 def get_dataset(object):

@@ -17,16 +17,17 @@
 #  limitations under the License.
 ###############################################################################
 import json
+import gaia
 from celery import Celery
 from gaia.parser import deserialize
-from gaia.core import config
+
 
 """Sample celery tasks to run Gaia processes."""
 
 
 app = Celery('tasks',
-             backend=config['gaia_celery']['celery_backend'],
-             broker=config['gaia_celery']['celery_broker'])
+             backend=gaia.config['gaia_celery']['celery_backend'],
+             broker=gaia.config['gaia_celery']['celery_broker'])
 
 
 @app.task

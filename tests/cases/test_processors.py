@@ -20,14 +20,20 @@ import os
 import json
 import unittest
 from zipfile import ZipFile
+import gaia
 import gaia.geo as geo
 from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO
 
-testfile_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../data')
+base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+testfile_path = os.path.join(base_dir, '../data')
 
 
 class TestGaiaProcessors(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        config_file = os.path.join(base_dir, '../../gaia/conf/gaia.cfg')
+        gaia.get_config(config_file)
 
     def test_zonalstats(self):
         vector_io = FeatureIO(features=[
@@ -491,3 +497,52 @@ class TestGaiaProcessors(unittest.TestCase):
         with self.assertRaises(geo.GaiaException) as ge:
             geo.LengthProcess(inputs=[vector_io1, vector_io2])
         self.assertIn('Incorrect # of inputs; expected 1', str(ge.exception))
+
+    def test_mercator_geojson(self):
+        vector_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_hospitals_3857.json'))
+        self.assertEquals(vector_io.get_epsg(), 3857)
+        jsonwm = json.loads(vector_io.read(format=geo.formats.JSON))
+        self.assertEquals(jsonwm['crs']['properties']['name'], 'EPSG:3857')
+        self.assertEquals(jsonwm['features'][0]['geometry']['coordinates'],
+                          [4940150.544527022, 3941210.867854486])
+        json84 = json.loads(vector_io.read(format=geo.formats.JSON, epsg=4326))
+        self.assertEquals(json84['crs']['properties']['name'], 'EPSG:4326')
+        self.assertEquals(json84['features'][0]['geometry']['coordinates'],
+                          [44.378127400000004, 33.34517919999999])
+
+    def test_nocrs_wgs84_geojson(self):
+        vector_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
+        raw_json = json.loads(vector_io.read(format=geo.formats.JSON))
+        self.assertFalse(hasattr(raw_json, 'crs'))
+        epsg = vector_io.get_epsg()
+        self.assertEquals(epsg, 4326)
+
+    def test_nocrs_mercator_geojson(self):
+        with open(os.path.join(testfile_path,
+                               'iraq_hospitals_3857.json')) as injson:
+            json3857 = json.load(injson)
+        feature_io = FeatureIO(features=json3857['features'])
+        epsg = feature_io.get_epsg()
+        self.assertEquals(epsg, 3857)
+        feature_json = feature_io.read(format=geo.formats.JSON)
+        self.assertFalse(hasattr(feature_json, 'crs'))
+
+    def test_within_reproject(self):
+        """
+        Test WithinProcess for vector inputs, where output should be in
+        same projection as first input (in this case, 3857).
+        """
+        vector1_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'iraq_hospitals_3857.json'))
+        vector2_io = VectorFileIO(
+            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+        process = geo.WithinProcess(inputs=[vector1_io, vector2_io])
+        try:
+            process.compute()
+            self.assertEquals(process.output.data.crs, {'init': u'epsg:3857'})
+            self.assertEquals(len(process.output.data), 19)
+        finally:
+            if process:
+                process.purge()
