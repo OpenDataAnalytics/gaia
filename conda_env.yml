@@ -11,12 +11,12 @@ channels:
 
 dependencies:
 - numpy==1.10.4
-- six
-- requests
-- shapely
-- geopandas
-- pillow
-- gdal
-- celery
-- psycopg2
-- geoalchemy2
+- six==1.9.0
+- requests==2.7.0
+- shapely==1.5.13
+- geopandas==0.1.1
+- pillow==3.1.1
+- gdal==1.10
+- celery==3.1.20
+- psycopg2==2.6.1
+- geoalchemy2==0.2.6
