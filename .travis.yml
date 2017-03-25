@@ -37,15 +37,10 @@ before_install:
   - export PATH=$HOME/miniconda/bin:$PATH
   - conda update --yes conda python
   # create environment in conda
-  - conda create --yes --name gaia python=$TRAVIS_PYTHON_VERSION
+  - conda env create -f conda_env.yml python=$TRAVIS_PYTHON_VERSION
   - source activate gaia
-  - conda config --add channels conda-forge
-  # install main packages
-  - conda install --yes gdal numpy six requests geopandas pillow celery psycopg2 geoalchemy2
   # install test packages
   - pip install -r requirements-dev.txt
-  - source deactivate
-  - source activate gaia
 
 install:
   - cd $TRAVIS_BUILD_DIR
