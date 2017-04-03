@@ -53,7 +53,12 @@ before_script:
       rm -rf $PG_DATA;
       initdb $PG_DATA -E utf8;
       pg_ctl -w start -l postgres.log --pgdata ${PG_DATA};
-      sudo createuser -s postgres;
+      sudo -u postgres createuser -s -p 5432 postgres;
+      sudo -u postgres createuser -s -p 5432 travis;
+      sudo -u postgres createdb -O travis -p 5432 travis;
+      sudo -u postgres createuser -s -p 5433 postgres;
+      sudo -u postgres createuser -s -p 5433 travis;
+      sudo -u postgres createdb -O travis -p 5433 travis;
     fi
   - psql -c 'create database travis_ci_test;' -U postgres
   - psql -c 'CREATE EXTENSION postgis;' -U postgres -d travis_ci_test
