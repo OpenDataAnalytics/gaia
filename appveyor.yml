@@ -1,0 +1,42 @@
+environment:
+  matrix:
+    - PYTHON_VERSION: "2.7"
+      MINICONDA: "C:\\Miniconda-x64"
+    - PYTHON_VERSION: "3.5"
+      MINICONDA: "C:\\Miniconda3-x64"
+      
+services:
+  - postgresql95
+  
+matrix:
+  allow_failures:
+  - PYTHON_VERSION: "3.5"
+
+cache:
+  - '%LOCALAPPDATA%\pip\Cache'
+  
+install:
+  # see: https://www.appveyor.com/docs/services-databases/#postgresql
+  - SET PGUSER=postgres
+  - SET PGPASSWORD=Password12!
+  - SET PATH=C:\Program Files\PostgreSQL\9.5\bin\;%PATH%
+  # create environment in conda
+  - SET PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%
+  - conda config --set always_yes yes
+  - conda update -q conda python
+  # create environment in conda
+  - conda env create -f conda_env.yml python=$TRAVIS_PYTHON_VERSION
+  - source activate gaia
+  - pip install -e .
+  # install test packages
+  - pip install -r requirements-dev.txt
+  # create posgres database
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - psql -c 'CREATE EXTENSION postgis;' -U postgres -d travis_ci_test
+
+build: false
+
+script:
+  - python -m unittest discover
+  - flake8 --config tests/flake8.cfg gaia tests
+ 
