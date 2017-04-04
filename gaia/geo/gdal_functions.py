@@ -484,8 +484,9 @@ def gen_zonalstats(zones_json, raster):
         geom = feat.geometry()
 
         # geotransform of the feature by global
-        if sourceSR.ExportToWkt() != targetSR.ExportToWkt() and global_transform:
-            geom.Transform(coordTrans)
+        if sourceSR.ExportToWkt() != targetSR.ExportToWkt() \
+                and global_transform:
+                    geom.Transform(coordTrans)
 
         # Get extent of feat
         if geom.GetGeometryName() == 'MULTIPOLYGON':
