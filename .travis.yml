@@ -1,25 +1,21 @@
-language: python
-
-sudo: required
-dist: trusty
+language: c
+os:
+  - linux
+  - osx
+env:
+  - TRAVIS_PYTHON_VERSION="2.7"
+  - TRAVIS_PYTHON_VERSION="3.5"
+matrix:
+  fast_finish: true
+  allow_failures:
+    - os: osx
+    - env: TRAVIS_PYTHON_VERSION="3.5"
 
 addons:
   postgresql: "9.5"
-  apt:
-    packages:
-      - postgresql-9.5-postgis-2.3
-      - python-dev
-      - libgdal1-dev
-      - libblas-dev
-      - liblapack-dev
-      - libatlas-base-dev
-      - gfortran
 
 services:
   - postgresql
-
-python:
-  - "2.7"
 
 cache:
   directories:
@@ -29,16 +25,33 @@ before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
 
 before_install:
-  - sudo apt-get -qq update
+  # add miniconda - from https://gist.github.com/dan-blanchard/7045057
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      wget -O miniconda.sh http://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh;
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh;
+    fi
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH=$HOME/miniconda/bin:$PATH
+  - conda update --yes conda python
+  # create environment in conda
+  - conda env create -f conda_env.yml python=$TRAVIS_PYTHON_VERSION
+  - source activate gaia
+  # install test packages
+  - pip install -r requirements-dev.txt
 
 install:
-  - export CPLUS_INCLUDE_PATH=/usr/include/gdal
-  - export C_INCLUDE_PATH=/usr/include/gdal
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
+  - cd $TRAVIS_BUILD_DIR
   - pip install -e .
 
 before_script:
+  # from: https://github.com/travis-ci/travis-ci/issues/1875
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rm -rf /usr/local/var/postgres; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then initdb /usr/local/var/postgres; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pg_ctl -D /usr/local/var/postgres start; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then createuser -s postgres; fi
   - psql -c 'create database travis_ci_test;' -U postgres
   - psql -c 'CREATE EXTENSION postgis;' -U postgres -d travis_ci_test
 

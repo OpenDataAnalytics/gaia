@@ -578,8 +578,12 @@ def gen_zonalstats(zones_json, raster):
                 properties['max'] = numpy.nanmax(zoneraster)
                 properties['stddev'] = numpy.nanstd(zoneraster)
                 median = numpy.ma.median(zoneraster)
-                if hasattr(median, 'data') and not numpy.isnan(median.data):
-                    properties['median'] = median.data.item()
+                if hasattr(median, 'data'):
+                    try:
+                        properties['median'] = median.data.item()
+                    except AttributeError:
+                        if median:
+                            properties['median'] = median
             yield(feature)
 
 

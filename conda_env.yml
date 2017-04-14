@@ -1,0 +1,22 @@
+# conda_env.yml
+# Configuration file for creating a Conda Environment with dependencies needed for Gaia.
+# Create the environment by running the following command (after installing Miniconda):
+#   $ conda env create -f conda_env.yml
+
+name: gaia
+
+channels:
+- conda-forge
+- defaults
+
+dependencies:
+- numpy
+- six
+- requests
+- shapely
+- geopandas
+- pillow
+- gdal
+- celery
+- psycopg2
+- geoalchemy2
