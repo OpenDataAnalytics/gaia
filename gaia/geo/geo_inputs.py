@@ -18,6 +18,7 @@
 ###############################################################################
 import json
 import uuid
+import numpy as np
 
 import os
 import fiona
@@ -46,7 +47,7 @@ class VectorMixin(object):
         """
         Transform the IO data into the requested format and projection if
         necessary.
-        :param format: Output format
+        :param outformat: Output format
         :param epsg:
         :return:
         """
@@ -215,11 +216,33 @@ class RasterFileIO(FileIO):
     #: Default output format
     default_output = formats.RASTER
 
-    def read(self, epsg=None):
+    def raster_to_numpy_ar(raster_data):
+        """
+        Convert raster output to numpy array output
+
+        :param raster_data: Original raster output dataset
+        :return: Converted numpy array dataset
+        """
+        bands = raster_data.RasterCount
+        nrow = raster_data.RasterYSize
+        ncol = raster_data.RasterXSize
+        out_data_ar = np.zeros([bands,nrow,ncol])
+
+        for i in range(bands):
+            srcband = raster_data.GetRasterBand(i+1)
+            if srcband is None:
+                continue
+            srcband_ar = np.array(srcband.ReadAsArray())
+            out_data_ar[i,:,:] = srcband_ar
+
+        return out_data_ar
+
+    def read(self, as_numpy_array=False, epsg=None):
         """
         Read data from a raster dataset
 
         :param epsg: EPSG code to reproject data to
+        :param as_numpy_array: Output data as numpy  (default is raster)
         :return: GDAL Dataset
         """
         if self.ext not in formats.RASTER:
@@ -234,7 +257,11 @@ class RasterFileIO(FileIO):
         out_data = self.data
         if epsg and self.get_epsg() != epsg:
             out_data = reproject(self.data, epsg)
-        return out_data
+
+        if as_numpy_array:
+            return raster_to_numpy_ar(out_data)
+        else:
+            return out_data
 
 
 class ProcessIO(GaiaIO):
