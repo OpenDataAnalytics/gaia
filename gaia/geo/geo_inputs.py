@@ -226,14 +226,14 @@ class RasterFileIO(FileIO):
         bands = raster_data.RasterCount
         nrow = raster_data.RasterYSize
         ncol = raster_data.RasterXSize
-        out_data_ar = np.zeros([bands,nrow,ncol])
+        out_data_ar = np.zeros([bands, nrow, ncol])
 
         for i in range(bands):
             srcband = raster_data.GetRasterBand(i+1)
             if srcband is None:
                 continue
             srcband_ar = np.array(srcband.ReadAsArray())
-            out_data_ar[i,:,:] = srcband_ar
+            out_data_ar[i, :, :] = srcband_ar
 
         return out_data_ar
 
@@ -259,7 +259,7 @@ class RasterFileIO(FileIO):
             out_data = reproject(self.data, epsg)
 
         if as_numpy_array:
-            return raster_to_numpy_ar(out_data)
+            return self.raster_to_numpy_ar(out_data)
         else:
             return out_data
 
