@@ -216,33 +216,23 @@ class RasterFileIO(FileIO):
     #: Default output format
     default_output = formats.RASTER
 
-    def raster_to_numpy_ar(raster_data):
-        """
-        Convert raster output to numpy array output
-
-        :param raster_data: Original raster output dataset
-        :return: Converted numpy array dataset
-        """
-        bands = raster_data.RasterCount
-        nrow = raster_data.RasterYSize
-        ncol = raster_data.RasterXSize
-        out_data_ar = np.zeros([bands, nrow, ncol])
-
-        for i in range(bands):
-            srcband = raster_data.GetRasterBand(i+1)
-            if srcband is None:
-                continue
-            srcband_ar = np.array(srcband.ReadAsArray())
-            out_data_ar[i, :, :] = srcband_ar
-
-        return out_data_ar
-
-    def read(self, as_numpy_array=False, epsg=None):
+    def read(self, as_numpy_array=False, as_single_band=True,
+             old_nodata=None, new_nodata=None, epsg=None):
         """
         Read data from a raster dataset
 
+        :param as_numpy_array: Output data as numpy
+        (default is False i.e. raster osgeo.gdal.Dataset)
+        :param as_single_band: Output data as 2D array of its first band
+        (default is True). If False, returns full 3D array.
+        :param old_nodata: Explicitly identify existing NoData values
+        (default None). If None, attempts to get existing NoData values stored
+        in the raster band.
+        :param new_nodata: Replace NoData values in each band with new_nodata
+        (default None). If new_nodata is not None but old_nodata is None
+        and no existing NoData value is stored in the band, uses unchanged
+        default ReadAsArray() return values.
         :param epsg: EPSG code to reproject data to
-        :param as_numpy_array: Output data as numpy  (default is raster)
         :return: GDAL Dataset
         """
         if self.ext not in formats.RASTER:
@@ -259,7 +249,8 @@ class RasterFileIO(FileIO):
             out_data = reproject(self.data, epsg)
 
         if as_numpy_array:
-            return self.raster_to_numpy_ar(out_data)
+            return raster_to_numpy_array(out_data, as_single_band,
+                                         old_nodata, new_nodata)
         else:
             return out_data
 
@@ -514,3 +505,47 @@ def reproject(dataset, epsg):
     elif dataclass == 'Dataset':
         repro = gdal_reproject(dataset, '', epsg=epsg)
     return repro
+
+
+def raster_to_numpy_array(raster_data, as_single_band=True,
+                          old_nodata=None, new_nodata=None):
+    """
+    Convert raster output to numpy array output
+
+    :param raster_data: Original raster output dataset
+    :param as_single_band: Output data as 2D array of its first band
+    (default is True). If False, returns full 3D array.
+    :param old_nodata: Explicitly identify existing NoData values
+    (default None). If None, attempts to get existing NoData values stored
+    in the raster band.
+    :param new_nodata: Replace NoData values in each band with new_nodata
+    (default None). If new_nodata is not None but old_nodata is None
+    and no existing NoData value is stored in the band, uses unchanged
+    default ReadAsArray() return values.
+    :return: Converted numpy array dataset
+    """
+    bands = as_single_band + (1 - as_single_band) * raster_data.RasterCount
+    nrow = raster_data.RasterYSize
+    ncol = raster_data.RasterXSize
+    dims = (bands, nrow, ncol)
+
+    out_data_array = np.full(dims, np.nan)
+
+    for i in range(bands):
+        srcband = raster_data.GetRasterBand(i + 1)
+        srcband_array = np.array(srcband.ReadAsArray().astype(np.float))
+        if old_nodata is None:
+            old_nodata = srcband.GetNoDataValue()
+        if new_nodata is not None and old_nodata is not None:
+            if np.isnan(old_nodata):
+                srcband_array[np.isnan(srcband_array)] = new_nodata
+            else:
+                srcband_array[srcband_array == old_nodata] = new_nodata
+            print ('NoData: Replaced ' + str(old_nodata) +
+                   ' with ' + str(new_nodata))
+        out_data_array[i, :, :] = srcband_array
+
+    if as_single_band:
+        return out_data_array[0, :, :]
+    else:
+        return out_data_array
