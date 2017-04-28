@@ -541,8 +541,8 @@ def raster_to_numpy_array(raster_data, as_single_band=True,
                 srcband_array[np.isnan(srcband_array)] = new_nodata
             else:
                 srcband_array[srcband_array == old_nodata] = new_nodata
-            print ('NoData: Replaced ' + str(old_nodata) +
-                   ' with ' + str(new_nodata))
+            print('NoData: Replaced ' + str(old_nodata) +
+                  ' with ' + str(new_nodata))
         out_data_array[i, :, :] = srcband_array
 
     if as_single_band:
