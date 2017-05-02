@@ -39,13 +39,14 @@ def multi_band_merge(input_loc, output_loc):
     input_band_counts = [img.RasterCount for img in input_images] 
 
     # Generate an output image.
-    output_image = gdal.GetDriverByName('MEM').CreateCopy('', input_images[0], 0)
+    output_image = gdal.GetDriverByName('MEM').Create('', input_images[0].RasterXSize, input_images[0].RasterYSize, sum(input_band_counts), gdal.GDT_UInt16)
     
     # Merge bands into output image.
-    for img in range(1, len(input_images)):
+    current_band = 0
+    for img in range(0, len(input_images)):
         for band in range(0, input_band_counts[img]):
-            output_image.AddBand()
-            output_image.GetRasterBand(output_image.RasterCount).WriteArray(input_images[img].GetRasterBand(band+1).ReadAsArray())
+            current_band = current_band + 1
+            output_image.GetRasterBand(current_band).WriteArray(input_images[img].GetRasterBand(band+1).ReadAsArray())
         
     # Write to output file.
     dest = gdal.GetDriverByName('GTiff').CreateCopy(output_loc, output_image, 0)
