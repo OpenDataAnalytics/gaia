@@ -238,7 +238,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     else:
         outBand = output_dataset.GetRasterBand(1)
         outBand.SetNoDataValue(nodata_values[0])
-        outBand.WriteArray(clip)
+        outBand.(clip)
 
     if raster_output:
         output_driver = gdal.GetDriverByName('GTiff')
@@ -424,7 +424,7 @@ def gdal_calc(calculation, raster_output, rasters,
 
                 # write data block to the output file
                 output_band = output_dataset.GetRasterBand(band_num)
-                BandWriteArray(output_band, calc_result,
+                Band(output_band, calc_result,
                                xoff=x_offset, yoff=y_offset)
 
     if raster_output:
