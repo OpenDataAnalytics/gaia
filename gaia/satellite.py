@@ -25,7 +25,7 @@ def multi_band_merge(input_loc, output_loc):
 
     :param input_loc: List of TIF images to be merged
     :param output_loc: Merged multi-band TIF image
-    :return: 
+    :return:
     """
 
     # Input asserts.
@@ -35,31 +35,30 @@ def multi_band_merge(input_loc, output_loc):
     input_images = [gdal.OpenShared(loc) for loc in input_loc]
 
     # Get band counts by image.
-    input_band_counts = [img.RasterCount for img in input_images] 
+    input_band_counts = [img.RasterCount for img in input_images]
 
     # First band for formatting.
     fmt = input_images[0]
 
     # Generate an output image.
-    output_image = gdal.GetDriverByName('MEM').Create('', 
-                                                      fmt.RasterXSize, 
-                                                      fmt.RasterYSize, 
-                                                      sum(input_band_counts), 
+    output_image = gdal.GetDriverByName('MEM').Create('',
+                                                      fmt.RasterXSize,
+                                                      fmt.RasterYSize,
+                                                      sum(input_band_counts),
                                                       fmt.GetRasterBand(1).DataType
                                                       )
-    
+
     # Merge bands into output image.
     current_band = 0  # For iterating through all bands.
     for img in range(0, len(input_images)):
         for band in range(0, input_band_counts[img]):
             current_band = current_band + 1
-            output_image.GetRasterBand(current_band).WriteArray(input_images[img].GetRasterBand(band+1).ReadAsArray())
-        
+            output_image.GetRasterBand(current_band).WriteArray(input_images[img]
+                                                                .GetRasterBand(band + 1)
+                                                                .ReadAsArray())
+
     # Write to output file.
     dest = gdal.GetDriverByName('GTiff').CreateCopy(output_loc, output_image, 0)
     del dest
 
     return
-
-
-
