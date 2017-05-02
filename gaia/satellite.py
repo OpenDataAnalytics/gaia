@@ -17,7 +17,6 @@
 #  limitations under the License.
 ###############################################################################
 from osgeo import gdal
-from gaia.geo.geo_inputs import RasterFileIO
 
 
 def multi_band_merge(input_loc, output_loc):
@@ -33,16 +32,24 @@ def multi_band_merge(input_loc, output_loc):
     assert len(input_loc) > 0
 
     # Read files.
-    input_images = [RasterFileIO(uri=loc).read() for loc in input_loc]
+    input_images = [gdal.OpenShared(loc) for loc in input_loc]
 
     # Get band counts by image.
     input_band_counts = [img.RasterCount for img in input_images] 
 
+    # First band for formatting.
+    fmt = input_images[0]
+
     # Generate an output image.
-    output_image = gdal.GetDriverByName('MEM').Create('', input_images[0].RasterXSize, input_images[0].RasterYSize, sum(input_band_counts), gdal.GDT_UInt16)
+    output_image = gdal.GetDriverByName('MEM').Create('', 
+                                                      fmt.RasterXSize, 
+                                                      fmt.RasterYSize, 
+                                                      sum(input_band_counts), 
+                                                      fmt.GetRasterBand(1).DataType
+                                                      )
     
     # Merge bands into output image.
-    current_band = 0
+    current_band = 0  # For iterating through all bands.
     for img in range(0, len(input_images)):
         for band in range(0, input_band_counts[img]):
             current_band = current_band + 1
