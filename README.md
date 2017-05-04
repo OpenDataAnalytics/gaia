@@ -1,5 +1,3 @@
-Branch for Andre's additions.  
-
 ## Gaia
 
 Gaia is a geospatial utilities plugin for [Girder](http://www.github.com/Girder/girder), jointly developed by  [Kitware](http://www.kitware.com) and
