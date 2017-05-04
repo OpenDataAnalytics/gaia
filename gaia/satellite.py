@@ -65,3 +65,16 @@ def multi_band_merge(input_loc, output_loc):
     del dest
 
     return
+
+
+def cluster(data, method, method_args=None):
+    """
+    Cluster raster using scikit-learn and produce cluster assignment raster
+
+    :param data: RasterFileIO object to be clustered
+    :param method: Clustering method
+    :param method_args: Method specific parameter dict
+    :return: RasterFileIO object with cell cluster assignments
+    """
+
+    return
