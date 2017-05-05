@@ -203,9 +203,7 @@ class ClusterProcess(GaiaProcess):
                                for i in range(data.shape[1])
                                for j in range(data.shape[2])
                                ])
-            # Normalize data.
-            normed_points = (points - points.min(0)) / points.ptp(0)
-            return normed_points
+            return points
 
         def cluster_kmeans(data, k):
             """ Cluster data using KMeans. """
@@ -227,6 +225,7 @@ class ClusterProcess(GaiaProcess):
         # Cluster.
         if self.method == "KMeans":
             labels = cluster_kmeans(X, self.k)
+            # Format labels as raster.
+            labels_image = np.reshape(labels, (dims[-2], dims[-1]))
             # Cluster assignments.
-            self.output.X = X
-            self.output.labels = labels
+            self.output.labels = labels_image
