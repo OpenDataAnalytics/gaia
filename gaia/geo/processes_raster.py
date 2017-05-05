@@ -141,3 +141,50 @@ class RasterMathProcess(GaiaProcess):
                                      allBands=all_bands,
                                      output_type=otype,
                                      format=self.output_format)
+
+
+class ClusterProcess(GaiaProcess):
+    """
+    Cluster raster dataset to produce cluster assignment raster.
+    """
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Raster to cluster',
+         'type': types.RASTER,
+         'max': 1
+         }
+    ]
+    #: Required arguments for the process
+    required_args = [{
+        'name': 'method',
+        'title': 'Method',
+        'description': 'Clustering algorithm to use.',
+        'type': str
+    }]
+
+    #: Default output format for the process
+    default_output = formats.RASTER
+
+    def __init__(self, **kwargs):
+        """
+        Create a process for raster cell clustering.
+
+        :param inputs: Raster to run clustering on.
+        :param method: Clustering algorithm to use.
+        :param kwargs: Other keyword arguments.
+        :return: ClusterProcess object.
+        """
+        super(ClusterProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = RasterFileIO(name='result', uri=self.get_outpath())
+
+    def compute(self):
+        """
+        Runs the cell clustering, creating a raster cluster assignment dataset as output.
+        """
+
+        # Read data.
+        input_image = self.inputs[0].read()
+
+        # Cluster assignments.
+        #self.output.data = output_image
