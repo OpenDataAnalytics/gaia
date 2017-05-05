@@ -236,6 +236,32 @@ class RasterFileIO(FileIO):
             out_data = reproject(self.data, epsg)
         return out_data
 
+    def write(self, filename=None, as_type='geotiff'):
+        """
+        Write data (assumed gdal dataset) to geotiff, png, or jpg
+
+        :param filename: Base filename
+        :param as_type: shapefile or json
+        :return: location of file
+        """
+        if not filename:
+            filename = self.uri
+        self.create_output_dir(filename)
+
+        if as_type == 'geotiff':
+            output_driver = gdal.GetDriverByName('GTiff')
+            outfile = output_driver.CreateCopy(self.uri, self.data, False)
+            pass
+        elif as_type == 'png':
+            output_driver = gdal.GetDriverByName('PNG')
+            outfile = output_driver.CreateCopy(self.uri, self.data, False)
+        elif as_type == 'jpg':
+            output_driver = gdal.GetDriverByName('JPEG')
+            outfile = output_driver.CreateCopy(self.uri, self.data, False)
+        else:
+            raise NotImplementedError('{} not a valid type'.format(as_type))
+        return self.uri
+
 
 class ProcessIO(GaiaIO):
     """IO for nested GaiaProcess objects"""
