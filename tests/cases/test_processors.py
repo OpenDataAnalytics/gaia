@@ -19,10 +19,12 @@
 import os
 import json
 import unittest
+import numpy as np
 from zipfile import ZipFile
 import gaia
 import gaia.geo as geo
 from gaia.geo.geo_inputs import RasterFileIO, VectorFileIO, FeatureIO
+
 
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 testfile_path = os.path.join(base_dir, '../data')
@@ -543,6 +545,29 @@ class TestGaiaProcessors(unittest.TestCase):
             process.compute()
             self.assertEquals(process.output.data.crs, {'init': u'epsg:3857'})
             self.assertEquals(len(process.output.data), 19)
+        finally:
+            if process:
+                process.purge()
+
+    def test_rescale(self):
+        """
+        Test RescaleProcess with no specified bands
+        """
+        raster_io = RasterFileIO(name='input', uri=os.path.join(
+                                testfile_path,'globalairtemp.tif'))
+        process = geo.RescaleProcess(inputs=[raster_io])
+        try:
+            process.compute()
+            expected_arrs = process.output.data.ReadAsArray()
+            actual_raster_io = RasterFileIO(name='result',
+                                     uri=os.path.join(testfile_path,
+                                     'globalairtemp_rescaled.tif'))
+            actual_arrs = actual_raster_io.read().ReadAsArray()
+
+            self.assertEquals(len(expected_arrs), len(actual_arrs))
+            self.assertEquals(np.max(expected_arrs), np.max(actual_arrs))
+            self.assertEquals(np.min(expected_arrs), np.min(actual_arrs))
+
         finally:
             if process:
                 process.purge()

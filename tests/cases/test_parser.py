@@ -196,3 +196,23 @@ class TestGaiaRequestParser(unittest.TestCase):
         finally:
             if process:
                 process.purge()
+
+    def test_process_rescale_raster(self):
+        """Test raster rescale process with a raster file"""
+        with open(os.path.join(
+                testfile_path, 'raster_rescale_process.json')) as inf:
+            body_text = inf.read().replace('{basepath}', testfile_path)
+            process = json.loads(body_text, object_hook=deserialize)
+
+        try:
+            process.compute()
+            self.assertEquals(type(process.output.data).__name__, 'Dataset')
+            self.assertTrue(os.path.exists(process.output.uri))
+            self.assertIsNotNone(process.id)
+            self.assertIn(process.id, process.output.uri)
+        finally:
+            testfile = os.path.join(testfile_path, 'raster_rescale_process.json')
+            if os.path.exists(testfile):
+                os.remove(testfile)
+            if process:
+                process.purge()
