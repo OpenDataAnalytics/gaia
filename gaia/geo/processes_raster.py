@@ -229,3 +229,5 @@ class ClusterProcess(GaiaProcess):
             labels_image = np.reshape(labels, (dims[-2], dims[-1]))
             # Cluster assignments.
             self.output.labels = labels_image
+            # Features.
+            self.output.X = X
