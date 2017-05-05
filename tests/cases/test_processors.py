@@ -554,14 +554,14 @@ class TestGaiaProcessors(unittest.TestCase):
         Test RescaleProcess with no specified bands
         """
         raster_io = RasterFileIO(name='input', uri=os.path.join(
-                                testfile_path,'globalairtemp.tif'))
+                                 testfile_path, 'globalairtemp.tif'))
         process = geo.RescaleProcess(inputs=[raster_io])
         try:
             process.compute()
             expected_arrs = process.output.data.ReadAsArray()
             actual_raster_io = RasterFileIO(name='result',
-                                     uri=os.path.join(testfile_path,
-                                     'globalairtemp_rescaled.tif'))
+                                            uri=os.path.join(testfile_path,
+                                            'globalairtemp_rescaled.tif'))
             actual_arrs = actual_raster_io.read().ReadAsArray()
 
             self.assertEquals(len(expected_arrs), len(actual_arrs))
