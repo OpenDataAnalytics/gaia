@@ -193,11 +193,11 @@ class ClusterProcess(GaiaProcess):
 
     def compute(self):
         """
-        Runs the cell clustering, creating a raster cluster assignment dataset as output.
+        Cluster cells, create a raster cluster assignment dataset.
         """
 
         def feature_extraction(data):
-            """ Handle feature extraction from 3D raster. """
+            """Handle feature extraction from 3D raster."""
             # Reshape data as observations by features. Each band is a feature.
             points = np.array([data[:, i, j]
                                for i in range(data.shape[1])
@@ -206,7 +206,7 @@ class ClusterProcess(GaiaProcess):
             return points
 
         def cluster_kmeans(data, k):
-            """ Cluster data using KMeans. """
+            """Cluster data using KMeans."""
             km = KMeans(n_clusters=k, max_iter=1000)
             labels = km.fit_predict(data)
             return labels
