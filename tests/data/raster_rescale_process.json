@@ -1,0 +1,10 @@
+{
+  "_type": "gaia.geo.processes_raster.RescaleProcess",
+  "inputs": [
+      {
+          "name": "raster",
+          "_type": "gaia.geo.geo_inputs.RasterFileIO",
+          "uri": "{basepath}/globalairtemp.tif"
+      }
+  ]
+}
