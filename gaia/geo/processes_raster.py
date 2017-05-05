@@ -149,7 +149,8 @@ class RasterMathProcess(GaiaProcess):
 
 class RescaleProcess(GaiaProcess):
     """
-    Gaia Process for rescaling data values using GDAL (example:  -32768 to 51000 -> 0 to 255)
+    Gaia Process for rescaling data values using GDAL
+    (example:  -32768 to 51000 -> 0 to 255)
     """
 
     # TODO: Enforce required inputs and args
@@ -183,7 +184,7 @@ class RescaleProcess(GaiaProcess):
         {
             'name': 'new_nodata',
             'title': 'New NoData values',
-            'description': 'Explicitly identify new NoData values for returned results',
+            'description': 'Explicitly identify new NoData values',
             'type': float
         },
         {
@@ -227,8 +228,8 @@ class RescaleProcess(GaiaProcess):
         # get args
         dst_min = self.dst_min
         dst_max = self.dst_max
-        old_nodata = self.old_nodata
-        new_nodata = self.new_nodata
+        # old_nodata = self.old_nodata
+        # new_nodata = self.new_nodata
         band_numbers = self.band_numbers
 
         if not self.output:
@@ -239,7 +240,8 @@ class RescaleProcess(GaiaProcess):
         input_band_count = input_layer.RasterCount
 
         # copy input layer to output layer
-        self.output.data = gdal.GetDriverByName('MEM').CreateCopy('', input_layer, 0)
+        self.output.data = gdal.GetDriverByName('MEM').
+        CreateCopy('', input_layer, 0)
 
         # arrs = self.inputs[0].read(
         #     as_numpy_array=True,
