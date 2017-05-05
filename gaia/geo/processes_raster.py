@@ -17,11 +17,15 @@
 #  limitations under the License.
 ###############################################################################
 import logging
+import numpy as np
+import gdal
+
 import gaia.formats as formats
 from gaia.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
 from gaia import types
+
 
 logger = logging.getLogger('gaia.geo')
 
@@ -141,3 +145,131 @@ class RasterMathProcess(GaiaProcess):
                                      allBands=all_bands,
                                      output_type=otype,
                                      format=self.output_format)
+
+
+class RescaleProcess(GaiaProcess):
+    """
+    Gaia Process for rescaling data values using GDAL (example:  -32768 to 51000 -> 0 to 255)
+    """
+
+    # TODO: Enforce required inputs and args
+    required_inputs = [
+        {
+            'description': 'Raster image',
+            'type': types.RASTER,
+            'max': 1
+        }
+    ]
+    required_args = []
+    optional_args = [
+        {
+            'name': 'dst_min',
+            'title': 'Destination minimum',
+            'description': 'Minimum data value after rescaling. Default 0.',
+            'type': float
+        },
+        {
+            'name': 'dst_max',
+            'title': 'Destination maximum',
+            'description': 'Maximum data value after rescaling. Default 255.',
+            'type': float
+        },
+        {
+            'name': 'old_nodata',
+            'title': 'Existing NoData values',
+            'description': 'Explicitly identify existing NoData values',
+            'type': float
+        },
+        {
+            'name': 'new_nodata',
+            'title': 'New NoData values',
+            'description': 'Explicitly identify new NoData values for returned results',
+            'type': float
+        },
+        {
+            'name': 'band_numbers',
+            'title': 'Band number',
+            'description': 'Number of the band to rescale',
+            'type': list
+        }
+    ]
+    default_output = formats.RASTER
+
+    dst_min = float(0)
+    dst_max = float(255)
+    old_nodata = None
+    new_nodata = None
+    band_numbers = None
+
+    def __init__(self, **kwargs):
+        """
+        Create an instance of the RescaleProcess class
+        :param kwargs: optional keyword arguments
+        """
+
+        super(RescaleProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = RasterFileIO(name='result',
+                                       uri=self.get_outpath())
+
+    def rescale(self, arr, dst_min, dst_max):
+        current_min = np.min(arr)
+        current_max = np.max(arr)
+        a = (current_max - current_min)/(dst_max - dst_min)
+        b = (current_max/a) - dst_max
+        arr_new = (arr / a) - b
+        return arr_new
+
+    def compute(self):
+        """
+        Rescale the data values in a raster layer
+        """
+        # get args
+        dst_min = self.dst_min
+        dst_max = self.dst_max
+        old_nodata = self.old_nodata
+        new_nodata = self.new_nodata
+        band_numbers = self.band_numbers
+
+        if not self.output:
+            self.output = RasterFileIO(name='result',
+                                       uri=self.get_outpath())
+
+        input_layer = self.inputs[0].read()
+        input_band_count = input_layer.RasterCount
+
+        # copy input layer to output layer
+        self.output.data = gdal.GetDriverByName('MEM').CreateCopy('', input_layer, 0)
+
+        # arrs = self.inputs[0].read(
+        #     as_numpy_array=True,
+        #     as_single_band=False,
+        #     old_nodata=old_nodata,
+        #     new_nodata=new_nodata
+        # )
+
+        # if band numbers are not provided, get all bands
+        if band_numbers is None:
+            # band_numbers = list(range(0, input_band_count))
+            band_numbers = list(range(1, input_band_count+1))
+
+        # rescale each raster band separately
+        for idx in range(1, input_band_count+1):
+            # if idx in band_numbers:
+            #    arr_new = self.rescale(arrs[idx], dst_min, dst_max)
+            # else:
+            #    arr_new = arrs[idx]
+            # out_band = self.output.data.GetRasterBand(idx+1)
+            # out_band.WriteArray(arr_new)
+            out_band = self.output.data.GetRasterBand(idx)
+            arr = out_band.ReadAsArray()
+            if arr is None:
+                continue
+            if idx in band_numbers:
+                arr_new = self.rescale(arr, dst_min, dst_max)
+                out_band.WriteArray(arr_new)
+            else:
+                out_band.WriteArray(arr)
+
+        self.output.write()
+        logger.debug(self.output)
