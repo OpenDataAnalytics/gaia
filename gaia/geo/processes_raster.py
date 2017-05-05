@@ -22,6 +22,8 @@ from gaia.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
 from gaia import types
+import numpy as np
+from sklearn.cluster import KMeans
 
 logger = logging.getLogger('gaia.geo')
 
@@ -155,25 +157,36 @@ class ClusterProcess(GaiaProcess):
          }
     ]
     #: Required arguments for the process
-    required_args = [{
-        'name': 'method',
-        'title': 'Method',
-        'description': 'Clustering algorithm to use.',
-        'type': str
-    }]
+    required_args = [
+        {
+            'name': 'method',
+            'title': 'Method',
+            'description': 'Clustering algorithm to use.',
+            'type': str
+        },
+        {
+            'name': 'k',
+            'title': 'k',
+            'description': 'Number of clusters.',
+            'type': int
+        }
+    ]
 
     #: Default output format for the process
     default_output = formats.RASTER
 
-    def __init__(self, **kwargs):
+    def __init__(self, method, k, **kwargs):
         """
         Create a process for raster cell clustering.
 
         :param inputs: Raster to run clustering on.
         :param method: Clustering algorithm to use.
+        :param k: Number of clusters to use.
         :param kwargs: Other keyword arguments.
         :return: ClusterProcess object.
         """
+        self.method = method
+        self.k = k
         super(ClusterProcess, self).__init__(**kwargs)
         if not self.output:
             self.output = RasterFileIO(name='result', uri=self.get_outpath())
@@ -183,8 +196,37 @@ class ClusterProcess(GaiaProcess):
         Runs the cell clustering, creating a raster cluster assignment dataset as output.
         """
 
-        # Read data.
-        input_image = self.inputs[0].read()
+        def feature_extraction(data):
+            """ Handle feature extraction from 3D raster. """
+            # Reshape data as observations by features. Each band is a feature.
+            points = np.array([data[:, i, j]
+                               for i in range(data.shape[1])
+                               for j in range(data.shape[2])
+                               ])
+            # Normalize data.
+            normed_points = (points - points.min(0)) / points.ptp(0)
+            return normed_points
 
-        # Cluster assignments.
-        #self.output.data = output_image
+        def cluster_kmeans(data, k):
+            """ Cluster data using KMeans. """
+            km = KMeans(n_clusters=k, max_iter=1000)
+            labels = km.fit_predict(data)
+            return labels
+
+        # Read data as numpy array.
+        input_image = self.inputs[0].read().ReadAsArray()
+        dims = input_image.shape
+
+        # Handle one band images.
+        if len(dims) == 2:
+            input_image = np.reshape(input_image, (1, dims[0], dims[1]))
+
+        # Extract features.
+        X = feature_extraction(input_image)
+
+        # Cluster.
+        if self.method == "KMeans":
+            labels = cluster_kmeans(X, self.k)
+            # Cluster assignments.
+            self.output.X = X
+            self.output.labels = labels
