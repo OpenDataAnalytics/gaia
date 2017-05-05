@@ -240,8 +240,8 @@ class RescaleProcess(GaiaProcess):
         input_band_count = input_layer.RasterCount
 
         # copy input layer to output layer
-        self.output.data = gdal.GetDriverByName('MEM').
-        CreateCopy('', input_layer, 0)
+        self.output.data = gdal.GetDriverByName('MEM').\
+                                CreateCopy('', input_layer, 0)
 
         # arrs = self.inputs[0].read(
         #     as_numpy_array=True,

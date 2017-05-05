@@ -250,14 +250,14 @@ class RasterFileIO(FileIO):
 
         if as_type == 'geotiff':
             output_driver = gdal.GetDriverByName('GTiff')
-            outfile = output_driver.CreateCopy(self.uri, self.data, False)
+            output_driver.CreateCopy(self.uri, self.data, False)
             pass
         elif as_type == 'png':
             output_driver = gdal.GetDriverByName('PNG')
-            outfile = output_driver.CreateCopy(self.uri, self.data, False)
+            output_driver.CreateCopy(self.uri, self.data, False)
         elif as_type == 'jpg':
             output_driver = gdal.GetDriverByName('JPEG')
-            outfile = output_driver.CreateCopy(self.uri, self.data, False)
+            output_driver.CreateCopy(self.uri, self.data, False)
         else:
             raise NotImplementedError('{} not a valid type'.format(as_type))
         return self.uri

@@ -211,7 +211,8 @@ class TestGaiaRequestParser(unittest.TestCase):
             self.assertIsNotNone(process.id)
             self.assertIn(process.id, process.output.uri)
         finally:
-            testfile = os.path.join(testfile_path, 'raster_rescale_process.json')
+            testfile = os.path.join(testfile_path,
+                                    'raster_rescale_process.json')
             if os.path.exists(testfile):
                 os.remove(testfile)
             if process:
