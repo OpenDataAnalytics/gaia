@@ -241,7 +241,7 @@ class RescaleProcess(GaiaProcess):
 
         # copy input layer to output layer
         self.output.data = gdal.GetDriverByName('MEM').\
-                                                CreateCopy('', input_layer, 0)
+            CreateCopy('', input_layer, 0)
 
         # arrs = self.inputs[0].read(
         #     as_numpy_array=True,
