@@ -560,7 +560,7 @@ class TestGaiaProcessors(unittest.TestCase):
             process.compute()
             expected_arrs = process.output.data.ReadAsArray()
             actual_raster_io = RasterFileIO(name='result', uri=os.path.join(
-                testfile_path,'globalairtemp_rescaled.tif'))
+                testfile_path, 'globalairtemp_rescaled.tif'))
             actual_arrs = actual_raster_io.read().ReadAsArray()
 
             self.assertEquals(len(expected_arrs), len(actual_arrs))
