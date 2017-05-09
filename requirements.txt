@@ -24,4 +24,4 @@ celery==3.1.20
 psycopg2==2.6.1
 geoalchemy2==0.2.6
 scipy==0.19.0
-sklearn==0.18
+scikit-learn==0.18
