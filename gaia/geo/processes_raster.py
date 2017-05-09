@@ -24,6 +24,7 @@ from gaia.geo.geo_inputs import RasterFileIO
 from gaia import types
 import numpy as np
 from sklearn.cluster import KMeans
+from osgeo import gdal
 
 logger = logging.getLogger('gaia.geo')
 
@@ -227,7 +228,16 @@ class ClusterProcess(GaiaProcess):
             labels = cluster_kmeans(X, self.k)
             # Format labels as raster.
             labels_image = np.reshape(labels, (dims[-2], dims[-1]))
-            # Cluster assignments.
-            self.output.labels = labels_image
             # Features.
             self.output.X = X
+            # Cluster assignments.
+            driver_mem = gdal.GetDriverByName('MEM')
+            output_image = driver_mem.Create('',
+                                             labels_image.shape[1],
+                                             labels_image.shape[0],
+                                             1,
+                                             gdal.GDT_Int32
+                                             )
+            outBand = output_image.GetRasterBand(1)
+            outBand.WriteArray(labels_image, 0, 0)
+            self.output.labels = output_image
