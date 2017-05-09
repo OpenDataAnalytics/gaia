@@ -21,4 +21,4 @@ dependencies:
 - psycopg2
 - geoalchemy2
 - scipy
-- sklearn
+- scikit-learn
