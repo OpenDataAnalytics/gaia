@@ -651,147 +651,143 @@ def get_zonalstats(zones_json, raster):
     # Check for matching spatial references
     differing_SR = (sourceSR.ExportToWkt() != targetSR.ExportToWkt())
 
-    return [feature_stats_dict(feat, feature, coordTrans,
-            global_transform, differing_SR, xOrigin, yOrigin,
-            pixelWidth, pixelHeight)
-            for feat, feature in zip(lyr, zones_json['features'])]
+    def feature_stats_dict(feat, feature):
+        """
+        Helper function for get_zonalstats(). Takes matched pair of components
+        from layer shapefile and GeoJSON feature list and returns a dictionary
+        of statistics for the feature corresponding to those components.
 
-def feature_stats_dict(feat, feature, coordTrans, global_transform,
-                       differing_SR, xOrigin, yOrigin, pixelWidth,
-                       pixelHeight):
-    """
-    Helper function for get_zonalstats(). Takes matched pair of components
-    from layer shapefile and GeoJSON feature list and returns a dictionary
-    of statistics for the feature corresponding to those components.
+        :param feat: feature from layer shapefile
+        :param feature: feature from GeoJSON features list
+        :return: dictionary of statistical properties corresponding to feature
+        """
+        geom = feat.geometry()
 
-    :param feat: feature from layer shapefile
-    :param feature: feature from GeoJSON features list
-    :return: dictionary of statistical properties corresponding to feature
-    """
-    geom = feat.geometry()
+        # geotransform of the feature by global
+        if (global_transform and differing_SR):
+            geom.Transform(coordTrans)
 
-    # geotransform of the feature by global
-    if (global_transform and differing_SR):
-        geom.Transform(coordTrans)
-
-    # Get extent of feat
-    if geom.GetGeometryName() == 'MULTIPOLYGON':
-        pointsX = []
-        pointsY = []
-        for count, polygon in enumerate(geom):
-            ring = geom.GetGeometryRef(count).GetGeometryRef(0)
+        # Get extent of feat
+        if geom.GetGeometryName() == 'MULTIPOLYGON':
+            pointsX = []
+            pointsY = []
+            for count, polygon in enumerate(geom):
+                ring = geom.GetGeometryRef(count).GetGeometryRef(0)
+                numpoints = ring.GetPointCount()
+                for p in range(numpoints):
+                        lon, lat, z = ring.GetPoint(p)
+                        if abs(lon) != float('inf'):
+                            pointsX.append(lon)
+                        if abs(lat) != float('inf'):
+                            pointsY.append(lat)
+        elif geom.GetGeometryName() == 'POLYGON':
+            ring = geom.GetGeometryRef(0)
             numpoints = ring.GetPointCount()
+            pointsX = []
+            pointsY = []
             for p in range(numpoints):
                     lon, lat, z = ring.GetPoint(p)
                     if abs(lon) != float('inf'):
                         pointsX.append(lon)
                     if abs(lat) != float('inf'):
                         pointsY.append(lat)
-    elif geom.GetGeometryName() == 'POLYGON':
-        ring = geom.GetGeometryRef(0)
-        numpoints = ring.GetPointCount()
-        pointsX = []
-        pointsY = []
-        for p in range(numpoints):
-                lon, lat, z = ring.GetPoint(p)
-                if abs(lon) != float('inf'):
-                    pointsX.append(lon)
-                if abs(lat) != float('inf'):
-                    pointsY.append(lat)
-    else:
-        raise GaiaException(
-            "ERROR: Geometry needs to be either Polygon or Multipolygon")
-
-    xmin = min(pointsX)
-    xmax = max(pointsX)
-    ymin = min(pointsY)
-    ymax = max(pointsY)
-
-    # Specify offset and rows and columns to read
-    xoff = int((xmin - xOrigin)/pixelWidth)
-    yoff = int((yOrigin - ymax)/pixelWidth)
-    xcount = int((xmax - xmin)/pixelWidth)+1
-    ycount = int((ymax - ymin)/pixelWidth)+1
-
-    # Create memory target raster
-    target_ds = gdal.GetDriverByName('MEM').Create(
-        '', xcount, ycount, 1, gdal.GDT_Byte)
-    # apply new geotransform of the feature subset
-    if not global_transform:
-        target_ds.SetGeoTransform((
-            (xOrigin + (xoff * pixelWidth)),
-            pixelWidth,
-            0,
-            (yOrigin + (yoff * pixelHeight)),
-            0,
-            pixelHeight,
-        ))
-    else:
-        # apply new geotransform of the global set
-        target_ds.SetGeoTransform((
-            xmin, pixelWidth, 0,
-            ymax, 0, pixelHeight,
-        ))
-
-    # Create memory vector layer
-    mem_ds = ogr.GetDriverByName('Memory').CreateDataSource('out')
-    mem_layer = mem_ds.CreateLayer(
-        geom.GetGeometryName(),
-        None,
-        geom.GetGeometryType()
-    )
-    mem_layer.CreateFeature(feat.Clone())
-
-    # Create for target raster the same projection as for the value raster
-    raster_srs = osr.SpatialReference()
-    raster_srs.ImportFromWkt(raster.GetProjectionRef())
-    target_ds.SetProjection(raster_srs.ExportToWkt())
-
-    # Rasterize zone polygon to raster
-    gdal.RasterizeLayer(target_ds, [1], mem_layer, burn_values=[1])
-
-    # Read raster as arrays
-    banddataraster = raster.GetRasterBand(1)
-    try:
-        dataraster = banddataraster.ReadAsArray(
-            xoff, yoff, xcount, ycount).astype(numpy.float)
-    except AttributeError:
-        # Nothing within bounds, move on to next polygon
-        properties = feature['properties']
-        for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
-            properties[p] = None
-        return(feature)
-    else:
-        # Get no data value of array
-        noDataValue = banddataraster.GetNoDataValue()
-        if noDataValue:
-            # Updata no data value in array with new value
-            dataraster[dataraster == noDataValue] = numpy.nan
-
-        bandmask = target_ds.GetRasterBand(1)
-        datamask = bandmask.ReadAsArray(
-            0, 0, xcount, ycount).astype(numpy.float)
-
-        # Mask zone of raster
-        zoneraster = numpy.ma.masked_array(
-            dataraster,  numpy.logical_not(datamask))
-
-        properties = feature['properties']
-        properties['count'] = zoneraster.count()
-        properties['sum'] = numpy.nansum(zoneraster)
-        if type(properties['sum']) == MaskedConstant:
-            # No non-null values for raster data in polygon, skip
-            for p in ['sum', 'mean', 'median', 'min', 'max', 'stddev']:
-                properties[p] = None
         else:
-            properties['mean'] = numpy.nanmean(zoneraster)
-            properties['min'] = numpy.nanmin(zoneraster)
-            properties['max'] = numpy.nanmax(zoneraster)
-            properties['stddev'] = numpy.nanstd(zoneraster)
-            median = numpy.ma.median(zoneraster)
-            if hasattr(median, 'data') and not numpy.isnan(median.data):
-                properties['median'] = median.data.item()
-        return(feature)
+            raise GaiaException(
+                "ERROR: Geometry needs to be either Polygon or Multipolygon")
+
+        xmin = min(pointsX)
+        xmax = max(pointsX)
+        ymin = min(pointsY)
+        ymax = max(pointsY)
+
+        # Specify offset and rows and columns to read
+        xoff = int((xmin - xOrigin)/pixelWidth)
+        yoff = int((yOrigin - ymax)/pixelWidth)
+        xcount = int((xmax - xmin)/pixelWidth)+1
+        ycount = int((ymax - ymin)/pixelWidth)+1
+
+        # Create memory target raster
+        target_ds = gdal.GetDriverByName('MEM').Create(
+            '', xcount, ycount, 1, gdal.GDT_Byte)
+        # apply new geotransform of the feature subset
+        if not global_transform:
+            target_ds.SetGeoTransform((
+                (xOrigin + (xoff * pixelWidth)),
+                pixelWidth,
+                0,
+                (yOrigin + (yoff * pixelHeight)),
+                0,
+                pixelHeight,
+            ))
+        else:
+            # apply new geotransform of the global set
+            target_ds.SetGeoTransform((
+                xmin, pixelWidth, 0,
+                ymax, 0, pixelHeight,
+            ))
+
+        # Create memory vector layer
+        mem_ds = ogr.GetDriverByName('Memory').CreateDataSource('out')
+        mem_layer = mem_ds.CreateLayer(
+            geom.GetGeometryName(),
+            None,
+            geom.GetGeometryType()
+        )
+        mem_layer.CreateFeature(feat.Clone())
+
+        # Create for target raster the same projection as for the value raster
+        raster_srs = osr.SpatialReference()
+        raster_srs.ImportFromWkt(raster.GetProjectionRef())
+        target_ds.SetProjection(raster_srs.ExportToWkt())
+
+        # Rasterize zone polygon to raster
+        gdal.RasterizeLayer(target_ds, [1], mem_layer, burn_values=[1])
+
+        # Read raster as arrays
+        banddataraster = raster.GetRasterBand(1)
+        try:
+            dataraster = banddataraster.ReadAsArray(
+                xoff, yoff, xcount, ycount).astype(numpy.float)
+        except AttributeError:
+            # Nothing within bounds, move on to next polygon
+            properties = feature['properties']
+            for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
+                properties[p] = None
+            return(feature)
+        else:
+            # Get no data value of array
+            noDataValue = banddataraster.GetNoDataValue()
+            if noDataValue:
+                # Updata no data value in array with new value
+                dataraster[dataraster == noDataValue] = numpy.nan
+
+            bandmask = target_ds.GetRasterBand(1)
+            datamask = bandmask.ReadAsArray(
+                0, 0, xcount, ycount).astype(numpy.float)
+
+            # Mask zone of raster
+            zoneraster = numpy.ma.masked_array(
+                dataraster,  numpy.logical_not(datamask))
+
+            properties = feature['properties']
+            properties['count'] = zoneraster.count()
+            properties['sum'] = numpy.nansum(zoneraster)
+            if type(properties['sum']) == MaskedConstant:
+                # No non-null values for raster data in polygon, skip
+                for p in ['sum', 'mean', 'median', 'min', 'max', 'stddev']:
+                    properties[p] = None
+            else:
+                properties['mean'] = numpy.nanmean(zoneraster)
+                properties['min'] = numpy.nanmin(zoneraster)
+                properties['max'] = numpy.nanmax(zoneraster)
+                properties['stddev'] = numpy.nanstd(zoneraster)
+                median = numpy.ma.median(zoneraster)
+                if hasattr(median, 'data') and not numpy.isnan(median.data):
+                    properties['median'] = median.data.item()
+            return(feature)
+
+    return [feature_stats_dict(feat, feature)
+            for feat, feature in zip(lyr, zones_json['features'])]
 
 def get_dataset(object):
     """
