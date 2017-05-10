@@ -24,7 +24,7 @@ import logging
 import gdalconst
 import numpy
 import gdal
-from dask.delayed import delayed
+# from dask.delayed import delayed
 from gaia import GaiaException
 try:
     import gdalnumeric
