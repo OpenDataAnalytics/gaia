@@ -24,7 +24,7 @@ import logging
 import gdalconst
 import numpy
 import gdal
-from dask.delayed import delayed
+# from dask.delayed import delayed
 from gaia import GaiaException
 try:
     import gdalnumeric
@@ -789,8 +789,9 @@ def get_zonalstats(zones_json, raster):
                     properties['median'] = median.data.item()
             return(feature)
 
-    return [delayed(feature_stats_dict)(feat, feature)
-            for feat, feature in zip(lyr, zones_json['features'])]
+    delayed_stats = [delayed(feature_stats_dict)(feat, feature)
+                     for feat, feature in zip(lyr, zones_json['features'])]
+    return delayed_stats.compute()
 
 
 def get_dataset(object):
