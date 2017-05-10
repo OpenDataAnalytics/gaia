@@ -786,7 +786,7 @@ def get_zonalstats(zones_json, raster):
                     properties['median'] = median.data.item()
             return(feature)
 
-    return [feature_stats_dict(feat, feature)
+    return [delayed(feature_stats_dict)(feat, feature)
             for feat, feature in zip(lyr, zones_json['features'])]
 
 def get_dataset(object):
