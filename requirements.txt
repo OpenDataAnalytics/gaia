@@ -23,3 +23,5 @@ gdal==1.10
 celery==3.1.20
 psycopg2==2.6.1
 geoalchemy2==0.2.6
+scikit-image==0.13.0
+scipy>=0.17.0
