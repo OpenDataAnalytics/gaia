@@ -24,6 +24,7 @@ import logging
 import gdalconst
 import numpy
 import gdal
+from dask.delayed import delayed
 from gaia import GaiaException
 try:
     import gdalnumeric
@@ -442,7 +443,7 @@ def gdal_zonalstats(zones, raster):
     :param raster: Raster file to generate statistics from in each polygon
     :return: list of polygon features with statistics properties appended.
     """
-    return list(gen_zonalstats(zones, raster))
+    return list(delayed(gen_zonalstats)(zones, raster))
 
 
 def gen_zonalstats(zones_json, raster):
@@ -573,7 +574,7 @@ def gen_zonalstats(zones_json, raster):
                 xoff, yoff, xcount, ycount).astype(numpy.float)
         except AttributeError:
             # Nothing within bounds, move on to next polygon
-            properties = feature[u'properties']
+            properties = feature['properties']
             for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
                 properties[p] = None
             yield(feature)
