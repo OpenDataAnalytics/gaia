@@ -576,7 +576,8 @@ def gen_zonalstats(zones_json, raster):
         except AttributeError:
             # Nothing within bounds, move on to next polygon
             properties = feature['properties']
-            for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
+            for p in ['count', 'sum', 'mean', 'median', 'min', 'max',
+                      'stddev']:
                 properties[p] = None
             yield(feature)
         else:
@@ -610,6 +611,7 @@ def gen_zonalstats(zones_json, raster):
                 if hasattr(median, 'data') and not numpy.isnan(median.data):
                     properties['median'] = median.data.item()
             yield(feature)
+
 
 # def get_zonalstats(zones_json, raster):
 #     """
@@ -751,7 +753,8 @@ def gen_zonalstats(zones_json, raster):
 #         except AttributeError:
 #             # Nothing within bounds, move on to next polygon
 #             properties = feature['properties']
-#             for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
+#             for p in ['count', 'sum', 'mean', 'median', 'min', 'max',
+#                       'stddev']:
 #                 properties[p] = None
 #             return(feature)
 #         else:
@@ -788,6 +791,7 @@ def gen_zonalstats(zones_json, raster):
 #
 #     return [delayed(feature_stats_dict)(feat, feature)
 #             for feat, feature in zip(lyr, zones_json['features'])]
+
 
 def get_dataset(object):
     """
