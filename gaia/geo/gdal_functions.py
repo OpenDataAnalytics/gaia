@@ -652,11 +652,13 @@ def get_zonalstats(zones_json, raster):
     differing_SR = (sourceSR.ExportToWkt() != targetSR.ExportToWkt())
 
     return [feature_stats_dict(feat, feature, coordTrans,
-            global_transform, differing_SR)
+            global_transform, differing_SR, xOrigin, yOrigin,
+            pixelWidth, pixelHeight)
             for feat, feature in zip(lyr, zones_json['features'])]
 
 def feature_stats_dict(feat, feature, coordTrans, global_transform,
-                       differing_SR):
+                       differing_SR, xOrigin, yOrigin, pixelWidth,
+                       pixelHeight):
     """
     Helper function for get_zonalstats(). Takes matched pair of components
     from layer shapefile and GeoJSON feature list and returns a dictionary
