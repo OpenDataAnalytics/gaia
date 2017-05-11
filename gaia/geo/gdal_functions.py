@@ -627,6 +627,8 @@ def get_zonalstats(zones_json, raster):
     :return: Polygons with additional properties for calculated raster stats.
     """
     global_transform = True
+    stat_properties = ['count', 'sum', 'mean', 'median',
+                       'min', 'max', 'stddev']
 
     # Open data
     raster = get_dataset(raster)
@@ -655,9 +657,9 @@ def get_zonalstats(zones_json, raster):
     differing_SR = (sourceSR.ExportToWkt() != targetSR.ExportToWkt())
 
     # Array of features with delayed property computation
+    zonerasters = []
 
-
-    def feature_stats_dict(feat, feature):
+    def get_zoneraster(feat, feature):
         """
         Helper function for get_zonalstats(). Takes matched pair of components
         from layer shapefile and GeoJSON feature list and returns a dictionary
@@ -756,11 +758,7 @@ def get_zonalstats(zones_json, raster):
                 xoff, yoff, xcount, ycount).astype(numpy.float)
         except AttributeError:
             # Nothing within bounds, move on to next polygon
-            properties = feature['properties']
-            for p in ['count', 'sum', 'mean', 'median', 'min', 'max',
-                      'stddev']:
-                properties[p] = None
-            return(feature)
+            zonerasters.append(None)
         else:
             # Get no data value of array
             noDataValue = banddataraster.GetNoDataValue()
@@ -776,7 +774,31 @@ def get_zonalstats(zones_json, raster):
             zoneraster = numpy.ma.masked_array(
                 dataraster,  numpy.logical_not(datamask))
 
-            properties = feature['properties']
+            zonerasters.append(zoneraster)
+
+    # get all zonerasters from the features since the elements of lyr can't
+    # be pickled and therefore cannot be used in Dask delayed-compute
+    for feat, feature in zip(lyr, zones_json['features']):
+        get_zoneraster(feat, feature)
+
+    def compute_raster_stats(zoneraster, feature):
+        """
+        Given a zoneraster and feature dictionary, compute and append
+        zoneraster statistics to the feature dictionary.
+
+        :param zoneraster: zoneraster obtained after processing a feature
+        through get_zoneraster
+        :param feature: an input feature dictionary from
+        zones_json['features']
+        :return: feature dictionary with additional zoneraster statistics
+        """
+        properties = feature['properties']
+
+        # Nothing within bounds
+        if zoneraster is None:
+            for p in stat_properties:
+                properties[p] = None
+        else:
             properties['count'] = zoneraster.count()
             properties['sum'] = numpy.nansum(zoneraster)
             if type(properties['sum']) == MaskedConstant:
@@ -791,12 +813,13 @@ def get_zonalstats(zones_json, raster):
                 median = numpy.ma.median(zoneraster)
                 if hasattr(median, 'data') and not numpy.isnan(median.data):
                     properties['median'] = median.data.item()
-            return(feature)
+        return(properties)
 
-    delayed_stats = [delayed(feature_stats_dict)(feat, feature)
-                     for feat, feature in zip(lyr, zones_json['features'])]
+    delayed_stats = [delayed(compute_raster_stats)(zoneraster, feature)
+                     for zoneraster, feature
+                     in zip(zonerasters, zones_json['features'])]
     results = compute(*delayed_stats, get=dask.multiprocessing.get)
-    return results
+    return(results)
 
 
 def get_dataset(object):
