@@ -444,8 +444,8 @@ def gdal_zonalstats(zones, raster):
     :param raster: Raster file to generate statistics from in each polygon
     :return: list of polygon features with statistics properties appended.
     """
-    # return list(gen_zonalstats(zones, raster))
-    return get_zonalstats(zones, raster)
+    return list(gen_zonalstats(zones, raster))
+    # return get_zonalstats(zones, raster)
 
 
 def gen_zonalstats(zones_json, raster):
