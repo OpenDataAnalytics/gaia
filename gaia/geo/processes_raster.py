@@ -22,6 +22,9 @@ from gaia.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
 from gaia import types
+from osgeo import gdal
+import numpy as np
+from skimage.feature import canny
 
 logger = logging.getLogger('gaia.geo')
 
@@ -141,3 +144,66 @@ class RasterMathProcess(GaiaProcess):
                                      allBands=all_bands,
                                      output_type=otype,
                                      format=self.output_format)
+
+
+class EdgeDetectionProcess(GaiaProcess):
+    """
+    Find edges in single band raster dataset to produce an edge location raster.
+    """
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Raster to find edges in.',
+         'type': types.RASTER,
+         'max': 1
+         }
+    ]
+    #: Required arguments for the process
+    required_args = [
+        {
+            'name': 'sigma',
+            'title': 'Sigma',
+            'description': 'Standard deviation of the Gaussian filter.',
+            'type': float
+        }
+    ]
+
+    #: Default output format for the process
+    default_output = formats.RASTER
+
+    def __init__(self, sigma, **kwargs):
+        """
+        Create a process for raster edge detection.
+        :param inputs: Raster to run edge detection on.
+        :param sigma: Standard deviation of the Gaussian filter.
+        :param kwargs: Other keyword arguments.
+        :return: EdgeDetectionProcess object.
+        """
+        self.sigma = sigma
+        super(EdgeDetectionProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = RasterFileIO(name='result', uri=self.get_outpath())
+
+    def compute(self):
+        """
+        Run edge detection, create a raster edge location dataset.
+        """
+
+        # Read data as numpy array.
+        input_image = self.inputs[0].read().ReadAsArray()
+        dims = input_image.shape
+        assert len(dims) == 2  # Make sure single band raster.
+
+        # Find edges using the Canny algorithm.
+        edges = canny(input_image, self.sigma)
+
+        # Return raster of edges.
+        driver_mem = gdal.GetDriverByName('MEM')
+        output_image = driver_mem.Create('',
+                                         edges.shape[1],
+                                         edges.shape[0],
+                                         1,
+                                         gdal.GDT_Int32  # Change this.
+                                         )
+        outBand = output_image.GetRasterBand(1)
+        outBand.WriteArray(edges, 0, 0)
+        self.output.edges = output_image
