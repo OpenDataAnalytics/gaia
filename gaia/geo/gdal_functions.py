@@ -654,6 +654,9 @@ def get_zonalstats(zones_json, raster):
     # Check for matching spatial references
     differing_SR = (sourceSR.ExportToWkt() != targetSR.ExportToWkt())
 
+    # Array of features with delayed property computation
+
+
     def feature_stats_dict(feat, feature):
         """
         Helper function for get_zonalstats(). Takes matched pair of components
