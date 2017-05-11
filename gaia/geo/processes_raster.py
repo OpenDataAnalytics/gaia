@@ -23,7 +23,6 @@ from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
 from gaia import types
 from osgeo import gdal
-import numpy as np
 from skimage.feature import canny
 
 logger = logging.getLogger('gaia.geo')
@@ -202,7 +201,7 @@ class EdgeDetectionProcess(GaiaProcess):
                                          edges.shape[1],
                                          edges.shape[0],
                                          1,
-                                         gdal.GDT_Int32  # Change this.
+                                         gdal.GDT_Int32
                                          )
         outBand = output_image.GetRasterBand(1)
         outBand.WriteArray(edges, 0, 0)
