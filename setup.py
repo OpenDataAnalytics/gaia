@@ -69,8 +69,8 @@ setup(
             'conf/*',
         ]
     },
-    require_python='>=2.6',
+    #require_python='>=2.6',
     url='https://github.com/OpenDataAnalytics/gaia',
-    install_requires=requires,
-    extras_require=extras
+    #install_requires=requires,
+    #extras_require=extras
 )

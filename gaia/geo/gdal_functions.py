@@ -490,8 +490,11 @@ def gen_zonalstats(zones_json, raster):
         if (global_transform and differing_SR):
                     geom.Transform(coordTrans)
 
+        # Get geometry type
+        geom_type = geom.GetGeometryName()
+
         # Get extent of feat
-        if geom.GetGeometryName() == 'MULTIPOLYGON':
+        if geom_type == 'MULTIPOLYGON':
             pointsX = []
             pointsY = []
             for count, polygon in enumerate(geom):
@@ -503,7 +506,7 @@ def gen_zonalstats(zones_json, raster):
                             pointsX.append(lon)
                         if abs(lat) != float('inf'):
                             pointsY.append(lat)
-        elif geom.GetGeometryName() == 'POLYGON':
+        elif geom_type == 'POLYGON':
             ring = geom.GetGeometryRef(0)
             numpoints = ring.GetPointCount()
             pointsX = []
@@ -573,7 +576,7 @@ def gen_zonalstats(zones_json, raster):
                 xoff, yoff, xcount, ycount).astype(numpy.float)
         except AttributeError:
             # Nothing within bounds, move on to next polygon
-            properties = feature[u'properties']
+            properties = feature['properties']
             for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
                 properties[p] = None
             yield(feature)
@@ -605,8 +608,12 @@ def gen_zonalstats(zones_json, raster):
                 properties['max'] = numpy.nanmax(zoneraster)
                 properties['stddev'] = numpy.nanstd(zoneraster)
                 median = numpy.ma.median(zoneraster)
-                if hasattr(median, 'data') and not numpy.isnan(median.data):
-                    properties['median'] = median.data.item()
+                if hasattr(median, 'data'):
+                    try:
+                        properties['median'] = median.data.item()
+                    except AttributeError:
+                        if median:
+                            properties['median'] = median
             yield(feature)
 
 
