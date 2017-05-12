@@ -476,18 +476,24 @@ def gen_zonalstats(zones_json, raster):
     targetSR = osr.SpatialReference()
     targetSR.ImportFromWkt(raster.GetProjectionRef())
     coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
+
+    # Check for matching spatial references
+    differing_SR = (sourceSR.ExportToWkt() != targetSR.ExportToWkt())
+
     # TODO: Use a multiprocessing pool to process features more quickly
     for feature in zones_json['features']:
         geom = ogr.CreateGeometryFromJson(json.dumps(feature['geometry']))
-        if sourceSR.ExportToWkt() != targetSR.ExportToWkt():
+        if differing_SR:
             geom.Transform(coordTrans)
 
+        # Get geometry type
+        geom_type = geom.GetGeometryName()
+
         # Get extent of feat
-        if geom.GetGeometryName() == 'MULTIPOLYGON':
-            count = 0
+        if geom_type == 'MULTIPOLYGON':
             pointsX = []
             pointsY = []
-            for polygon in geom:
+            for count, polygon in enumerate(geom):
                 ring = geom.GetGeometryRef(count).GetGeometryRef(0)
                 numpoints = ring.GetPointCount()
                 for p in range(numpoints):
@@ -496,8 +502,7 @@ def gen_zonalstats(zones_json, raster):
                             pointsX.append(lon)
                         if abs(lat) != float('inf'):
                             pointsY.append(lat)
-                count += 1
-        elif geom.GetGeometryName() == 'POLYGON':
+        elif geom_type == 'POLYGON':
             ring = geom.GetGeometryRef(0)
             numpoints = ring.GetPointCount()
             pointsX = []
@@ -546,10 +551,10 @@ def gen_zonalstats(zones_json, raster):
                 xoff, yoff, xcount, ycount).astype(numpy.float)
         except AttributeError:
             # Nothing within bounds, move on to next polygon
-            properties = feature[u'properties']
+            properties = feature['properties']
             for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
                 properties[p] = None
-            yield feature
+            yield(feature)
         else:
             # Get no data value of array
             noDataValue = banddataraster.GetNoDataValue()
