@@ -479,21 +479,22 @@ def gen_zonalstats(zones_json, raster):
     targetSR.ImportFromWkt(raster.GetProjectionRef())
     coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
 
+    # Check for matching spatial references
+    differing_SR = (sourceSR.ExportToWkt() != targetSR.ExportToWkt())
+
     # TODO: Use a multiprocessing pool to process features more quickly
     for feat, feature in zip(lyr, zones_json['features']):
         geom = feat.geometry()
 
         # geotransform of the feature by global
-        if sourceSR.ExportToWkt() != targetSR.ExportToWkt() \
-                and global_transform:
+        if (global_transform and differing_SR):
                     geom.Transform(coordTrans)
 
         # Get extent of feat
         if geom.GetGeometryName() == 'MULTIPOLYGON':
-            count = 0
             pointsX = []
             pointsY = []
-            for polygon in geom:
+            for count, polygon in enumerate(geom):
                 ring = geom.GetGeometryRef(count).GetGeometryRef(0)
                 numpoints = ring.GetPointCount()
                 for p in range(numpoints):
@@ -502,7 +503,6 @@ def gen_zonalstats(zones_json, raster):
                             pointsX.append(lon)
                         if abs(lat) != float('inf'):
                             pointsY.append(lat)
-                count += 1
         elif geom.GetGeometryName() == 'POLYGON':
             ring = geom.GetGeometryRef(0)
             numpoints = ring.GetPointCount()
@@ -576,7 +576,7 @@ def gen_zonalstats(zones_json, raster):
             properties = feature[u'properties']
             for p in ['count', 'sum', 'mean', 'median', 'min', 'max', 'stddev']:
                 properties[p] = None
-            yield feature
+            yield(feature)
         else:
             # Get no data value of array
             noDataValue = banddataraster.GetNoDataValue()
