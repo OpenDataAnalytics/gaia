@@ -1,5 +1,5 @@
 ## Gaia
-
+ 
 Gaia is a geospatial utilities plugin for [Girder](http://www.github.com/Girder/girder), jointly developed by  [Kitware](http://www.kitware.com) and
 [Epidemico](http://epidemico.com).  It provides data processing, transformation, and analysis capabilities specifically targeted for spatial datasets.
 Gaia is built on top of popular open source packages such as GDAL and GeoPandas. It will fetch data from multiple sources such as files and databases.
