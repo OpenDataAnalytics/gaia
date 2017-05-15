@@ -221,15 +221,15 @@ class ClusterProcess(GaiaProcess):
             input_image = np.reshape(input_image, (1, dims[0], dims[1]))
 
         # Extract features.
-        X = feature_extraction(input_image)
+        features = feature_extraction(input_image)
 
         # Cluster.
         if self.method == "KMeans":
-            labels = cluster_kmeans(X, self.k)
+            labels = cluster_kmeans(features, self.k)
             # Format labels as raster.
             labels_image = np.reshape(labels, (dims[-2], dims[-1]))
             # Features.
-            self.output.X = X
+            self.output.features = features
             # Cluster assignments.
             driver_mem = gdal.GetDriverByName('MEM')
             output_image = driver_mem.Create('',
