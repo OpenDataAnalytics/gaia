@@ -72,14 +72,48 @@ class InMemoryConverter(Converter):
         raise NotImplementedError()
 
 
-    def raster_to_numpy(raster_in):
+    def raster_to_numpy(raster_in, as_single_band=True,
+                        old_nodata=None, new_nodata=None):
         """
-        Convert raster output to numpy array output.
+        Convert raster output to numpy array output
 
-        :param raster_in: raster input dataset
-        :return: numpy array output dataset
+        :param raster_in: Original raster output dataset
+        :param as_single_band: Output data as 2D array of its first band
+        (default is True). If False, returns full 3D array.
+        :param old_nodata: Explicitly identify existing NoData values
+        (default None). If None, attempts to get existing NoData values stored
+        in the raster band.
+        :param new_nodata: Replace NoData values in each band with new_nodata
+        (default None). If new_nodata is not None but old_nodata is None
+        and no existing NoData value is stored in the band, uses unchanged
+        default ReadAsArray() return values.
+        :return: Converted numpy array dataset
         """
-        raise NotImplementedError()
+        bands = as_single_band + (1 - as_single_band) * raster_in.RasterCount
+        nrow = raster_in.RasterYSize
+        ncol = raster_in.RasterXSize
+        dims = (bands, nrow, ncol)
+
+        out_data_array = np.full(dims, np.nan)
+
+        for i in range(bands):
+            srcband = raster_in.GetRasterBand(i + 1)
+            srcband_array = np.array(srcband.ReadAsArray().astype(np.float))
+            if old_nodata is None:
+                old_nodata = srcband.GetNoDataValue()
+            if new_nodata is not None and old_nodata is not None:
+                if np.isnan(old_nodata):
+                    srcband_array[np.isnan(srcband_array)] = new_nodata
+                else:
+                    srcband_array[srcband_array == old_nodata] = new_nodata
+                print('NoData: Replaced ' + str(old_nodata) +
+                      ' with ' + str(new_nodata))
+            out_data_array[i, :, :] = srcband_array
+
+        if as_single_band:
+            return out_data_array[0, :, :]
+        else:
+            return out_data_array
 
 
     def vector_to_numpy(vector_in):
