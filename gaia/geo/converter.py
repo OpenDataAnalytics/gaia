@@ -17,14 +17,14 @@
 #  limitations under the License.
 ###############################################################################
 
-import gdal
-import gaia.formats as formats
-from gaia.geo.gdal_functions import get_dataset
+import numpy as np
+# import gdal
+# import gaia.formats as formats
+# from gaia.geo.gdal_functions import get_dataset
+
 
 class Converter(object):
-    """
-    Abstract class to define a converter.
-    """
+    """Abstract class to define a converter."""
 
     def raster_to_vector(*args, **kwargs):
         """
@@ -34,7 +34,6 @@ class Converter(object):
         :param kwargs: Keyword arguments
         """
         raise NotImplementedError()
-
 
     def vector_to_raster(*args, **kwargs):
         """
@@ -47,10 +46,7 @@ class Converter(object):
 
 
 class InMemoryConverter(Converter):
-    """
-    Convert objects from either memory or disk and
-    return as in-memory objects.
-    """
+    """Convert objects from memory and return as in-memory objects."""
 
     def raster_to_vector(raster_in):
         """
@@ -61,7 +57,6 @@ class InMemoryConverter(Converter):
         """
         raise NotImplementedError()
 
-
     def vector_to_raster(vector_in):
         """
         Convert a vector file into a raster file.
@@ -71,13 +66,12 @@ class InMemoryConverter(Converter):
         """
         raise NotImplementedError()
 
-
     def raster_to_numpy(raster_in, as_single_band=True,
                         old_nodata=None, new_nodata=None):
         """
-        Convert raster output to numpy array output
+        Convert raster output to numpy array output.
 
-        :param raster_in: Original raster output dataset
+        :param raster_in: Original raster input dataset
         :param as_single_band: Output data as 2D array of its first band
         (default is True). If False, returns full 3D array.
         :param old_nodata: Explicitly identify existing NoData values
@@ -115,7 +109,6 @@ class InMemoryConverter(Converter):
         else:
             return out_data_array
 
-
     def vector_to_numpy(vector_in):
         """
         Convert vector output to numpy array output.
@@ -127,30 +120,25 @@ class InMemoryConverter(Converter):
 
 
 class ReadWriteConverter(Converter):
-    """
-    Convert objects from disk and write objects to disk.
-    Covers conversions between file formats e.g., JPEG to PNG.
-    """
+    """Convert objects from disk and write objects to disk."""
 
     def raster_to_vector(raster_in, vector_out):
         """
-        Convert a raster file into a polygonized vector file on disk.
+        Convert a raster file into a vector file on disk.
 
         :param raster_in: raster input filepath
         :param vector_out: vector output filepath
         """
         raise NotImplementedError()
 
-
     def vector_to_raster(vector_in, raster_out):
         """
-        Rasterize a vector file into a raster file on disk.
+        Convert a vector file into a raster file on disk.
 
         :param vector_in: vector input filepath
         :param raster_out: raster output filepath
         """
         raise NotImplementedError()
-
 
     def raster_to_raster(raster_in, raster_out):
         """
@@ -160,7 +148,6 @@ class ReadWriteConverter(Converter):
         :param raster_out: raster output filepath
         """
         raise NotImplementedError()
-
 
     def vector_to_vector(vector_in, vector_out):
         """
