@@ -45,6 +45,7 @@ class Converter(object):
         """
         raise NotImplementedError()
 
+
 class InMemoryConverter(Converter):
     """
     Convert objects from either memory or disk and
@@ -89,6 +90,7 @@ class InMemoryConverter(Converter):
         :return: numpy array output dataset
         """
         raise NotImplementedError()
+
 
 class ReadWriteConverter(Converter):
     """
