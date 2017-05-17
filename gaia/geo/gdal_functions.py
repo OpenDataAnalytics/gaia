@@ -24,8 +24,6 @@ import logging
 import gdalconst
 import numpy
 import gdal
-from dask import delayed, compute
-# from distributed import Client
 from gaia import GaiaException
 try:
     import gdalnumeric
@@ -444,7 +442,7 @@ def gdal_zonalstats(zones, raster):
     :param raster: Raster file to generate statistics from in each polygon
     :return: list of polygon features with statistics properties appended.
     """
-    return list(gen_zonalstats(zones, raster)).compute()
+    return list(gen_zonalstats(zones, raster))
 
 
 def gen_zonalstats(zones_json, raster):
@@ -574,17 +572,17 @@ def gen_zonalstats(zones_json, raster):
 
             properties = feature['properties']
             properties['count'] = zoneraster.count()
-            properties['sum'] = delayed(numpy.nansum)(zoneraster)
+            properties['sum'] = numpy.nansum(zoneraster)
             if type(properties['sum']) == MaskedConstant:
                 # No non-null values for raster data in polygon, skip
                 for p in ['sum', 'mean', 'median', 'min', 'max', 'stddev']:
                     properties[p] = None
             else:
-                properties['mean'] = delayed(numpy.nanmean)(zoneraster)
-                properties['min'] = delayed(numpy.nanmin)(zoneraster)
-                properties['max'] = delayed(numpy.nanmax)(zoneraster)
-                properties['stddev'] = delayed(numpy.nanstd)(zoneraster)
-                median = delayed(numpy.ma.median)(zoneraster)
+                properties['mean'] = numpy.nanmean(zoneraster)
+                properties['min'] = numpy.nanmin(zoneraster)
+                properties['max'] = numpy.nanmax(zoneraster)
+                properties['stddev'] = numpy.nanstd(zoneraster)
+                median = numpy.ma.median(zoneraster)
                 if hasattr(median, 'data'):
                     try:
                         properties['median'] = median.data.item()
