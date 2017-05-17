@@ -21,7 +21,7 @@ import gdal
 import gaia.formats as formats
 from gaia.geo.gdal_functions import get_dataset
 
-class Converter():
+class Converter(object):
     """
     Abstract class to define a converter.
     """
