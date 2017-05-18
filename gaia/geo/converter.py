@@ -50,7 +50,7 @@ class InMemoryConverter(Converter):
 
     def raster_to_vector(raster_in):
         """
-        Convert a raster file into a vector file.
+        Convert a raster dataset into a vector dataset.
 
         :param raster_in: raster input dataset
         :return: vector output dataset
@@ -59,7 +59,7 @@ class InMemoryConverter(Converter):
 
     def vector_to_raster(vector_in):
         """
-        Convert a vector file into a raster file.
+        Convert a vector dataset into a raster dataset.
 
         :param vector_in: vector input dataset
         :return: raster output dataset
@@ -69,7 +69,7 @@ class InMemoryConverter(Converter):
     def raster_to_numpy(raster_in, as_single_band=True,
                         old_nodata=None, new_nodata=None):
         """
-        Convert raster output to numpy array output.
+        Convert raster dataset to numpy dataset.
 
         :param raster_in: Original raster input dataset
         :param as_single_band: Output data as 2D array of its first band
@@ -111,7 +111,7 @@ class InMemoryConverter(Converter):
 
     def vector_to_numpy(vector_in):
         """
-        Convert vector output to numpy array output.
+        Convert vector dataset to numpy dataset.
 
         :param vector_in: vector input dataset
         :return: numpy array output dataset
