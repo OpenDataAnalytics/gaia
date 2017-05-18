@@ -17,27 +17,40 @@
 #  limitations under the License.
 ###############################################################################
 
-import numpy as np
+# import numpy as np
 # import gdal
 # import gaia.formats as formats
 # from gaia.geo.gdal_functions import get_dataset
+from gaia.inputs import FileIO
 
 
-class Converter(object):
+class Converter(FileIO):
     """Abstract class to define a converter."""
 
-    def raster_to_vector(*args, **kwargs):
+    def set_data(*args, **kwargs):
         """
-        Abstract method for converting between raster and vector.
+        Abstract method for setting dataset to be converted.
+        """
+        raise NotImplementedError()
+
+    def get_type(self):
+        """
+        Abstract method to identify the type of the dataset currently stored.
+        """
+        raise NotImplementedError()
+
+    def to_vector(*args, **kwargs):
+        """
+        Abstract method for converting to vector format.
 
         :param args: Required arguments
         :param kwargs: Keyword arguments
         """
         raise NotImplementedError()
 
-    def vector_to_raster(*args, **kwargs):
+    def to_raster(*args, **kwargs):
         """
-        Abstract method for converting between vector and raster.
+        Abstract method for converting to raster format.
 
         :param args: Required arguments
         :param kwargs: Keyword arguments
@@ -48,30 +61,48 @@ class Converter(object):
 class InMemoryConverter(Converter):
     """Convert objects from memory and return as in-memory objects."""
 
-    def raster_to_vector(raster_in):
+    def set_data(dataset):
         """
-        Convert a raster dataset into a vector dataset.
+        Set the dataset to be converted if not identified when initializing.
+        """
+        # TODO: use similar handling as FileIO
+        raise NotImplementedError()
+
+    def get_type(self):
+        """
+        Identify the type of the dataset currently stored.
+        """
+        # TODO:
+        raise NotImplementedError()
+
+    def to_vector(self):
+        """
+        Convert to vector dataset.
 
         :param raster_in: raster input dataset
         :return: vector output dataset
         """
+        # TODO: use gdal.Polygonize and see sample code at
+        # https://pcjericks.github.io/py-gdalogr-cookbook/raster_layers.
+        # html#polygonize-a-raster-band
         raise NotImplementedError()
 
-    def vector_to_raster(vector_in):
+    def to_raster(self):
         """
-        Convert a vector dataset into a raster dataset.
+        Convert to raster dataset.
 
         :param vector_in: vector input dataset
         :return: raster output dataset
         """
+        # TODO: use gdal.RasterizeLayer and see sample code at
+        # https://pcjericks.github.io/py-gdalogr-cookbook/raster_layers.
+        # html#convert-an-ogr-file-to-a-raster
         raise NotImplementedError()
 
-    def raster_to_numpy(raster_in, as_single_band=True,
-                        old_nodata=None, new_nodata=None):
+    def to_numpy(self, as_single_band=True, old_nodata=None, new_nodata=None):
         """
-        Convert raster dataset to numpy dataset.
+        Convert to numpy dataset.
 
-        :param raster_in: Original raster input dataset
         :param as_single_band: Output data as 2D array of its first band
         (default is True). If False, returns full 3D array.
         :param old_nodata: Explicitly identify existing NoData values
@@ -83,77 +114,52 @@ class InMemoryConverter(Converter):
         default ReadAsArray() return values.
         :return: Converted numpy array dataset
         """
-        bands = as_single_band + (1 - as_single_band) * raster_in.RasterCount
-        nrow = raster_in.RasterYSize
-        ncol = raster_in.RasterXSize
-        dims = (bands, nrow, ncol)
-
-        out_data_array = np.full(dims, np.nan)
-
-        for i in range(bands):
-            srcband = raster_in.GetRasterBand(i + 1)
-            srcband_array = np.array(srcband.ReadAsArray().astype(np.float))
-            if old_nodata is None:
-                old_nodata = srcband.GetNoDataValue()
-            if new_nodata is not None and old_nodata is not None:
-                if np.isnan(old_nodata):
-                    srcband_array[np.isnan(srcband_array)] = new_nodata
-                else:
-                    srcband_array[srcband_array == old_nodata] = new_nodata
-                print('NoData: Replaced ' + str(old_nodata) +
-                      ' with ' + str(new_nodata))
-            out_data_array[i, :, :] = srcband_array
-
-        if as_single_band:
-            return out_data_array[0, :, :]
-        else:
-            return out_data_array
-
-    def vector_to_numpy(vector_in):
-        """
-        Convert vector dataset to numpy dataset.
-
-        :param vector_in: vector input dataset
-        :return: numpy array output dataset
-        """
+        # TODO: see raster_to_numpy_array support in
+        # Issue 84: Raster to NumPy Array Support
         raise NotImplementedError()
 
 
-class ReadWriteConverter(Converter):
+class ReadWriteConverter(InMemoryConverter):
     """Convert objects from disk and write objects to disk."""
 
-    def raster_to_vector(raster_in, vector_out):
+    def set_data(uri):
         """
-        Convert a raster file into a vector file on disk.
-
-        :param raster_in: raster input filepath
-        :param vector_out: vector output filepath
+        Set the dataset to be converted if not identified when initializing.
         """
+        # TODO: use similar handling as FileIO
         raise NotImplementedError()
 
-    def vector_to_raster(vector_in, raster_out):
+    def get_type(self):
         """
-        Convert a vector file into a raster file on disk.
-
-        :param vector_in: vector input filepath
-        :param raster_out: raster output filepath
+        Identify the type of the dataset currently stored.
         """
+        # TODO:
         raise NotImplementedError()
 
-    def raster_to_raster(raster_in, raster_out):
+    def to_vector(self, out_path):
         """
-        Convert between raster file formats on disk.
+        Convert to a vector file and write to disk.
 
-        :param raster_in: raster input filepath
-        :param raster_out: raster output filepath
+        :param out_path: vector output filepath
         """
+        # TODO: use gdal.Polygonize and see sample code at
+        # https://pcjericks.github.io/py-gdalogr-cookbook/raster_layers.
+        # html#polygonize-a-raster-band
+        # Handle both vector to vector and raster to vector conversions.
+        # Use potential call to get_type select which I/O write driver
+        # should be used (between raster and vector).
         raise NotImplementedError()
 
-    def vector_to_vector(vector_in, vector_out):
+    def to_raster(self, out_path):
         """
-        Convert between vector file formats on disk.
+        Convert to a raster file and write to disk.
 
-        :param raster_in: raster input filepath
-        :param raster_out: raster output filepath
+        :param out_path: raster output filepath
         """
+        # TODO: use gdal.RasterizeLayer and see sample code at
+        # https://pcjericks.github.io/py-gdalogr-cookbook/raster_layers.
+        # html#convert-an-ogr-file-to-a-raster
+        # Handle both vector to raster and raster to raster conversions.
+        # Use potential call to get_type select which I/O write driver
+        # should be used (between raster and vector).
         raise NotImplementedError()
