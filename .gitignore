@@ -57,3 +57,6 @@ target/
 _build*/
 .idea/
 .vagrant/
+
+# macOS
+.DS_Store

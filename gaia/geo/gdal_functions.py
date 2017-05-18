@@ -454,6 +454,8 @@ def gen_zonalstats(zones_json, raster):
     :param raster: Raster dataset
     :return: Polygons with additional properties for calculated raster stats.
     """
+    global_transform = True
+
     # Open data
     raster = get_dataset(raster)
     if type(zones_json) is str:
@@ -481,10 +483,12 @@ def gen_zonalstats(zones_json, raster):
     differing_SR = (sourceSR.ExportToWkt() != targetSR.ExportToWkt())
 
     # TODO: Use a multiprocessing pool to process features more quickly
-    for feature in zones_json['features']:
-        geom = ogr.CreateGeometryFromJson(json.dumps(feature['geometry']))
-        if differing_SR:
-            geom.Transform(coordTrans)
+    for feat, feature in zip(lyr, zones_json['features']):
+        geom = feat.geometry()
+
+        # geotransform of the feature by global
+        if (global_transform and differing_SR):
+                    geom.Transform(coordTrans)
 
         # Get geometry type
         geom_type = geom.GetGeometryName()
@@ -531,10 +535,31 @@ def gen_zonalstats(zones_json, raster):
         # Create memory target raster
         target_ds = gdal.GetDriverByName('MEM').Create(
             '', xcount, ycount, 1, gdal.GDT_Byte)
-        target_ds.SetGeoTransform((
-            xmin, pixelWidth, 0,
-            ymax, 0, pixelHeight,
-        ))
+        # apply new geotransform of the feature subset
+        if global_transform is False:
+            target_ds.SetGeoTransform((
+                (xOrigin + (xoff * pixelWidth)),
+                pixelWidth,
+                0,
+                (yOrigin + (yoff * pixelHeight)),
+                0,
+                pixelHeight,
+            ))
+        else:
+            # apply new geotransform of the global set
+            target_ds.SetGeoTransform((
+                xmin, pixelWidth, 0,
+                ymax, 0, pixelHeight,
+            ))
+
+        # Create memory vector layer
+        mem_ds = ogr.GetDriverByName('Memory').CreateDataSource('out')
+        mem_layer = mem_ds.CreateLayer(
+            geom.GetGeometryName(),
+            None,
+            geom.GetGeometryType()
+        )
+        mem_layer.CreateFeature(feat.Clone())
 
         # Create for target raster the same projection as for the value raster
         raster_srs = osr.SpatialReference()
@@ -542,7 +567,7 @@ def gen_zonalstats(zones_json, raster):
         target_ds.SetProjection(raster_srs.ExportToWkt())
 
         # Rasterize zone polygon to raster
-        gdal.RasterizeLayer(target_ds, [1], lyr, burn_values=[1])
+        gdal.RasterizeLayer(target_ds, [1], mem_layer, burn_values=[1])
 
         # Read raster as arrays
         banddataraster = raster.GetRasterBand(1)
