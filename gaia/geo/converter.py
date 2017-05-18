@@ -75,11 +75,10 @@ class InMemoryConverter(Converter):
         # TODO:
         raise NotImplementedError()
 
-    def to_vector(self):
+    def to_vector(self, *args, **kwargs):
         """
         Convert to vector dataset.
 
-        :param raster_in: raster input dataset
         :return: vector output dataset
         """
         # TODO: use gdal.Polygonize and see sample code at
@@ -87,11 +86,10 @@ class InMemoryConverter(Converter):
         # html#polygonize-a-raster-band
         raise NotImplementedError()
 
-    def to_raster(self):
+    def to_raster(self, *args, **kwargs):
         """
         Convert to raster dataset.
 
-        :param vector_in: vector input dataset
         :return: raster output dataset
         """
         # TODO: use gdal.RasterizeLayer and see sample code at
@@ -136,7 +134,7 @@ class ReadWriteConverter(InMemoryConverter):
         # TODO:
         raise NotImplementedError()
 
-    def to_vector(self, out_path):
+    def write_vector(self, out_path, *args, **kwargs):
         """
         Convert to a vector file and write to disk.
 
@@ -150,7 +148,7 @@ class ReadWriteConverter(InMemoryConverter):
         # should be used (between raster and vector).
         raise NotImplementedError()
 
-    def to_raster(self, out_path):
+    def write_raster(self, out_path, *args, **kwargs):
         """
         Convert to a raster file and write to disk.
 
