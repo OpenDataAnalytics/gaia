@@ -27,19 +27,19 @@ from gaia.inputs import FileIO
 class Converter(FileIO):
     """Abstract class to define a converter."""
 
-    def set_data(*args, **kwargs):
+    def set_data(self, *args, **kwargs):
         """
         Abstract method for setting dataset to be converted.
         """
         raise NotImplementedError()
 
-    def get_type(self):
+    def get_type(self, **kwargs):
         """
         Abstract method to identify the type of the dataset currently stored.
         """
         raise NotImplementedError()
 
-    def to_vector(*args, **kwargs):
+    def to_vector(self, *args, **kwargs):
         """
         Abstract method for converting to vector format.
 
@@ -48,7 +48,7 @@ class Converter(FileIO):
         """
         raise NotImplementedError()
 
-    def to_raster(*args, **kwargs):
+    def to_raster(self, *args, **kwargs):
         """
         Abstract method for converting to raster format.
 
@@ -61,7 +61,7 @@ class Converter(FileIO):
 class InMemoryConverter(Converter):
     """Convert objects from memory and return as in-memory objects."""
 
-    def set_data(dataset):
+    def set_data(self, dataset):
         """
         Set the dataset to be converted if not identified when initializing.
         """
@@ -75,7 +75,7 @@ class InMemoryConverter(Converter):
         # TODO:
         raise NotImplementedError()
 
-    def to_vector(self, *args, **kwargs):
+    def to_vector(self, **kwargs):
         """
         Convert to vector dataset.
 
@@ -86,7 +86,7 @@ class InMemoryConverter(Converter):
         # html#polygonize-a-raster-band
         raise NotImplementedError()
 
-    def to_raster(self, *args, **kwargs):
+    def to_raster(self, **kwargs):
         """
         Convert to raster dataset.
 
@@ -120,7 +120,7 @@ class InMemoryConverter(Converter):
 class ReadWriteConverter(InMemoryConverter):
     """Convert objects from disk and write objects to disk."""
 
-    def set_data(uri):
+    def set_data(self, uri):
         """
         Set the dataset to be converted if not identified when initializing.
         """
@@ -134,7 +134,7 @@ class ReadWriteConverter(InMemoryConverter):
         # TODO:
         raise NotImplementedError()
 
-    def write_vector(self, out_path, *args, **kwargs):
+    def write_vector(self, out_path, **kwargs):
         """
         Convert to a vector file and write to disk.
 
@@ -148,7 +148,7 @@ class ReadWriteConverter(InMemoryConverter):
         # should be used (between raster and vector).
         raise NotImplementedError()
 
-    def write_raster(self, out_path, *args, **kwargs):
+    def write_raster(self, out_path, **kwargs):
         """
         Convert to a raster file and write to disk.
 
