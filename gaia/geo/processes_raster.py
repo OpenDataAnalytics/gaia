@@ -22,6 +22,7 @@ from gaia.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
 from gaia import types
+from osgeo import gdal
 
 logger = logging.getLogger('gaia.geo')
 
@@ -141,3 +142,68 @@ class RasterMathProcess(GaiaProcess):
                                      allBands=all_bands,
                                      output_type=otype,
                                      format=self.output_format)
+
+
+class MergeProcess(GaiaProcess):
+    """
+    Merge multiple raster datasets into one multi-band raster dataset.
+    """
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Images to merge',
+         'type': types.RASTER,
+         'max': None
+         }
+    ]
+
+    #: Default output format for the process
+    default_output = formats.RASTER
+
+    def __init__(self, **kwargs):
+        """
+        Create a process to merge rasters.
+
+        :param inputs: Images to merge.
+        :param kwargs: Other keyword arguments.
+        :return: MergeProcess object
+        """
+        super(MergeProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = RasterFileIO(name='result', uri=self.get_outpath())
+
+    def compute(self):
+        """
+        Runs the multi-band merge, creating a raster dataset as output.
+        """
+
+        # Read files.
+        input_images = [img.read() for img in self.inputs]
+
+        # Get band counts by image.
+        input_band_counts = [img.RasterCount for img in input_images]
+
+        # First raster for formatting.
+        fmt = input_images[0]
+
+        # Generate an output image.
+        driver_mem = gdal.GetDriverByName('MEM')
+        output_image = driver_mem.Create('',
+                                         fmt.RasterXSize,
+                                         fmt.RasterYSize,
+                                         sum(input_band_counts),
+                                         fmt.GetRasterBand(1).DataType
+                                         )
+
+        # Merge bands into output image.
+        current_band = 0  # For iterating through all bands.
+        for img in range(0, len(input_images)):
+            for band in range(0, input_band_counts[img]):
+                current_band = current_band + 1
+                band_to_write = output_image.GetRasterBand(current_band)
+                band_to_write.WriteArray(input_images[img]
+                                         .GetRasterBand(band + 1)
+                                         .ReadAsArray()
+                                         )
+
+        # Merged raster.
+        self.output.data = output_image
