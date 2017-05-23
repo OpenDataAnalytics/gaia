@@ -22,6 +22,8 @@ from gaia.gaia_process import GaiaProcess
 from gaia.geo.gdal_functions import gdal_calc, gdal_clip
 from gaia.geo.geo_inputs import RasterFileIO
 from gaia import types
+from osgeo import gdal
+import numpy as np
 
 logger = logging.getLogger('gaia.geo')
 
@@ -141,3 +143,59 @@ class RasterMathProcess(GaiaProcess):
                                      allBands=all_bands,
                                      output_type=otype,
                                      format=self.output_format)
+
+
+class TMBand5WaterDetectionProcess(GaiaProcess):
+    """
+    Find bodies of water in Landsat TM/ETM+ Band 5 raster.
+    Produce a boolean water location raster.
+    """
+    #: Tuple of required inputs; name, type , max # of each; None = no max
+    required_inputs = [
+        {'description': 'Raster to find water bodies in.',
+         'type': types.RASTER,
+         'max': 1
+         }
+    ]
+
+    #: Default output format for the process
+    default_output = formats.RASTER
+
+    def __init__(self, **kwargs):
+        """
+        Create a process for water body detection.
+        :param inputs: Single band raster to run water body detection on.
+        :param kwargs: Other keyword arguments.
+        :return: TMBand5WaterDetectionProcess object.
+        """
+        super(TMBand5WaterDetectionProcess, self).__init__(**kwargs)
+        if not self.output:
+            self.output = RasterFileIO(name='result', uri=self.get_outpath())
+
+    def compute(self):
+        """
+        Run water body detection, create a raster water location dataset.
+        """
+
+        # Read data as numpy array.
+        input_image = self.inputs[0].read().ReadAsArray()
+        dims = input_image.shape
+        assert len(dims) == 2  # Make sure single band raster.
+
+        # Find bodies of water using density slicing.
+        input_max = float(np.max(input_image))
+        water = np.logical_and(
+                              ((input_image / input_max) * 255 < 48),
+                              ((input_image / input_max) * 255 > 1))
+
+        # Return raster of edges.
+        driver_mem = gdal.GetDriverByName('MEM')
+        output_image = driver_mem.Create('',
+                                         water.shape[1],
+                                         water.shape[0],
+                                         1,
+                                         gdal.GDT_Int32
+                                         )
+        outBand = output_image.GetRasterBand(1)
+        outBand.WriteArray(water, 0, 0)
+        self.output.water = output_image
