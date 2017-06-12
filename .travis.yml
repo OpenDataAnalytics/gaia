@@ -1,3 +1,5 @@
+dist: trusty
+
 language: c
 os:
   - linux
@@ -43,6 +45,7 @@ before_install:
   - pip install -r requirements-dev.txt
 
 install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y postgresql-9.5-postgis-2.3; fi
   - cd $TRAVIS_BUILD_DIR
   - pip install -e .
 
@@ -56,5 +59,8 @@ before_script:
   - psql -c 'CREATE EXTENSION postgis;' -U postgres -d travis_ci_test
 
 script:
-  - python -m unittest discover
+  - coverage run --source gaia -m unittest discover
   - flake8 --config tests/flake8.cfg gaia tests
+
+after_success:
+  coveralls
