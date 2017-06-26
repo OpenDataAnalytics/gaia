@@ -1,5 +1,7 @@
 ## Gaia
 
+Gaia [![Build Status](https://api.travis-ci.org/OpenDataAnalytics/gaia.svg?branch=master)](https://travis-ci.org/OpenDataAnalytics/gaia)  [![Documentation Status](https://readthedocs.org/projects/gaia/badge/?version=latest)](https://readthedocs.org/projects/gaia/?badge=latest) [![Join the chat at https://gitter.im/OpenGeoscience/gaia](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenGeoscience/gaia?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Coverage Status](https://coveralls.io/repos/github/dorukozturk/gaia/badge.svg)](https://coveralls.io/github/dorukozturk/gaia)
+
 Gaia is a geospatial utilities plugin for [Girder](http://www.github.com/Girder/girder), jointly developed by  [Kitware](http://www.kitware.com) and
 [Epidemico](http://epidemico.com).  It provides data processing, transformation, and analysis capabilities specifically targeted for spatial datasets.
 Gaia is built on top of popular open source packages such as GDAL and GeoPandas. It will fetch data from multiple sources such as files and databases.
@@ -34,9 +36,6 @@ Gaia install:
     sudo apt-get install libgdal-dev
     export CPLUS_INCLUDE_PATH=/usr/include/gdal
     export C_INCLUDE_PATH=/usr/include/gdal
-
-Gaia [![Build Status](https://api.travis-ci.org/OpenDataAnalytics/gaia.svg?branch=master)](https://travis-ci.org/OpenDataAnalytics/gaia)  [![Documentation Status](https://readthedocs.org/projects/gaia/badge/?version=latest)](https://readthedocs.org/projects/gaia/?badge=latest) [![Join the chat at https://gitter.im/OpenGeoscience/gaia](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenGeoscience/gaia?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Coverage Status](https://coveralls.io/repos/github/dorukozturk/gaia/badge.svg)](https://coveralls.io/github/dorukozturk/gaia)
-
 
 #### License
 
