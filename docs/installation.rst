@@ -22,7 +22,7 @@ Update apt package indices before you start.
 
 ::
 
-    sudo apt-get python-dev libgdal-dev
+    sudo apt-get install python-dev libgdal-dev
 
 
 Install of Gaia and requirements via pip
@@ -76,4 +76,3 @@ Install of Gaia as a Girder plugin
 - Navigate to the Admin console in Girder, when you are logged in as an admin user, then click on the Plugins section.
 
 - Enable the Gaia plugin.  Click the button to restart the server.
-
