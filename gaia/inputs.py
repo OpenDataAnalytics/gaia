@@ -131,6 +131,8 @@ class GaiaIO(object):
                     return self.epsg
         elif self.data.__class__.__name__ == 'Dataset':
             projection = self.data.GetProjection()
+            if projection == '':
+                projection = self.data.GetGCPProjection()
             data_crs = osr.SpatialReference(wkt=projection)
             try:
                 self.epsg = int(data_crs.GetAttrValue('AUTHORITY', 1))

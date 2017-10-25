@@ -163,7 +163,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
 
     # Also load as a gdal image to get geotransform
     # (world file) info
-    geo_trans = src_image.GetGeoTransform()
+    geo_trans = gdal_get_transform(src_image)
     nodata_values = []
     for i in range(src_image.RasterCount):
         nodata_value = src_image.GetRasterBand(i+1).GetNoDataValue()
@@ -222,11 +222,12 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     # create output raster
     raster_band = raster_input.GetRasterBand(1)
     output_driver = gdal.GetDriverByName('MEM')
+
     output_dataset = output_driver.Create(
         '', clip.shape[1], clip.shape[0],
         raster_input.RasterCount, raster_band.DataType)
     output_dataset.SetGeoTransform(geo_trans)
-    output_dataset.SetProjection(raster_input.GetProjection())
+    output_dataset.SetProjection(gdal_get_projection(raster_input))
     gdalnumeric.CopyDatasetInfo(raster_input, output_dataset,
                                 xoff=xoffset, yoff=yoffset)
     bands = raster_input.RasterCount
@@ -288,8 +289,8 @@ def gdal_calc(calculation, raster_output, rasters,
             if dimensions != [datasets[i].RasterXSize, datasets[i].RasterYSize]:
                 datasets[i] = gdal_resize(raster,
                                           dimensions,
-                                          datasets[0].GetProjection(),
-                                          datasets[0].GetGeoTransform())
+                                          gdal_get_projection(datasets[0]),
+                                          gdal_get_transform(datasets[0]))
         else:
             dimensions = [datasets[0].RasterXSize, datasets[0].RasterYSize]
 
@@ -324,8 +325,8 @@ def gdal_calc(calculation, raster_output, rasters,
         gdal.GetDataTypeByName(output_type))
 
     # set output geo info based on first input layer
-    output_dataset.SetGeoTransform(datasets[0].GetGeoTransform())
-    output_dataset.SetProjection(datasets[0].GetProjection())
+    output_dataset.SetGeoTransform(gdal_get_transform(datasets[0]))
+    output_dataset.SetProjection(gdal_get_projection(datasets[0]))
 
     if nodata is None:
         nodata = ndv_lookup[output_type]
@@ -467,7 +468,7 @@ def gen_zonalstats(zones_json, raster):
     lyr = shp.GetLayer()
 
     # Get raster georeference info
-    transform = raster.GetGeoTransform()
+    transform = gdal_get_transform(raster)
     xOrigin = transform[0]
     yOrigin = transform[3]
     pixelWidth = transform[1]
@@ -628,3 +629,18 @@ def get_dataset(object):
         return object
     else:
         return gdal.Open(object, gdalconst.GA_ReadOnly)
+
+def gdal_get_transform(src_image):
+    geo_trans = src_image.GetGeoTransform()
+    if geo_trans==(0.0, 1.0, 0.0, 0.0, 0.0, 1.0):
+        geo_trans = gdal.GCPsToGeoTransform(src_image.GetGCPs())
+
+    return geo_trans
+
+
+def gdal_get_projection(src_image):
+    projection = src_image.GetProjection()
+    if projection == '':
+        projection = src_image.GetGCPProjection()
+
+    return projection
