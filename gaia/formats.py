@@ -35,7 +35,8 @@ VECTOR = list(itertools.chain.from_iterable([JSON, SHP, PANDAS]))
 GEOTIFF = ['.tif', '.tiff', '.geotif', '.geotiff']
 PNG = ['.png']
 JPG = ['.jpg', '.jpeg']
-RASTER = GEOTIFF + PNG + JPG
+NITF = ['.NTF', '.ntf']
+RASTER = GEOTIFF + PNG + JPG + NITF
 #: File extensions for all datasets
 ALL = VECTOR + RASTER
 #: File extensions for text-based datasets
