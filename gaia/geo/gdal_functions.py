@@ -228,10 +228,11 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         raster_input.RasterCount, raster_band.DataType)
     output_dataset.SetGeoTransform(geo_trans)
     output_dataset.SetProjection(gdal_get_projection(raster_input))
-    RPC = src_image.GetMetadata('RPC')
 
     #Copy RPC data from src to dst
-    output_dataset.SetMetadata(RPC, 'RPC')
+    RPC = src_image.GetMetadata('RPC')
+    if RPC:
+        output_dataset.SetMetadata(RPC, 'RPC')
     gdalnumeric.CopyDatasetInfo(raster_input, output_dataset,
                                 xoff=xoffset, yoff=yoffset)
     bands = raster_input.RasterCount
