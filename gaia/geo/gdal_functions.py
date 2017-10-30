@@ -152,8 +152,9 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         ulX = geoMatrix[0]
         ulY = geoMatrix[3]
         xDist = geoMatrix[1]
+        yDist = geoMatrix[5]
         pixel = int((x - ulX) / xDist)
-        line = int((ulY - y) / xDist)
+        line = int((ulY - y) / yDist)
         return (pixel, line)
 
     src_image = get_dataset(raster_input)
