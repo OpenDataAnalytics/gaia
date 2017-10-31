@@ -149,11 +149,15 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         Uses a gdal geomatrix (gdal.GetGeoTransform()) to calculate
         the pixel location of a geospatial coordinate
         """
-        ulX = geoMatrix[0]
-        ulY = geoMatrix[3]
-        xDist = geoMatrix[1]
-        pixel = int((x - ulX) / xDist)
-        line = int((ulY - y) / xDist)
+        tX = x - geoMatrix[0]
+        tY = y - geoMatrix[3]
+        a = geoMatrix[1]
+        b = geoMatrix[2]
+        c = geoMatrix[4]
+        d = geoMatrix[5]
+        div = 1.0 / (a * d - b * c)
+        pixel = int((tX * d - tY * b) * div)
+        line = int((tY * a - tX * c) * div)
         return (pixel, line)
 
     src_image = get_dataset(raster_input)
