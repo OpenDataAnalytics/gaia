@@ -182,6 +182,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
 
     # Convert the layer extent to image pixel coordinates
     min_x, max_x, min_y, max_y = poly.GetEnvelope()
+
     ul_x, ul_y = world_to_pixel(geo_trans, min_x, max_y)
     lr_x, lr_y = world_to_pixel(geo_trans, max_x, min_y)
 
@@ -189,7 +190,10 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     px_width = int(lr_x - ul_x)
     px_height = int(lr_y - ul_y)
 
-    clip = src_array[ul_y:lr_y, ul_x:lr_x]
+    if src_array.ndim > 2:
+        clip = src_array[:,ul_y:lr_y, ul_x:lr_x]
+    else:
+        clip = src_array[ul_y:lr_y, ul_x:lr_x]
 
     # create pixel offset to pass to new image Projection info
     xoffset = ul_x
@@ -227,8 +231,16 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     raster_band = raster_input.GetRasterBand(1)
     output_driver = gdal.GetDriverByName('MEM')
 
+    # In the event we have multispectral images, shift the shape dimesions we are after,
+    # since position 0 will be the number of bands
+    clip_shp_0 = clip.shape[0]
+    clip_shp_1 = clip.shape[1]
+    if clip.ndim > 2:
+        clip_shp_0 = clip.shape[1]
+        clip_shp_1 = clip.shape[2]
+
     output_dataset = output_driver.Create(
-        '', clip.shape[1], clip.shape[0],
+        '', clip_shp_1, clip_shp_0,
         raster_input.RasterCount, raster_band.DataType)
     output_dataset.SetGeoTransform(geo_trans)
     output_dataset.SetProjection(gdal_get_projection(raster_input))
