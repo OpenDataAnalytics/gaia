@@ -161,11 +161,8 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         return (pixel, line)
 
     src_image = get_dataset(raster_input)
-    # Load the source data as a gdalnumeric array
-    src_array = src_image.ReadAsArray()
-    src_dtype = src_array.dtype
 
-    # Also load as a gdal image to get geotransform
+    # Load as a gdal image to get geotransform
     # (world file) info
     geo_trans = gdal_get_transform(src_image)
     nodata_values = []
@@ -190,10 +187,9 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     px_width = int(lr_x - ul_x)
     px_height = int(lr_y - ul_y)
 
-    if src_array.ndim > 2:
-        clip = src_array[:,ul_y:lr_y, ul_x:lr_x]
-    else:
-        clip = src_array[ul_y:lr_y, ul_x:lr_x]
+    # Load the source data as a gdalnumeric array
+    clip = src_image.ReadAsArray(ul_x, ul_y, px_width, px_height)
+    src_dtype = clip.dtype
 
     # create pixel offset to pass to new image Projection info
     xoffset = ul_x
