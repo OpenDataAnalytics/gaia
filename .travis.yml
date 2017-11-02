@@ -40,6 +40,7 @@ before_install:
   - conda update --yes conda python
   # create environment in conda
   - conda env create -f conda_env.yml python=$TRAVIS_PYTHON_VERSION
+  - conda install -c conda-forge -y geos=3.6.2
   - source activate gaia
   # install test packages
   - pip install -r requirements-dev.txt
