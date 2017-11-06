@@ -144,6 +144,25 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         a.shape = i.im.size[1], i.im.size[0]
         return a
 
+
+    def world_to_pixel_poly(geoMatrix, geometry):
+        """
+        Uses a gdal geomatrix (gdal.GetGeoTransform()) to calculate
+        the pixel location of a geospatial coordinate
+        """
+        pixelRing = ogr.Geometry(ogr.wkbLinearRing)
+        geoRing = geometry.GetGeometryRef(0)
+        numPoints = geoRing.GetPointCount()
+
+        for p in range(numPoints):
+            lon, lat, z = geoRing.GetPoint(p)
+            pixel, line = world_to_pixel(geoMatrix, lon, lat)
+            pixelRing.AddPoint(pixel, line)
+
+        pixelPoly = ogr.Geometry(ogr.wkbPolygon)
+        pixelPoly.AddGeometry(pixelRing)
+        return pixelPoly
+
     def world_to_pixel(geoMatrix, x, y):
         """
         Uses a gdal geomatrix (gdal.GetGeoTransform()) to calculate
@@ -177,15 +196,41 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         polygon_json = json.dumps(polygon_json)
     poly = ogr.CreateGeometryFromJson(polygon_json)
 
-    # Convert the layer extent to image pixel coordinates
-    min_x, max_x, min_y, max_y = poly.GetEnvelope()
 
-    ul_x, ul_y = world_to_pixel(geo_trans, min_x, max_y)
-    lr_x, lr_y = world_to_pixel(geo_trans, max_x, min_y)
+    min_x, max_x, min_y, max_y = poly.GetEnvelope()
+    pixelPoly = world_to_pixel_poly(geo_trans, poly)
+
+    # Convert the layer extent to image pixel coordinates
+    ul_x, lr_x, ul_y, lr_y = pixelPoly.GetEnvelope()
+    ul_x, lr_x, ul_y, lr_y = int(ul_x), int(lr_x), int(ul_y), int(lr_y)
+
+
+    if ul_x < 0:
+        ul_x = 0
+    if ul_y < 0:
+        ul_y = 0
+
+    if lr_x > src_image.RasterXSize:
+        lr_x = src_image.RasterXSize
+
+    if lr_y > src_image.RasterYSize:
+        lr_y = src_image.RasterYSize
 
     # Calculate the pixel size of the new image
+    # Constrain the width and height to the bounds of the image
     px_width = int(lr_x - ul_x)
+#    if px_width + ul_x > src_image.RasterXSize :
+#        px_width = int(src_image.RasterXSize - ul_x)
+
     px_height = int(lr_y - ul_y)
+#    if px_height + ul_y > src_image.RasterYSize :
+#        px_height = int(src_image.RasterYSize - ul_y)
+
+    # We've constrained x & y so they are within the image.
+    # If the width or height ends up negative at this point,
+    # the AOI is completely outside the image
+    if px_width < 0 or px_height < 0:
+        return None
 
     # Load the source data as a gdalnumeric array
     clip = src_image.ReadAsArray(ul_x, ul_y, px_width, px_height)
