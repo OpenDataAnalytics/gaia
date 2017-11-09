@@ -219,12 +219,12 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     # Calculate the pixel size of the new image
     # Constrain the width and height to the bounds of the image
     px_width = int(lr_x - ul_x)
-#    if px_width + ul_x > src_image.RasterXSize :
-#        px_width = int(src_image.RasterXSize - ul_x)
+    if px_width + ul_x > src_image.RasterXSize :
+        px_width = int(src_image.RasterXSize - ul_x)
 
     px_height = int(lr_y - ul_y)
-#    if px_height + ul_y > src_image.RasterYSize :
-#        px_height = int(src_image.RasterYSize - ul_y)
+    if px_height + ul_y > src_image.RasterYSize :
+        px_height = int(src_image.RasterYSize - ul_y)
 
     # We've constrained x & y so they are within the image.
     # If the width or height ends up negative at this point,
