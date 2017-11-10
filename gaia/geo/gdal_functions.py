@@ -201,30 +201,22 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     pixelPoly = world_to_pixel_poly(geo_trans, poly)
 
     # Convert the layer extent to image pixel coordinates
-    ul_x, lr_x, ul_y, lr_y = pixelPoly.GetEnvelope()
-    ul_x, lr_x, ul_y, lr_y = int(ul_x), int(lr_x), int(ul_y), int(lr_y)
+    ul_x, lr_x, ul_y, lr_y = map(int, pixelPoly.GetEnvelope())
 
-
-    if ul_x < 0:
-        ul_x = 0
-    if ul_y < 0:
-        ul_y = 0
-
-    if lr_x > src_image.RasterXSize:
-        lr_x = src_image.RasterXSize
-
-    if lr_y > src_image.RasterYSize:
-        lr_y = src_image.RasterYSize
+    ul_x = max(0, ul_x)
+    ul_y = max(0, ul_y)
+    lr_x = min(src_image.RasterXSize - 1, lr_x)
+    lr_y = min(src_image.RasterYSize - 1, lr_y)
 
     # Calculate the pixel size of the new image
     # Constrain the width and height to the bounds of the image
-    px_width = int(lr_x - ul_x)
-    if px_width + ul_x > src_image.RasterXSize :
-        px_width = int(src_image.RasterXSize - ul_x)
+    px_width = int(lr_x - ul_x + 1)
+    if px_width + ul_x > src_image.RasterXSize - 1 :
+        px_width = int(src_image.RasterXSize - ul_x - 1)
 
-    px_height = int(lr_y - ul_y)
-    if px_height + ul_y > src_image.RasterYSize :
-        px_height = int(src_image.RasterYSize - ul_y)
+    px_height = int(lr_y - ul_y + 1)
+    if px_height + ul_y > src_image.RasterYSize - 1 :
+        px_height = int(src_image.RasterYSize - ul_y - 1)
 
     # We've constrained x & y so they are within the image.
     # If the width or height ends up negative at this point,
@@ -286,12 +278,16 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     output_dataset.SetGeoTransform(geo_trans)
     output_dataset.SetProjection(gdal_get_projection(raster_input))
 
-    #Copy RPC data from src to dst
-    RPC = src_image.GetMetadata('RPC')
-    if RPC:
-        output_dataset.SetMetadata(RPC, 'RPC')
+    #Copy All metadata data from src to dst
+    domains = src_image.GetMetadataDomainList()
+    for tag in domains:
+        md = src_image.GetMetadata(tag)
+        if md:
+            output_dataset.SetMetadata(md, tag)
+
     gdalnumeric.CopyDatasetInfo(raster_input, output_dataset,
                                 xoff=xoffset, yoff=yoffset)
+
     bands = raster_input.RasterCount
     if bands > 1:
         for i in range(bands):
