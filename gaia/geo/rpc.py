@@ -99,14 +99,14 @@ def rpc_from_gdal_dict(md_dict):
     return rpc
 
 
-def rpc_to_gdal_dict(rpc):
+def rpc_to_gdal_dict(rpc, precision=12):
     """Construct a GDAL RPC meta-data dictionary from a RPC_Model
 
     The format of the dictionary matches what GDAL returns and contains
     the standard fields from the RPC00B standard
     """
     md_dict = dict()
-    fmt = '%0.10f'
+    fmt = '%0.' + str(int(precision)) + 'f'
     md_dict['LONG_OFF']       = fmt % rpc.world_offset[0]
     md_dict['LAT_OFF']        = fmt % rpc.world_offset[1]
     md_dict['HEIGHT_OFF']     = fmt % rpc.world_offset[2]
