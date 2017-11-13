@@ -116,7 +116,6 @@ def rpc_to_gdal_dict(rpc):
 
     md_dict = dict()
     fmt = '%0.10f'
-    fmt20 = (fmt + ' ') * 19 + fmt
     md_dict['LONG_OFF']       = fmt % rpc.world_offset[0]
     md_dict['LAT_OFF']        = fmt % rpc.world_offset[1]
     md_dict['HEIGHT_OFF']     = fmt % rpc.world_offset[2]
@@ -127,8 +126,8 @@ def rpc_to_gdal_dict(rpc):
     md_dict['LINE_OFF']       = fmt % rpc.image_offset[1]
     md_dict['SAMP_SCALE']     = fmt % rpc.image_scale[0]
     md_dict['LINE_SCALE']     = fmt % rpc.image_scale[1]
-    md_dict['SAMP_NUM_COEFF'] = fmt20 % rpc.coeff[0,:]
-    md_dict['SAMP_DEN_COEFF'] = fmt20 % rpc.coeff[1,:]
-    md_dict['LINE_NUM_COEFF'] = fmt20 % rpc.coeff[2,:]
-    md_dict['LINE_DEN_COEFF'] = fmt20 % rpc.coeff[3,:]
+    md_dict['SAMP_NUM_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[0,:])
+    md_dict['SAMP_DEN_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[1,:])
+    md_dict['LINE_NUM_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[2,:])
+    md_dict['LINE_DEN_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[3,:])
     return md_dict
