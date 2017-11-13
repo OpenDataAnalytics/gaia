@@ -19,7 +19,6 @@
 """Model RPC (Rational Polynomial Camera) projections
 """
 
-import os.path
 import numpy
 
 
@@ -106,14 +105,6 @@ def rpc_to_gdal_dict(rpc):
     The format of the dictionary matches what GDAL returns and contains
     the standard fields from the RPC00B standard
     """
-    def data_from_keys(keys):
-        """Extract from the data dictionary by list of keys"""
-        if keys in md_dict:
-            return numpy.array(md_dict[keys].split(), dtype='float64')
-        if all (k in md_dict for k in keys):
-            return numpy.array([md_dict[k] for k in keys], dtype='float64')
-        raise KeyError("Unable to find "+str(keys)+" in the dictionary")
-
     md_dict = dict()
     fmt = '%0.10f'
     md_dict['LONG_OFF']       = fmt % rpc.world_offset[0]
