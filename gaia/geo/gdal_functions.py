@@ -144,7 +144,6 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         a.shape = i.im.size[1], i.im.size[0]
         return a
 
-
     def world_to_pixel_poly(geoMatrix, geometry):
         """
         Uses a gdal geomatrix (gdal.GetGeoTransform()) to calculate
@@ -196,7 +195,6 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         polygon_json = json.dumps(polygon_json)
     poly = ogr.CreateGeometryFromJson(polygon_json)
 
-
     min_x, max_x, min_y, max_y = poly.GetEnvelope()
     pixelPoly = world_to_pixel_poly(geo_trans, poly)
 
@@ -211,11 +209,11 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     # Calculate the pixel size of the new image
     # Constrain the width and height to the bounds of the image
     px_width = int(lr_x - ul_x + 1)
-    if px_width + ul_x > src_image.RasterXSize - 1 :
+    if px_width + ul_x > src_image.RasterXSize - 1:
         px_width = int(src_image.RasterXSize - ul_x - 1)
 
     px_height = int(lr_y - ul_y + 1)
-    if px_height + ul_y > src_image.RasterYSize - 1 :
+    if px_height + ul_y > src_image.RasterYSize - 1:
         px_height = int(src_image.RasterYSize - ul_y - 1)
 
     # We've constrained x & y so they are within the image.
@@ -264,7 +262,8 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     raster_band = raster_input.GetRasterBand(1)
     output_driver = gdal.GetDriverByName('MEM')
 
-    # In the event we have multispectral images, shift the shape dimesions we are after,
+    # In the event we have multispectral images,
+    # shift the shape dimesions we are after,
     # since position 0 will be the number of bands
     clip_shp_0 = clip.shape[0]
     clip_shp_1 = clip.shape[1]
@@ -278,7 +277,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     output_dataset.SetGeoTransform(geo_trans)
     output_dataset.SetProjection(gdal_get_projection(raster_input))
 
-    #Copy All metadata data from src to dst
+    # Copy All metadata data from src to dst
     domains = src_image.GetMetadataDomainList()
     for tag in domains:
         md = src_image.GetMetadata(tag)
@@ -688,9 +687,10 @@ def get_dataset(object):
     else:
         return gdal.Open(object, gdalconst.GA_ReadOnly)
 
+
 def gdal_get_transform(src_image):
     geo_trans = src_image.GetGeoTransform()
-    if geo_trans==(0.0, 1.0, 0.0, 0.0, 0.0, 1.0):
+    if geo_trans == (0.0, 1.0, 0.0, 0.0, 0.0, 1.0):
         geo_trans = gdal.GCPsToGeoTransform(src_image.GetGCPs())
 
     return geo_trans
