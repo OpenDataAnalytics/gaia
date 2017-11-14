@@ -22,7 +22,7 @@
 import numpy
 
 
-class RPC_Model(object):
+class RPCModel(object):
     """Represents a Rational Polynomial Camera (RPC) model
     """
 
@@ -75,7 +75,7 @@ class RPC_Model(object):
 
 
 def rpc_from_gdal_dict(md_dict):
-    """Construct a RPC_Model from a GDAL RPC meta-data dictionary
+    """Construct a RPCModel from a GDAL RPC meta-data dictionary
 
     The format of the dictionary matches what GDAL returns and contains
     the standard fields from the RPC00B standard
@@ -88,7 +88,7 @@ def rpc_from_gdal_dict(md_dict):
             return numpy.array([md_dict[k] for k in keys], dtype='float64')
         raise KeyError("Unable to find "+str(keys)+" in the dictionary")
 
-    rpc = RPC_Model()
+    rpc = RPCModel()
     rpc.world_offset = from_keys(('LONG_OFF', 'LAT_OFF', 'HEIGHT_OFF'))
     rpc.world_scale = from_keys(('LONG_SCALE', 'LAT_SCALE', 'HEIGHT_SCALE'))
     rpc.image_offset = from_keys(('SAMP_OFF', 'LINE_OFF'))
@@ -101,7 +101,7 @@ def rpc_from_gdal_dict(md_dict):
 
 
 def rpc_to_gdal_dict(rpc, precision=12):
-    """Construct a GDAL RPC meta-data dictionary from a RPC_Model
+    """Construct a GDAL RPC meta-data dictionary from a RPCModel
 
     The format of the dictionary matches what GDAL returns and contains
     the standard fields from the RPC00B standard
