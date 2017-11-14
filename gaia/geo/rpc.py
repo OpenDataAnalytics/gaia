@@ -32,19 +32,19 @@ class RPC_Model(object):
         # This constructs something like an identity camera
         # (Lon, Lat, Alt) ==> (Lon, Lat)
         dtype = 'float64'
-        self.coeff = numpy.zeros((4,20), dtype=dtype)
-        self.coeff[0,1] = 1
-        self.coeff[2,2] = 1
-        self.world_offset = numpy.zeros((1,3), dtype=dtype)
-        self.world_scale = numpy.ones((1,3), dtype=dtype)
-        self.image_offset = numpy.zeros((1,2), dtype=dtype)
-        self.image_scale = numpy.ones((1,2), dtype=dtype)
+        self.coeff = numpy.zeros((4, 20), dtype=dtype)
+        self.coeff[0, 1] = 1
+        self.coeff[2, 2] = 1
+        self.world_offset = numpy.zeros((1, 3), dtype=dtype)
+        self.world_scale = numpy.ones((1, 3), dtype=dtype)
+        self.image_offset = numpy.zeros((1, 2), dtype=dtype)
+        self.image_scale = numpy.ones((1, 2), dtype=dtype)
 
     @staticmethod
     def power_vector(point):
         """Compute the vector of polynomial terms
         """
-        x,y,z = point
+        x, y, z = point
         xx = x * x
         xy = x * y
         xz = x * z
@@ -62,13 +62,14 @@ class RPC_Model(object):
         yzz = yz * z
         zzz = zz * z
         # This is the standard order of terms used in NITF metadata
-        return numpy.array([1, x, y, z, xy, xz, yz, xx, yy, zz, xyz, xxx, xyy, xzz, xxy, yyy, yzz, xxz, yyz, zzz])
+        return numpy.array([1, x, y, z, xy, xz, yz, xx, yy, zz,
+                            xyz, xxx, xyy, xzz, xxy, yyy, yzz, xxz, yyz, zzz])
 
     def project(self, point):
         """Project a long, lat, alt point into image coordinates
         """
         norm_pt = (numpy.array(point) - self.world_offset) / self.world_scale
-        polys = numpy.dot(self.coeff, self.power_vector( norm_pt ))
+        polys = numpy.dot(self.coeff, self.power_vector(norm_pt))
         img_pt = numpy.array([polys[0] / polys[1], polys[2] / polys[3]])
         return img_pt * self.image_scale + self.image_offset
 
@@ -79,23 +80,23 @@ def rpc_from_gdal_dict(md_dict):
     The format of the dictionary matches what GDAL returns and contains
     the standard fields from the RPC00B standard
     """
-    def data_from_keys(keys):
+    def from_keys(keys):
         """Extract from the data dictionary by list of keys"""
         if keys in md_dict:
             return numpy.array(md_dict[keys].split(), dtype='float64')
-        if all (k in md_dict for k in keys):
+        if all(k in md_dict for k in keys):
             return numpy.array([md_dict[k] for k in keys], dtype='float64')
         raise KeyError("Unable to find "+str(keys)+" in the dictionary")
 
     rpc = RPC_Model()
-    rpc.world_offset = data_from_keys(('LONG_OFF', 'LAT_OFF', 'HEIGHT_OFF'))
-    rpc.world_scale = data_from_keys(('LONG_SCALE', 'LAT_SCALE', 'HEIGHT_SCALE'))
-    rpc.image_offset = data_from_keys(('SAMP_OFF', 'LINE_OFF'))
-    rpc.image_scale = data_from_keys(('SAMP_SCALE', 'LINE_SCALE'))
-    rpc.coeff[0,:] = data_from_keys('SAMP_NUM_COEFF')
-    rpc.coeff[1,:] = data_from_keys('SAMP_DEN_COEFF')
-    rpc.coeff[2,:] = data_from_keys('LINE_NUM_COEFF')
-    rpc.coeff[3,:] = data_from_keys('LINE_DEN_COEFF')
+    rpc.world_offset = from_keys(('LONG_OFF', 'LAT_OFF', 'HEIGHT_OFF'))
+    rpc.world_scale = from_keys(('LONG_SCALE', 'LAT_SCALE', 'HEIGHT_SCALE'))
+    rpc.image_offset = from_keys(('SAMP_OFF', 'LINE_OFF'))
+    rpc.image_scale = from_keys(('SAMP_SCALE', 'LINE_SCALE'))
+    rpc.coeff[0, :] = from_keys('SAMP_NUM_COEFF')
+    rpc.coeff[1, :] = from_keys('SAMP_DEN_COEFF')
+    rpc.coeff[2, :] = from_keys('LINE_NUM_COEFF')
+    rpc.coeff[3, :] = from_keys('LINE_DEN_COEFF')
     return rpc
 
 
@@ -107,18 +108,18 @@ def rpc_to_gdal_dict(rpc, precision=12):
     """
     md_dict = dict()
     fmt = '%0.' + str(int(precision)) + 'f'
-    md_dict['LONG_OFF']       = fmt % rpc.world_offset[0]
-    md_dict['LAT_OFF']        = fmt % rpc.world_offset[1]
-    md_dict['HEIGHT_OFF']     = fmt % rpc.world_offset[2]
-    md_dict['LONG_SCALE']     = fmt % rpc.world_scale[0]
-    md_dict['LAT_SCALE']      = fmt % rpc.world_scale[1]
-    md_dict['HEIGHT_SCALE']   = fmt % rpc.world_scale[2]
-    md_dict['SAMP_OFF']       = fmt % rpc.image_offset[0]
-    md_dict['LINE_OFF']       = fmt % rpc.image_offset[1]
-    md_dict['SAMP_SCALE']     = fmt % rpc.image_scale[0]
-    md_dict['LINE_SCALE']     = fmt % rpc.image_scale[1]
-    md_dict['SAMP_NUM_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[0,:])
-    md_dict['SAMP_DEN_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[1,:])
-    md_dict['LINE_NUM_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[2,:])
-    md_dict['LINE_DEN_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[3,:])
+    md_dict['LONG_OFF'] = fmt % rpc.world_offset[0]
+    md_dict['LAT_OFF'] = fmt % rpc.world_offset[1]
+    md_dict['HEIGHT_OFF'] = fmt % rpc.world_offset[2]
+    md_dict['LONG_SCALE'] = fmt % rpc.world_scale[0]
+    md_dict['LAT_SCALE'] = fmt % rpc.world_scale[1]
+    md_dict['HEIGHT_SCALE'] = fmt % rpc.world_scale[2]
+    md_dict['SAMP_OFF'] = fmt % rpc.image_offset[0]
+    md_dict['LINE_OFF'] = fmt % rpc.image_offset[1]
+    md_dict['SAMP_SCALE'] = fmt % rpc.image_scale[0]
+    md_dict['LINE_SCALE'] = fmt % rpc.image_scale[1]
+    md_dict['SAMP_NUM_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[0, :])
+    md_dict['SAMP_DEN_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[1, :])
+    md_dict['LINE_NUM_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[2, :])
+    md_dict['LINE_DEN_COEFF'] = ' '.join(fmt % c for c in rpc.coeff[3, :])
     return md_dict
