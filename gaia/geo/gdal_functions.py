@@ -34,6 +34,8 @@ import osr
 from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
 from numpy.ma.core import MaskedConstant
+from gaia.geo.rpc import *
+
 
 logger = logging.getLogger('gaia.geo.gdal_functions')
 
@@ -144,7 +146,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         a.shape = i.im.size[1], i.im.size[0]
         return a
 
-    def world_to_pixel_poly(geoMatrix, geometry):
+    def world_to_pixel_poly(rpc_dict, geometry):
         """
         Uses a gdal geomatrix (gdal.GetGeoTransform()) to calculate
         the pixel location of a geospatial coordinate
@@ -152,14 +154,16 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         pixelRing = ogr.Geometry(ogr.wkbLinearRing)
         geoRing = geometry.GetGeometryRef(0)
         numPoints = geoRing.GetPointCount()
+        rpc = rpc_from_gdal_dict(rpc_dict)
 
         for p in range(numPoints):
-            lon, lat, z = geoRing.GetPoint(p)
-            pixel, line = world_to_pixel(geoMatrix, lon, lat)
+            point = numpy.array(map(float, geoRing.GetPoint(p)))
+            pixel, line = rpc.project(point)
             pixelRing.AddPoint(pixel, line)
 
         pixelPoly = ogr.Geometry(ogr.wkbPolygon)
         pixelPoly.AddGeometry(pixelRing)
+
         return pixelPoly
 
     def world_to_pixel(geoMatrix, x, y):
@@ -196,15 +200,23 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     poly = ogr.CreateGeometryFromJson(polygon_json)
 
     min_x, max_x, min_y, max_y = poly.GetEnvelope()
-    pixelPoly = world_to_pixel_poly(geo_trans, poly)
+    rpc_md = src_image.GetMetadata('RPC')
+    pixelPoly = world_to_pixel_poly(rpc_md, poly)
 
     # Convert the layer extent to image pixel coordinates
     ul_x, lr_x, ul_y, lr_y = map(int, pixelPoly.GetEnvelope())
-
     ul_x = max(0, ul_x)
     ul_y = max(0, ul_y)
     lr_x = min(src_image.RasterXSize - 1, lr_x)
     lr_y = min(src_image.RasterYSize - 1, lr_y)
+
+    samp_off = rpc_md['SAMP_OFF']
+    samp_off = float(samp_off) + ul_x
+    rpc_md['SAMP_OFF'] = str(samp_off)
+
+    line_off = rpc_md['LINE_OFF']
+    line_off = float(line_off) + ul_y
+    rpc_md['LINE_OFF'] = str(line_off)
 
     # Calculate the pixel size of the new image
     # Constrain the width and height to the bounds of the image
@@ -278,12 +290,14 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     output_dataset.SetProjection(gdal_get_projection(raster_input))
 
     # Copy All metadata data from src to dst
-    domains = src_image.GetMetadataDomainList()
-    for tag in domains:
-        md = src_image.GetMetadata(tag)
-        if md:
-            output_dataset.SetMetadata(md, tag)
+#    domains = src_image.GetMetadataDomainList()
+#    for tag in domains:
+#        md = src_image.GetMetadata(tag)
+#        if md:
+#            output_dataset.SetMetadata(md, tag)
 
+    # write out the rpc_md that we modified above
+    output_dataset.SetMetadata(rpc_md, 'RPC')
     gdalnumeric.CopyDatasetInfo(raster_input, output_dataset,
                                 xoff=xoffset, yoff=yoffset)
 
