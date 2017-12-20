@@ -17,6 +17,5 @@ dependencies:
 - geopandas
 - pillow
 - gdal
-- celery
 - psycopg2
 - geoalchemy2

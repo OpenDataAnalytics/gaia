@@ -10,7 +10,6 @@
     romanesco_net_interface: eth0
 
     romanesco_main_app_name: romanesco
-    romanesco_celery_broker: ""
     romanesco_tmp_root: ""
     romanesco_plugin_load_path: []
 

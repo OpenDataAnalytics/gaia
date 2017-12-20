@@ -20,6 +20,5 @@ shapely>=1.5.0
 geopandas>=0.1.0
 pillow>=3.1.1
 gdal>=2.1.0
-celery>=3.1.20
 psycopg2>=2.6.1
 geoalchemy2>=0.2.6

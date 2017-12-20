@@ -36,15 +36,6 @@
         romanesco_tmp_root: "{{ romanesco_data_root }}/tmp"
     when: romanesco_tmp_root == ""
 
-  - name: romanesco | celery broker | default | set
-    set_fact:
-        romanesco_celery_broker: >
-            amqp://{{ hostvars[groups[rabbitmq_ansible_group][0]]
-                              ["ansible_" + romanesco_net_interface]
-                              ["ipv4"]
-                              ["address"] }}
-    when: romanesco_celery_broker == ""
-
   - name: romanesco | install root | probe
     stat:
         path: "{{ romanesco_install_root }}"
