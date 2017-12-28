@@ -445,6 +445,24 @@ def gdal_zonalstats(zones, raster):
     return list(gen_zonalstats(zones, raster))
 
 
+def gdal_bbox(raster_input):
+    """
+    This function will return bounding box information
+    for a raster layer.
+
+    :param raster_input: raster input filepath
+    :return: list of coordinates in (xmin, ymin, xmax, ymax) format
+    """
+
+    raster = get_dataset(raster_input)
+    geotransform = raster.GetGeoTransform()
+    xmax = geotransform[0] + (raster.RasterXSize * geotransform[1])
+    ymin = geotransform[3] + (raster.RasterYSize * geotransform[5])
+    xmin = geotransform[0]
+    ymax = geotransform[3]
+    return [xmin, ymin, xmax, ymax]
+
+
 def gen_zonalstats(zones_json, raster):
     """
     Generator function that yields the statistics of a raster dataset
