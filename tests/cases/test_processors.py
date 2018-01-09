@@ -270,6 +270,19 @@ class TestGaiaProcessors(unittest.TestCase):
         bbox = raster_io.get_bbox()
         self.assertEquals(bbox, [307485.0, 3870285.0, 540015.0, 4107015.0])
 
+    def test_raster_footprint(self):
+        raster_io = RasterFileIO(
+            uri=os.path.join(testfile_path,
+                             'satellite_test_data',
+                             'LC81070352015218LGN00_B5.TIF'))
+
+        footprint = raster_io.get_footprint()
+        self.assertEquals(footprint, [(354404.6484867488, 4107482.3190209507),
+                                      (307366.7298195886, 3915415.660631991),
+                                      (492936.19648358587, 3869968.931078481),
+                                      (539974.1151507461, 4062035.5894674407),
+                                      (354404.6484867488, 4107482.3190209507)])
+
     def test_subset_raster(self):
         """
         Test SubsetProcess for vector & raster inputs
