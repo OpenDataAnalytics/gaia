@@ -24,6 +24,9 @@ import logging
 import gdalconst
 import numpy
 import gdal
+import shapely
+import rasterio
+import rasterio.features
 from gaia import GaiaException
 try:
     import gdalnumeric
@@ -461,6 +464,25 @@ def gdal_bbox(raster_input):
     xmin = geotransform[0]
     ymax = geotransform[3]
     return [xmin, ymin, xmax, ymax]
+
+
+def rasterio_footprint(raster_input):
+    """
+    This function will return the footprint of a raster
+    layer
+
+    :param raster_input: raster input filepath
+    :return: list of coordinates
+    """
+    with rasterio.open(raster_input) as dataset:
+        # Read the dataset's valid data mask as a ndarray.
+        mask = dataset.dataset_mask()
+
+        # Extract feature shapes and values from the array.
+        feature = rasterio.features.shapes(mask, transform=dataset.affine)
+        footprint = next(feature)[0]
+        shape = shapely.geometry.shape(json.loads(json.dumps(footprint)))
+        return list(shape.minimum_rotated_rectangle.exterior.coords)
 
 
 def gen_zonalstats(zones_json, raster):
