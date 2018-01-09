@@ -20,3 +20,4 @@ dependencies:
 - celery
 - psycopg2
 - geoalchemy2
+- rasterio
