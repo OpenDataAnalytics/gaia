@@ -55,7 +55,7 @@ Install of Gaia as a Girder plugin
 ::
 
     cd GIRDER_DIR
-    export IGNORE_PLUGINS=celery_jobs,geospatial,google_analytics,hdfs_assetstore,jquery_widgets,metadata_extractor,mongo_search,oauth,provenance,thumbnails,user_quota,vega,minerva;
+    export IGNORE_PLUGINS=geospatial,google_analytics,hdfs_assetstore,jquery_widgets,metadata_extractor,mongo_search,oauth,provenance,thumbnails,user_quota,vega,minerva;
     scripts/InstallPythonRequirements.py --mode=dev --ignore-plugins=${IGNORE_PLUGINS}
 
 
