@@ -37,7 +37,7 @@ from gaia import GaiaException, sqlengines, get_abspath
 from gaia.inputs import GaiaIO, FileIO, UnsupportedFormatException
 from gaia.filters import filter_pandas, filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
-from gaia.geo.gdal_functions import gdal_bbox, rasterio_footprint
+from gaia.geo.gdal_functions import rasterio_bbox, rasterio_footprint
 
 
 class VectorMixin(object):
@@ -257,7 +257,7 @@ class RasterFileIO(FileIO):
 
     def get_bbox(self):
         """Return bounding box of the dataset"""
-        return gdal_bbox(self.uri)
+        return rasterio_bbox(self.uri)
 
     def get_footprint(self):
         """Return footpring of the dataset"""

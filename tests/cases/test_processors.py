@@ -268,7 +268,8 @@ class TestGaiaProcessors(unittest.TestCase):
                              'LC81070352015218LGN00_B5.TIF'))
 
         bbox = raster_io.get_bbox()
-        self.assertEquals(bbox, [307485.0, 3870285.0, 540015.0, 4107015.0])
+        self.assertEquals(bbox, [307366.7298195886, 3869968.931078481,
+                                 539974.1151507461, 4107482.3190209507])
 
     def test_raster_footprint(self):
         raster_io = RasterFileIO(
