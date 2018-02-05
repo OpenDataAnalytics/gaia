@@ -88,7 +88,8 @@ class GaiaIO(object):
 
         :param filepath: Directory to create
         """
-        if not os.path.exists(os.path.dirname(filepath)):
+        dirname = os.path.dirname(filepath)
+        if dirname and not os.path.exists(dirname):
             try:
                 os.makedirs(os.path.dirname(filepath))
             except OSError as exc:
@@ -109,25 +110,30 @@ class GaiaIO(object):
                 minx = min(self.data.geometry.bounds['minx'])
                 maxx = max(self.data.geometry.bounds['maxx'])
                 if minx >= -180.0 and maxx <= 180.0:
-                    self.data.crs = fiona_crs.from_epsg(4326)
                     self.epsg = 4326
+                    self.data.crs = fiona_crs.from_epsg(self.epsg)
                 elif minx >= -20026376.39 and maxx <= 20026376.39:
-                    self.data.crs = fiona_crs.from_epsg(3857)
                     self.epsg = 3857
+                    self.data.crs = fiona_crs.from_epsg(self.epsg)
                 else:
                     raise GaiaException('Could not determine data projection.')
                 return self.epsg
             else:
                 crs = self.data.crs.get('init', None)
-                if crs and ':' in crs:
-                    crs = crs.split(':')[1]
-                if crs.isdigit():
-                    self.epsg = int(crs)
+                if crs:
+                    if ':' in crs:
+                        crs = crs.split(':')[1]
+                    if crs.isdigit():
+                        self.epsg = int(crs)
+                        return self.epsg
+                    # Assume EPSG:4326
+                    self.epsg = 4326
+                    self.data.crs = fiona_crs.from_epsg(self.epsg)
                     return self.epsg
                 else:
                     # Assume EPSG:4326
                     self.epsg = 4326
-                    self.data.crs = fiona_crs.from_epsg(4326)
+                    self.data.crs = fiona_crs.from_epsg(self.epsg)
                     return self.epsg
         elif self.data.__class__.__name__ == 'Dataset':
             projection = self.data.GetProjection()
