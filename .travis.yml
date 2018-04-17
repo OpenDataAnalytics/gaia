@@ -14,10 +14,14 @@ matrix:
     - env: TRAVIS_PYTHON_VERSION="3.5"
 
 addons:
-  postgresql: "9.5"
+  postgresql: "9.6"
+  apt:
+    packages:
+      - postgresql-9.6-postgis-2.3
 
 services:
   - postgresql
+  - postgis
 
 cache:
   directories:
@@ -27,6 +31,15 @@ before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
 
 before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      export PG_DATA=$(brew --prefix)/var/postgres &&
+      rm -rf $PG_DATA &&
+      initdb $PG_DATA -E utf8 &&
+      pg_ctl -w start -l postgres.log --pgdata ${PG_DATA} &&
+      createuser -s postgres;
+    fi
+  - psql -c 'CREATE EXTENSION postgis;' -U postgres
+  - psql -c 'create database travis_ci_test;' -U postgres
   # add miniconda - from https://gist.github.com/dan-blanchard/7045057
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       wget -O miniconda.sh http://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh;
@@ -37,7 +50,7 @@ before_install:
   - chmod +x miniconda.sh
   - ./miniconda.sh -b -p $HOME/miniconda
   - export PATH=$HOME/miniconda/bin:$PATH
-  - conda update --yes conda python
+  # - conda update --yes conda python
   # create environment in conda
   - conda env create -f conda_env.yml python=$TRAVIS_PYTHON_VERSION
   - conda install -c conda-forge -y geos=3.6.2
@@ -46,18 +59,8 @@ before_install:
   - pip install -r requirements-dev.txt
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y postgresql-9.5-postgis-2.3; fi
   - cd $TRAVIS_BUILD_DIR
   - pip install -e .
-
-before_script:
-  # from: https://github.com/travis-ci/travis-ci/issues/1875
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rm -rf /usr/local/var/postgres; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then initdb /usr/local/var/postgres; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pg_ctl -D /usr/local/var/postgres start; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then createuser -s postgres; fi
-  - psql -c 'create database travis_ci_test;' -U postgres
-  - psql -c 'CREATE EXTENSION postgis;' -U postgres -d travis_ci_test
 
 script:
   - coverage run --source gaia -m unittest discover
