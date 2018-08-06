@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 
 from gaia import GaiaException
 
@@ -18,34 +20,32 @@ available to the whole application.
 __process_registry = {}
 
 
-"""
-Return a list of registry entries that implement the process.
-"""
 def find_processes(processName):
+    """
+    Return a list of registry entries that implement the named process.
+    """
     if processName in __process_registry:
         return __process_registry[processName]
     return None
 
 
-"""
-Process registration decorator
-"""
 def register_process(processName):
+    """
+    Return a process registration decorator
+    """
     def processRegistrationDecorator(computeMethod):
-        if not processName in __process_registry:
+        if processName not in __process_registry:
             __process_registry[processName] = []
         __process_registry[processName].append(computeMethod)
         return computeMethod
     return processRegistrationDecorator
 
 
-"""
-Display a list of the processes in the registry, for debugging or informational
-purposes.
-"""
 def list_processes(processName=None):
-    processes = []
-
+    """
+    Display a list of the processes in the registry, for debugging or
+    informational purposes.
+    """
     def display_processes(name, plist):
         print('%s processes:' % name)
         for item in plist:
@@ -61,10 +61,10 @@ def list_processes(processName=None):
             display_processes(pName, __process_registry[pName])
 
 
-"""
-Just looks up a process that can do the job and asks it to 'compute'
-"""
 def compute(processName, inputs, args):
+    """
+    Just looks up a process that can do the job and asks it to 'compute'
+    """
     processes = find_processes(processName)
 
     if not processes:
@@ -76,7 +76,7 @@ def compute(processName, inputs, args):
         # just return the first one.
         try:
             return p(inputs, args)
-        except GaiaException as inst:
+        except GaiaException:
             pass
 
     raise GaiaException('No registered processes were able to validate inputs')

@@ -28,6 +28,7 @@ import shapely
 import rasterio
 import rasterio.features
 from gaia import GaiaException
+from gaia.util import get_uri_extension, UnsupportedFormatException
 try:
     import gdalnumeric
 except ImportError:
@@ -36,6 +37,7 @@ import ogr
 import osr
 from PIL import Image, ImageDraw
 from osgeo.gdal_array import BandReadAsArray, BandWriteArray
+import numpy as np
 from numpy.ma.core import MaskedConstant
 
 logger = logging.getLogger('gaia.geo.gdal_functions')
@@ -55,8 +57,6 @@ ndv_lookup = {
     'Float32': 1.175494351E-38,
     'Float64': 1.7976931348623158E+308
 }
-
-
 
 # Map of file extensions to driver name
 driver_lookup = {

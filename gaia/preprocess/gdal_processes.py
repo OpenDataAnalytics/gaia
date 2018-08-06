@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 
 from gaia import GaiaException
 from gaia.gaia_data import GDALDataObject
@@ -8,19 +10,17 @@ from gaia.process_registry import register_process
 from gaia.geo.gdal_functions import gdal_clip
 
 
-"""
-Rely on the base validate method for the bulk of the work, just make
-sure the inputs are gdal-compatible.
-"""
 def validate_gdal(v):
+    """
+    Rely on the base validate method for the bulk of the work, just make
+    sure the inputs are gdal-compatible.
+    """
     def validator(inputs=[], args=[]):
         # FIXME: we should check we have a specific gdal type input also
         return v(inputs, args)
     return validator
 
-"""
-Do a gdal crop
-"""
+
 @register_process('crop')
 @validate_subset
 @validate_gdal

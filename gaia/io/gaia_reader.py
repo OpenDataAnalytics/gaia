@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 from future.utils import with_metaclass
 
 from gaia.gaia_data import GaiaDataObject
@@ -12,19 +14,20 @@ from gaia.util import (
 )
 
 
-"""
-This is the metaclass for any type deriving from GaiaReader, providing
-us with a registry of possible readers, which we can use to look for an
-appropriate subtype at runtime, based on constructor args.
-"""
 class GaiaReaderFactoryMetaclass(type):
+    """
+    This is the metaclass for any type deriving from GaiaReader, providing
+    us with a registry of possible readers, which we can use to look for an
+    appropriate subtype at runtime, based on constructor args.
+    """
     _registry = {}
 
     """
     Make sure we include every GaiaReader subtype in our registry.
     """
     def __new__(cls, clsname, bases, dct):
-        classtoreturn = super(GaiaReaderFactoryMetaclass, cls).__new__(cls, clsname, bases, dct)
+        classtoreturn = super(GaiaReaderFactoryMetaclass,
+                              cls).__new__(cls, clsname, bases, dct)
         GaiaReaderFactoryMetaclass._registry[clsname] = classtoreturn
         return classtoreturn
 
@@ -74,10 +77,10 @@ class GaiaReaderFactoryMetaclass(type):
         return instance
 
 
-"""
-Abstract base class, root of the reader class hierarchy.
-"""
 class GaiaReader(with_metaclass(GaiaReaderFactoryMetaclass, object)):
+    """
+    Abstract base class, root of the reader class hierarchy.
+    """
     def __init__(self, *args, **kwargs):
         pass
 

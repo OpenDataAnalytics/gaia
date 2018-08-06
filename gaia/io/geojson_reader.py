@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 
 import re
 import geopandas
@@ -17,10 +19,10 @@ import gaia.formats as formats
 import gaia.types as types
 
 
-"""
-Another specific subclass for reading GeoJSON
-"""
 class GaiaGeoJSONReader(GaiaReader):
+    """
+    Another specific subclass for reading GeoJSON
+    """
     epsgRegex = re.compile('epsg:([\d]+)')
 
     def __init__(self, *args, **kwargs):
@@ -48,7 +50,7 @@ class GaiaGeoJSONReader(GaiaReader):
         self.__read_internal(dataObject)
 
     def __read_internal(self, dataObject):
-        ### FIXME: need to handle format
+        # FIXME: need to handle format
         # if not self.format:
         #     self.format = self.default_output
 
@@ -62,11 +64,11 @@ class GaiaGeoJSONReader(GaiaReader):
 
         data = geopandas.read_file(self.uri)
 
-        ### FIXME: still need to handle filtering
+        # FIXME: still need to handle filtering
         # if self.filters:
         #     self.filter_data()
 
-        ### FIXME: skipped the transformation step for now
+        # FIXME: skipped the transformation step for now
         # return self.transform_data(format, epsg)
 
         # do the actual reading and set both data and metadata

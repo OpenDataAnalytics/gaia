@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 
 import os
 
@@ -27,10 +29,10 @@ import gaia.formats as formats
 import gaia.types as types
 
 
-"""
-A specific subclass for reading GDAL files
-"""
 class GaiaGDALReader(GaiaReader):
+    """
+    A specific subclass for reading GDAL files
+    """
     def __init__(self, *args, **kwargs):
         super(GaiaGDALReader, self).__init__(*args, **kwargs)
 
@@ -77,8 +79,10 @@ class GaiaGDALReader(GaiaReader):
         self.old_nodata = old_nodata
         self.new_nodata = new_nodata
 
-        # FIXME: if we got "as_numpy_array=True", should we return different data object type?
-        return GDALDataObject(reader=self, dataFormat=self.format, epsg=self.epsg)
+        # FIXME: if we got "as_numpy_array=True", should we return different
+        # data object type?
+        o = GDALDataObject(reader=self, dataFormat=self.format, epsg=self.epsg)
+        return o
 
     def load_metadata(self, dataObject):
         self.__read_internal(dataObject)
@@ -98,7 +102,7 @@ class GaiaGDALReader(GaiaReader):
         dataObject.set_data(gdal.Open(self.uri))
 
         if self.epsg and dataObject.get_epsg() != self.epsg:
-            dataObject.reproject(epsg)
+            dataObject.reproject(self.epsg)
 
         dataObject.set_metadata({})
         dataObject.datatype = types.RASTER

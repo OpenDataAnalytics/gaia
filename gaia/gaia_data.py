@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 
 from sqlalchemy import create_engine, MetaData, Table, text
 from geoalchemy2 import Geometry
@@ -11,6 +13,7 @@ except ImportError:
     from osgeo import osr
 
 from gaia import GaiaException
+from gaia.filters import filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
 from gaia.util import sqlengines
 

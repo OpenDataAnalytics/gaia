@@ -1,7 +1,9 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 
-from gaia.validators import *
+import gaia.validators as validators
 from gaia.process_registry import register_process
 from gaia import GaiaException
 from gaia.gaia_data import GaiaDataObject
@@ -10,17 +12,17 @@ from geopandas import GeoDataFrame
 from geopandas import GeoSeries
 
 
-"""
-Since the base validate method we import does most of the work in a fairly
-generic way, this function only needs to add a little bit to that: make sure
-the inputs contain geopandas dataframe.  Additionally, all the processes
-defined in this module can re-use the same validate method.
-"""
 def validate_pandas(v):
+    """
+    Since the base validate method we import does most of the work in a fairly
+    generic way, this function only needs to add a little bit to that: make
+    sure the inputs contain geopandas dataframe.  Additionally, all the
+    processes defined in this module can re-use the same validate method.
+    """
     def validator(inputs=[], args={}):
         # First should check if input is compatible w/ pandas computation
         if type(inputs[0].get_data()) is not GeoDataFrame:
-            raise GaiaException('pandas processes need data objects containing a GeoDataFrame')
+            raise GaiaException('pandas process requires a GeoDataFrame')
 
         # Otherwise call up the chain to let parent do common validation
         return v(inputs, args)
@@ -28,11 +30,8 @@ def validate_pandas(v):
     return validator
 
 
-"""
-Crop in pandas
-"""
 @register_process('crop')
-@validate_within
+@validators.validate_within
 @validate_pandas
 def crop_pandas(inputs=[], args={}):
     """

@@ -1,17 +1,20 @@
 from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+from builtins import (
+    bytes, str, open, super, range, zip, round, input, int, pow, object
+)
 
 from gaia import GaiaException
+from gaia import formats
 import gaia.types as types
 
 
-"""
-Try to cast a process argument to its required type. Raise an
-exception if not successful.
-:param arg: The argument property
-:param arg_type: The required argument type (int, str, etc)
-"""
 def test_arg_type(args, arg, arg_type):
+    """
+    Try to cast a process argument to its required type. Raise an
+    exception if not successful.
+    :param arg: The argument property
+    :param arg_type: The required argument type (int, str, etc)
+    """
     try:
         arg_type(args[arg])
     except Exception:
@@ -19,23 +22,19 @@ def test_arg_type(args, arg, arg_type):
                             .format(arg, arg_type))
 
 
-"""
-Here we take the validate method body from the existing process base class
-and change it to take parameters instead of referring to class/instance
-variables
-"""
-def validate_base(inputs, args, required_inputs=[], required_args=[], optional_args=[]):
+def validate_base(inputs, args, required_inputs=[], required_args=[],
+                  optional_args=[]):
     """
     Ensure that all required inputs and arguments are present.
     """
     input_types = []
     errors = []
 
-    for input in inputs:
-        inputDataType = input.datatype
+    for procInput in inputs:
+        inputDataType = procInput.datatype
         if inputDataType == types.PROCESS:
             for t in [i for i in dir(types) if not i.startswith("__")]:
-                if any((True for x in input.default_output if x in getattr(
+                if any((True for x in procInput.default_output if x in getattr(
                         formats, t, []))):
                     inputDataType = getattr(types, t)
                     break
@@ -62,7 +61,7 @@ def validate_base(inputs, args, required_inputs=[], required_args=[], optional_a
         raise GaiaException('\n'.join(errors))
     for item in required_args:
         arg, arg_type = item['name'], item['type']
-        if not arg in args or args[arg] is None:
+        if arg not in args or args[arg] is None:
             raise GaiaException('Missing required argument {}'.format(arg))
         test_arg_type(args, arg, arg_type)
         if 'options' in item and args[arg] not in item['options']:
