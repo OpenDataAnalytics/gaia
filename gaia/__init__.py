@@ -23,6 +23,8 @@ import os
 import pkg_resources as pr
 import logging
 
+from .display import geojs
+
 #: Global version number for the package
 __version__ = '0.0.1a1'
 
@@ -117,65 +119,27 @@ def get_plugins():
     return installed_plugins
 
 
-get_config()
-
-def show(*data_objects):
+def show(*data_objects, **options):
     """
     Displays data objects using available rendering code
 
-    :param data_object: 1 or more GeoData objects
+    :param data_objects: 1 or more GeoData objects
+    :param options: options to pass to rendering backend
+
+    Note: gaia.show() only renders if it is the
+    last line of code in the cell input.
     """
     if not data_objects:
         print('(no data objects)')
-        return
+        return None
 
     # Is jupyterlab_geojs available?
-    try:
-        import json
-        from IPython.display import display
-        import jupyterlab_geojs
-    except ImportError as err:
-        print(data_objects)
-        return
+    if geojs.is_loaded():
+        scene = geojs.show(*data_objects, options=options)
+        return scene
 
     # (else)
-    #print(data_objects)
-    scene = jupyterlab_geojs.Scene()
-    scene.create_layer('osm')
-    feature_layer = scene.create_layer('feature')
+    print(data_objects)
+    return None
 
-    combined_bounds = None
-    # Reverse order so that first item ends on top
-    for data_object in reversed(data_objects):
-        # Create map feature
-        #print(data_object._getdatatype(), data_object._getdataformat())
-        # type is vector, format is [.json, .geojson, .shp, pandas]
-        data = data_object.get_data()
-
-        # Can only seem to get json *string*; so parse into json *object*
-        json_string = data.to_json()
-        json_object = json.loads(json_string)
-        feature = feature_layer.create_feature('geojson', json_object)
-        #print(json_object)
-        feature.enableToolTip = True  # dont work
-
-        geometry = data['geometry']
-        bounds = geometry.total_bounds
-        #print(bounds)
-        if combined_bounds is None:
-            combined_bounds = bounds
-        else:
-            combined_bounds[0] = min(combined_bounds[0], bounds[0])
-            combined_bounds[1] = min(combined_bounds[1], bounds[1])
-            combined_bounds[2] = max(combined_bounds[2], bounds[2])
-            combined_bounds[3] = max(combined_bounds[3], bounds[3])
-
-    #print(combined_bounds)
-    corners = [
-        [combined_bounds[0], combined_bounds[1]],
-        [combined_bounds[2], combined_bounds[1]],
-        [combined_bounds[2], combined_bounds[3]],
-        [combined_bounds[0], combined_bounds[3]]
-    ]
-    scene.set_zoom_and_center(corners=corners)
-    display(scene)
+get_config()
