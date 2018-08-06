@@ -51,6 +51,16 @@ class GaiaException(Exception):
     pass
 
 
+def create(*args, **kwargs):
+    """
+    Convenience method to provide a simpler API for creating
+    GaiaDataObject
+    """
+    from gaia.io import readers
+    reader = readers.GaiaReader(*args, **kwargs)
+    return reader.read()
+
+
 def get_abspath(inpath):
     """
     Get absolute path of a path string

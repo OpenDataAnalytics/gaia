@@ -1,12 +1,13 @@
 
-from gaia.geo.preprocessing.pandas_processes import *
-from gaia.geo.preprocessing.gdal_processes import *
+from gaia.preprocess.pandas_processes import *
+from gaia.preprocess.gdal_processes import *
 
 from gaia.process_registry import compute
 
 
-def crop (inputs=[], args={}):
-    return compute('crop', inputs=inputs, args=args)
+# def crop (inputs=[], args={}):
+def crop (*args, **kwargs):
+    return compute('crop', inputs=list(args), args=kwargs)
 
 # def centroid(inputs=[], args={}):
 #     return compute('centroid', inputs=inputs, args=args)
