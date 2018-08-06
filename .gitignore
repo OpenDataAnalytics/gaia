@@ -59,5 +59,8 @@ _build*/
 .idea/
 .vagrant/
 
+# Notebook checkpoints
+*checkpoint.*
+
 # macOS
 .DS_Store
