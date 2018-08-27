@@ -8,9 +8,9 @@ try:
     import json
     from IPython.display import display
     import jupyterlab_geojs
-    IS_LOADED = True
+    IS_GEOJS_LOADED = True
 except ImportError as err:
-    IS_LOADED = False
+    IS_GEOJS_LOADED = False
 
 
 def is_loaded():
@@ -18,15 +18,16 @@ def is_loaded():
 
     :return boolean
     """
-    return IS_LOADED
+    return IS_GEOJS_LOADED
 
 
-def show(*data_objects, **options):
+def show(data_objects, **options):
     """Returns geojs scene for JupyterLab display
 
-    :param data_objects: 1 or more GeoData objects
-    :param options: options passed to scene instance
-    :return: jupyterlab_scene.Scene instance if running Jupyter;
+    :param data_objects: list of GeoData objects to display, in
+        front-to-back rendering order.
+    :param options: options passed to jupyterlab_geojs.Scene instance.
+    :return: jupyterlab_geojs.Scene instance if running Jupyter;
         otherwise returns data_objects for default display
     """
     if not data_objects:
@@ -36,8 +37,11 @@ def show(*data_objects, **options):
         return data_objects
 
     # (else)
+    if not hasattr(data_objects, '__iter__'):
+        data_objects = [data_objects]
+
     #print(data_objects)
-    scene = jupyterlab_geojs.Scene()
+    scene = jupyterlab_geojs.Scene(**options)
     scene.create_layer('osm')
     feature_layer = scene.create_layer('feature')
 
