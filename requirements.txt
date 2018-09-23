@@ -25,3 +25,4 @@ psycopg2>=2.6.1
 geoalchemy2>=0.2.6
 rasterio>=0.36.0
 pyOpenSSL>=17.0.0
+girder_client>=2.4.0
