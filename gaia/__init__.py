@@ -53,6 +53,32 @@ class GaiaException(Exception):
     pass
 
 
+def connect(girder_url='http://locahost:8080', username=None, password=None, apikey=None):
+    """Initialize a connection to a Girder data management system
+
+    Gaia datasets can be created from girder files and folders using
+    either of these formats:
+
+      gaia.create('girder://file/${id}')
+      gaia.create('girder://folder/${id}')
+
+    The datasets are stored in the girder system, and proxied to gaia.
+
+    :param girder_url: The full path to the Girder instance, for example,
+    'http://localhost:80' or 'https://my.girder.com'.
+    :param username: (string) The name for logging into Girder.
+    :param password: (string) The password for logging into Girder.
+    :apikey: (string)An api key, which can be used instead of username & password.
+
+    Note that applications can connect to only ONE girder instance for the
+    entire session.
+    """
+    from gaia.io import GirderInterface
+    gint = GirderInterface.get_instance()
+    if gint.is_initialized():
+        raise GaiaException('GirderInterface already initialized.')
+    gint.initialize(girder_url, username=username, password=password, apikey=apikey)
+
 def create(*args, **kwargs):
     """
     Convenience method to provide a simpler API for creating
@@ -141,31 +167,5 @@ def show(*data_objects, **options):
     # (else)
     print(data_objects)
     return None
-
-def use_girder(girder_url, username=None, password=None, apikey=None):
-    """Initialize a connection to a Girder data management system
-
-    Gaia datasets can be created from girder files and folders using
-    either of these formats:
-
-      gaia.create('girder://file/${id}')
-      gaia.create('girder://folder/${id}')
-
-    The datasets are stored in the girder system, and proxied to gaia.
-
-    :param girder_url: The full path to the Girder instance, for example,
-    'http://localhost:80' or 'https://my.girder.com'.
-    :param username: (string) The name for logging into Girder.
-    :param password: (string) The password for logging into Girder.
-    :apikey: (string)An api key, which can be used instead of username & password.
-
-    Note that applications can connect to only ONE girder instance for the
-    entire session.
-    """
-    from gaia.io import GirderInterface
-    gint = GirderInterface.get_instance()
-    if gint.is_initialized():
-        raise GaiaException('GirderInterface already initialized.')
-    gint.initialize(girder_url, username=username, password=password, apikey=apikey)
 
 get_config()

@@ -3,10 +3,7 @@ from future.standard_library import install_aliases
 
 import girder_client
 
-from gaia.util import (
-    MissingParameterError,
-    get_uri_extension
-)
+from gaia.util import MissingParameterError
 
 
 class GirderInterface(object):
