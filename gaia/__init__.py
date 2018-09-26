@@ -79,13 +79,16 @@ def connect(girder_url='http://locahost:8080', username=None, password=None, api
         raise GaiaException('GirderInterface already initialized.')
     gint.initialize(girder_url, username=username, password=password, apikey=apikey)
 
-def create(*args, **kwargs):
+def create(url_or_object, *args, **kwargs):
     """
     Convenience method to provide a simpler API for creating
     GaiaDataObject
+
+    :param url_or_object: the source data for the object. Can be either a file,
+      web url, girder url, another python object (numpy array, GeoPandas dataframe, etc.)
     """
     from gaia.io import readers
-    reader = readers.GaiaReader(*args, **kwargs)
+    reader = readers.GaiaReader(url_or_object, *args, **kwargs)
     return reader.read()
 
 

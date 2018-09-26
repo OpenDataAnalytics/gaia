@@ -13,16 +13,14 @@ class GirderReader(GaiaReader):
     """
     A specific subclass for reading GDAL files
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, url, *args, **kwargs):
         """
         """
         super(GirderReader, self).__init__(*args, **kwargs)
-        self.url = kwargs.get('uri')
+        self.url = url
 
     @staticmethod
-    def can_read(*args, **kwargs):
-        url = kwargs.get('uri')
-        #print('kwargs', kwargs)
+    def can_read(url, *args, **kwargs):
         girder_scheme = 'girder://'
         if url is not None and url.startswith(girder_scheme):
             result = GirderReader._parse_girder_url(url)

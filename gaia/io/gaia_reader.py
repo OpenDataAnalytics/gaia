@@ -87,7 +87,7 @@ class GaiaReader(with_metaclass(GaiaReaderFactoryMetaclass, object)):
     """
     Return a GaiaDataObject
     """
-    def read(self, format=None, epsg=None):
+    def read(self, url_or_object, format=None, epsg=None):
         return GaiaDataObject(reader=self)
 
     def load_metadata(self, dataObject):

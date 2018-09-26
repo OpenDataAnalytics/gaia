@@ -25,19 +25,17 @@ class GaiaGeoJSONReader(GaiaReader):
     """
     epsgRegex = re.compile('epsg:([\d]+)')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, url, *args, **kwargs):
         super(GaiaGeoJSONReader, self).__init__(*args, **kwargs)
 
-        if 'uri' in kwargs:
-            self.uri = kwargs['uri']
-            self.ext = '.%s' % get_uri_extension(self.uri)
+        self.uri = url
+        self.ext = '.%s' % get_uri_extension(self.uri)
 
     @staticmethod
-    def can_read(*args, **kwargs):
-        if 'uri' in kwargs:
-            extension = get_uri_extension(kwargs['uri'])
-            if extension == 'geojson':
-                return True
+    def can_read(url, *args, **kwargs):
+        extension = get_uri_extension(url)
+        if extension == 'geojson':
+            return True
         return False
 
     def read(self, format=None, epsg=None):

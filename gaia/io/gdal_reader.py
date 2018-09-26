@@ -33,12 +33,11 @@ class GaiaGDALReader(GaiaReader):
     """
     A specific subclass for reading GDAL files
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, url, *args, **kwargs):
         super(GaiaGDALReader, self).__init__(*args, **kwargs)
 
-        if 'uri' in kwargs:
-            self.uri = kwargs['uri']
-            self.ext = '.%s' % get_uri_extension(self.uri)
+        self.uri = url
+        self.ext = '.%s' % get_uri_extension(self.uri)
 
         self.as_numpy_array = False
         self.as_single_band = True
@@ -46,11 +45,10 @@ class GaiaGDALReader(GaiaReader):
         self.new_nodata = None
 
     @staticmethod
-    def can_read(*args, **kwargs):
-        if 'uri' in kwargs:
-            extension = get_uri_extension(kwargs['uri'])
-            if extension == 'tif' or extension == 'tiff':
-                return True
+    def can_read(url, *args, **kwargs):
+        extension = get_uri_extension(url)
+        if extension == 'tif' or extension == 'tiff':
+            return True
         return False
 
     def read(self, format=formats.RASTER, epsg=None, as_numpy_array=False,
