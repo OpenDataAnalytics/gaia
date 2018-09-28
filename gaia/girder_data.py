@@ -21,6 +21,6 @@ class GirderDataObject(GaiaDataObject):
     def get_metadata(self, force=False):
         if force or self._metadata is None:
             gc = GirderInterface._get_girder_client()
-            metadata = gc.get('{}/{}'.format(self.resource_type,self.resource_id))
+            metadata = gc.get('item/{}/geometa'.format(self.resource_id))
             self._metadata = metadata
         return self._metadata

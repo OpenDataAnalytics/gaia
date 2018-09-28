@@ -10,6 +10,9 @@ from gaia.process_registry import compute
 def crop (*args, **kwargs):
     return compute('crop', inputs=list(args), args=kwargs)
 
+def crop2(inputs, geometry, **kwargs):
+    return compute('crop2', inputs, geometry)
+
 # def centroid(inputs=[], args={}):
 #     return compute('centroid', inputs=inputs, args=args)
 

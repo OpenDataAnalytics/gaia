@@ -53,7 +53,7 @@ class GaiaException(Exception):
     pass
 
 
-def connect(girder_url='http://locahost:8080', username=None, password=None, apikey=None):
+def connect(girder_url='http://localhost:8989', username=None, password=None, apikey=None):
     """Initialize a connection to a Girder data management system
 
     Gaia datasets can be created from girder files and folders using
