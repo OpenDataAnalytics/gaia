@@ -85,7 +85,7 @@ class GirderReader(GaiaReader):
             raise GaiaException('Invalid girder url; path must be length 2')
 
         resource_type, resource_id = path_list
-        if (resource_type not in ['file', 'folder']):
-            raise GaiaException('Invalid girder url; path must start with either "file/" or "folder/"')
+        if (resource_type not in ['item', 'folder']):
+            raise GaiaException('Invalid girder url; path must start with either "item/" or "folder/"')
 
         return resource_type,resource_id
