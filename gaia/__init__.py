@@ -177,7 +177,7 @@ def show(*data_objects, **options):
 
     # Is jupyterlab_geojs available?
     if geojs.is_loaded():
-        scene = geojs.show(*data_objects, options=options)
+        scene = geojs.show(*data_objects, **options)
         return scene
 
     # (else)
