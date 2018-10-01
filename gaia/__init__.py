@@ -78,17 +78,23 @@ def connect(girder_url='http://localhost:8989', username=None, password=None, ap
     if gint.is_initialized():
         raise GaiaException('GirderInterface already initialized.')
     gint.initialize(girder_url, username=username, password=password, apikey=apikey)
+    return gint
 
-def create(url_or_object, *args, **kwargs):
+def create(data_source, *args, **kwargs):
     """
     Convenience method to provide a simpler API for creating
     GaiaDataObject
 
-    :param url_or_object: the source data for the object. Can be either a file,
-      web url, girder url, another python object (numpy array, GeoPandas dataframe, etc.)
+    :param data_source: the source data for the object. Can be one of:
+      * a path (string) on local filesystem
+      * a web url (string) that Gaia can download from
+      * a python object (numpy array, GeoPandas dataframe, etc.)
+      * TBD a tuple indicating postgis parameters
+      * a 2-tuple specifying a GirderInterface object and path(string) to the file
+    :return: Gaia data obkject
     """
     from gaia.io import readers
-    reader = readers.GaiaReader(url_or_object, *args, **kwargs)
+    reader = readers.GaiaReader(data_source, *args, **kwargs)
     return reader.read()
 
 
@@ -126,6 +132,13 @@ def get_config(config_file=None):
             config_dict[section][key] = val.strip('"').strip("'")
     config = config_dict
     return config_dict
+
+def get_datastore_url(path):
+    """Returns url (string) pointing to resource on remote datastore.
+
+    Returns None if the file is not found at the given path.
+    """
+
 
 
 def get_plugins():

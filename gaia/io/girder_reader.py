@@ -13,35 +13,50 @@ class GirderReader(GaiaReader):
     """
     A specific subclass for reading GDAL files
     """
-    def __init__(self, url, *args, **kwargs):
+    def __init__(self, data_source, *args, **kwargs):
         """
         """
         super(GirderReader, self).__init__(*args, **kwargs)
-        self.url = url
+        self.girder_source = data_source
+        self.url = None
+
+        if isinstance(data_source, str):
+            self.url = data_source
+        elif isinstance(data_source, tuple):
+            self.girder_source = girder_source
 
     @staticmethod
-    def can_read(url, *args, **kwargs):
-        girder_scheme = 'girder://'
-        if url is not None and url.startswith(girder_scheme):
-            result = GirderReader._parse_girder_url(url)
-            if result is None:
-                return False
+    def can_read(source, *args, **kwargs):
+        # For now, supporting either url (string) or tuple (GirderInterface,path)
+        if isinstance(source, str):
+            girder_scheme = 'girder://'
+            if source is not None and source.startswith(girder_scheme):
+                result = GirderReader._parse_girder_url(source)
+                if result is None:
+                    return False
+
+                # Todo Confirm that resource exists on girder?
+                return True
 
             # (else)
-            if not GirderInterface.is_initialized():
-                raise GaiaException('Cannot read girder object; must first call gaia.use_girder()')
+            return False
+        else:
+            if not isinstance(source, tuple) and not len(source) == 2:
+                return False
 
-            # Confirm that resource exists on girder?
-            # Todo move to GirderDataObject
-            # gc = GirderInterface._get_girder_client()
-            # resource_type,resource_id = result
-            # resource = gc.get('{}/{}'.format(resource_type,resource_id))
-            # print('resource:', resource)
+            gint,path = source
+            if not isinstance(gint, GirderInterface):
+                return False
 
-            return True
+            if not isinstance(path, str):
+                raise GaiaException('Second tuple element is not a string')
+
+            if not gint.is_initialized():
+                raise GaiaException('Cannot read girder object; must first call gaia.connect()')
+
 
         # (else)
-        return False
+        return True
 
     def read(self, **kwargs):
         """Returns a GirderDataset
@@ -52,12 +67,26 @@ class GirderReader(GaiaReader):
 
         :return: Girder Dataset
         """
-        parsed_result = self.__class__._parse_girder_url(self.url)
-        if parsed_result is None:
-            raise GaiaException('Internal error - not a girder url')
+        if self.url:
+            parsed_result = self.__class__._parse_girder_url(self.url)
+            if parsed_result is None:
+                raise GaiaException('Internal error - not a girder url')
 
-        resource_type,resource_id = parsed_result
-        return GirderDataObject(self, resource_type, resource_id)
+            resource_type,resource_id = parsed_result
+            return GirderDataObject(self, resource_type, resource_id)
+
+        elif self.girder_source:
+            gint,path = self.girder_source
+            resource = gint.lookup_resource(path)
+            if resource is None:
+                raise GaiaException('File not found on Girder at specified path ({})'.format(path))
+
+            resource_type = resource['_modelType']
+            resource_id = resource['_id']
+            return GirderDataObject(self, resource_type, resource_id)
+
+        raise GaiaException('Internal error - should never reach end of GirderReader.read()')
+        return None
 
     def load_metadata(self, dataObject):
         # Todo

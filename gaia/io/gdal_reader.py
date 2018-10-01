@@ -46,6 +46,10 @@ class GaiaGDALReader(GaiaReader):
 
     @staticmethod
     def can_read(url, *args, **kwargs):
+        # Todo update for girder-hosted files
+        if not isinstance(url, str):
+            return False
+
         extension = get_uri_extension(url)
         if extension == 'tif' or extension == 'tiff':
             return True

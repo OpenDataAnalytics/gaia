@@ -19,12 +19,17 @@ resource_url = 'girder://file/{}'.format(sfbay_tiff_id)
 #girder_url = 'http://localhost:8989'
 user = 'admin'
 pw = 'letmein'
-gaia.connect(username=user, password=pw)
+datastore = gaia.connect(username=user, password=pw)
 
-# Create gaia dataset for girder-hosted file
-item_id = '5bae2975e44298008d78ac90'  # DEM_bare_earth.tif (4+ GB)
-resource_url = 'girder://item/{}'.format(item_id)
-dataset = gaia.create(resource_url)
+# API option 1: create internal url
+datastore_url = datastore.lookup_url('Public/DEM_bare_earth.tif')
+print(datastore_url)
+dataset = gaia.create(datastore_url)
+
+# API option 2: pass in tuple as the data source
+# data_source = (datastore, 'Public/DEM_bare_earth.tif')
+# dataset = gaia.create(data_source)
+
 meta = dataset.get_metadata()
 print()
 # print(json.dumps(meta, sort_keys=True, indent=2))

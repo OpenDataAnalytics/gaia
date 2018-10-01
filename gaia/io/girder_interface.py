@@ -22,6 +22,7 @@ class GirderInterface(object):
 
         GirderInterface.instance = self
         self.gc = None  # girder client
+        self.user = None  # girder user object
 
     @classmethod
     def get_instance(cls):
@@ -69,7 +70,42 @@ class GirderInterface(object):
         else:
             raise MissingParameterError('No girder credentials provided.')
 
+        # Get user info
+        self.user = gc.getUser('me')
+
+        # Todo create Private/Gaia folder?
+
         self.gc = gc
+
+    def lookup_url(self, path, test=False):
+        """Returns internal url for resource at specified path
+
+        :param path: (string) Girder path, from user's root to resource
+        :param test: (boolean) if True, raise exception if resource not found
+        """
+        resource = self.lookup_resource(path, test)
+        if resource is None:
+            return None
+
+        # (else) construct "gaia" url
+        resource_type = resource['_modelType']
+        resource_id = resource['_id']
+        gaia_url = 'girder://{}/{}'.format(resource_type, resource_id)
+        return gaia_url
+
+
+
+    def lookup_resource(self, path, test=True):
+        """Does lookup of resource at specified path
+
+        :param path: (string) Girder path, from user's root to resource
+        :param test: (boolean) if True, raise exception if resource not found
+        """
+        gc = self.__class__._get_girder_client()
+        girder_path = 'user/{}/{}'.format(self.user['login'], path)
+        resource = gc.get('resource/lookup', parameters={'path': girder_path, 'test': test})
+        return resource
+
 
     @classmethod
     def _get_girder_client(cls):

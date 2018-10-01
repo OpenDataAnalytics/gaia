@@ -64,7 +64,7 @@ def compute_crop2(inputs=[], args_dict={}):
     # print(result)
     for item in result:
         item_path = 'item/{}'.format(item['_id'])
-        print('Deleting existing {} file (item {})'.format(filename, item_path))
+        print('Deleting existing (item {})'.format(filename, item_path))
         del_result = gc.delete(item_path)
         # print(del_result)
 
