@@ -23,6 +23,8 @@ class GirderInterface(object):
         GirderInterface.instance = self
         self.gc = None  # girder client
         self.user = None  # girder user object
+        self.gaia_folder = None
+        self.default_folder = None
 
     @classmethod
     def get_instance(cls):
@@ -73,7 +75,35 @@ class GirderInterface(object):
         # Get user info
         self.user = gc.getUser('me')
 
-        # Todo create Private/Gaia folder?
+        # Get or intialize Private/gaia/default folder
+        private_list = gc.listFolder(
+            self.user['_id'], parentFolderType='user', name='Private')
+        try:
+            private_folder = next(private_list)
+        except StopIteration:
+            raise GaiaException('User/Private folder not found')
+
+        gaia_list = gc.listFolder(
+            private_folder['_id'], parentFolderType='folder', name='gaia')
+        try:
+            self.gaia_folder = next(gaia_list)
+        except StopIteration:
+            description = 'Created by Gaia'
+            self.gaia_folder = gc.createFolder(
+                private_folder['_id'], 'gaia', description=description)
+
+        default_list = gc.listFolder(
+            self.gaia_folder['_id'], parentFolderType='folder', name='default')
+        try:
+            self.default_folder = next(default_list)
+        except StopIteration:
+            description = 'Created by Gaia'
+            self.default_folder = gc.createFolder(
+                self.gaia_folder['_id'], 'default', description=description)
+            print('Created gaia/default folder')
+
+        # print('default_folder:', self.default_folder)
+
 
         self.gc = gc
 
@@ -105,6 +135,19 @@ class GirderInterface(object):
         girder_path = 'user/{}/{}'.format(self.user['login'], path)
         resource = gc.get('resource/lookup', parameters={'path': girder_path, 'test': test})
         return resource
+
+
+    @classmethod
+    def _get_default_folder_id(cls):
+        """Returns id for default folder
+
+        For internal use only
+        """
+        instance = cls.get_instance()
+        if instance.default_folder is None:
+            return None
+        # (else)
+        return instance.default_folder.get('_id')
 
 
     @classmethod

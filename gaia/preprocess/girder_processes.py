@@ -52,12 +52,12 @@ def compute_crop2(inputs=[], args_dict={}):
     # Current support is single dataset
     assert isinstance(datasets,GirderDataObject), 'Input dataset is NOT a single GaiaDataObject'
 
-    results_folder_id = '5bae2a52e44298008d78ac92'  # hard code for now
     filename = args_dict.get('name', 'crop2_output.tif')
     #print(filename)
 
     from gaia.io.girder_interface import GirderInterface
     gc = GirderInterface._get_girder_client()
+    results_folder_id = GirderInterface._get_default_folder_id()
 
     # Check for existing file (and delete)
     result = gc.listItem(results_folder_id, name=filename)

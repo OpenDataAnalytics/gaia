@@ -21,6 +21,28 @@ user = 'admin'
 pw = 'letmein'
 datastore = gaia.connect(username=user, password=pw)
 
+# from gaia.io import GirderInterface
+# gint = GirderInterface.get_instance()
+# gc = gint.gc
+# user = gint.user
+# #private_folder_list = gc.listFolder(
+# private_list = gc.listFolder(
+#     user['_id'], parentFolderType='user', name='Private')
+# try:
+#     private_folder = next(private_list)
+# except StopIteration:
+#     raise GaiaException('User/Private folder not found')
+
+# gaia_list = gc.listFolder(
+#     private_folder['_id'], parentFolderType='folder', name='gaia')
+
+# try:
+#     gaia_folder = next(gaia_list)
+# except StopIteration:
+#     # Create folder
+#     gaia_folder = TBD()
+
+
 # API option 1: create internal url
 datastore_url = datastore.lookup_url('Public/DEM_bare_earth.tif')
 print(datastore_url)
@@ -32,7 +54,7 @@ dataset = gaia.create(datastore_url)
 
 meta = dataset.get_metadata()
 print()
-# print(json.dumps(meta, sort_keys=True, indent=2))
+print(json.dumps(meta, sort_keys=True, indent=2))
 print('Input dataset width {}, height {}'.format(meta['width'], meta['height']))
 
 # Generate crop geometry (small!)
@@ -56,9 +78,9 @@ rect = [
 
 # Must pass rectangle in as a LIST, in order to get geom formatted the way resgeodata uses
 crop_geom = geojson.Polygon([rect])
-# print()
-# print(crop_geom)
-
+print()
+print(crop_geom)
+sys.exit(0)
 # Perform crop operation
 from gaia import preprocess
 cropped_dataset = preprocess.crop2(dataset, crop_geom, name='crop100m.tif')
