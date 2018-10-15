@@ -12,7 +12,6 @@ try:
 except ImportError:
     from osgeo import osr
 
-from gaia import GaiaException
 from gaia.filters import filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
 from gaia.util import sqlengines
@@ -55,6 +54,7 @@ class GaiaDataObject(object):
     def _getdatatype(self):
         if not self._datatype:
             self.get_metadata()
+            self._datatype = self._metadata.get('type_', 'unknown')
 
         return self._datatype
 
@@ -93,7 +93,7 @@ class GDALDataObject(GaiaDataObject):
                 self.epsg = int(data_crs.GetAttrValue('AUTHORITY', 1))
                 self._epsgComputed = True
             except KeyError:
-                raise GaiaException("EPSG code coud not be determined")
+                raise Exception("EPSG code coud not be determined")
 
         return self.epsg
 

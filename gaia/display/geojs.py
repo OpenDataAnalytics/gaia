@@ -2,6 +2,8 @@
 Display options using jupyterlab_geojs
 """
 
+#from gaia.girder_data import GirderDataObject
+
 
 # Is jupyterlab_geojs available?
 try:
@@ -43,7 +45,8 @@ def show(data_objects, **options):
     #print(data_objects)
     scene = jupyterlab_geojs.Scene(**options)
     scene.create_layer('osm')
-    feature_layer = scene.create_layer('feature')
+    # feature_layer = scene.create_layer('feature')
+    feature_layer = None
 
     combined_bounds = None
     # Reverse order so that first item ends on top
@@ -97,24 +100,31 @@ def show(data_objects, **options):
                 [bounds[0], bounds[1]],
             ]
             geojs_polygon = geojson.Polygon([rect])
-            geojson_feature = geojson.Feature(geometry=geojs_polygon)
+            properties = {
+                'fillColor': '#fff',
+                'fillOpacity': 0.1,
+                'stroke': True,
+                'strokeColor': '#333',
+                'strokeWidth': 2
+            }
+            geojson_feature = geojson.Feature(
+                geometry=geojs_polygon, properties=properties)
             geojson_collection = geojson.FeatureCollection([geojson_feature])
-            #print(geojson_collection)
-            feature = feature_layer.create_feature('geojson', geojson_collection, **options)
-            feature.style = {'color': 'magenta'}
+            # print(geojson_collection)
 
-            # # Create quad object
-            # data = [{
-            #     'ul': {'x': bounds[0], 'y': bounds[1]},
-            #     'lr': {'x': bounds[2], 'y': bounds[3]}
-            # }]
-            # quad = feature_layer.create_feature('quad', data)
-            # style = options.get('style', {})
-            # if style.get('color') is None:
-            #     style['color'] = 'magenta'
-            # if style.get('opacity') is None:
-            #     style['opacity'] = 0.2;
-            # quad.style = style
+            if feature_layer is None:
+                feature_layer = scene.create_layer('feature')
+
+            feature = feature_layer.create_feature(
+                'geojson', geojson_collection, **options)
+        #elif isinstance(data_object, GirderDataObject) and \
+        elif data_object.__class__.__name__ == 'GirderDataObject' and \
+            data_object._getdatatype() == 'raster':
+            # Use large-image display - only admin can tell if it is installed
+            #print(data_object._getdatatype(), data_object._getdataformat())
+            tile_url = data_object._get_tile_url()
+            print('tile_url', tile_url)
+            tile_layer = scene.create_layer('tile', url=tile_url)
 
     #print(combined_bounds)
     corners = [

@@ -21,6 +21,7 @@ class GirderInterface(object):
             raise Exception('GirderInterface already exists -- use get_instance() class method')
 
         GirderInterface.instance = self
+        self.girder_url = None
         self.gc = None  # girder client
         self.user = None  # girder user object
         self.gaia_folder = None
@@ -58,6 +59,7 @@ class GirderInterface(object):
         if self.__class__.is_initialized():
             raise GaiaException('GirderInterface already initialized -- cannot initialize twice')
 
+        self.girder_url = girder_url
         # Check that we have credentials
 
         api_url = '{}/api/v1'.format(girder_url)
