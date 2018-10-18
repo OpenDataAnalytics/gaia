@@ -23,7 +23,7 @@ import os
 import pkg_resources as pr
 import logging
 
-from .display import geojs
+from .display import pygeojs_adapter
 
 #: Global version number for the package
 __version__ = '0.0.1a1'
@@ -176,8 +176,8 @@ def show(*data_objects, **options):
         return None
 
     # Is jupyterlab_geojs available?
-    if geojs.is_loaded():
-        scene = geojs.show(*data_objects, **options)
+    if pygeojs_adapter.is_loaded():
+        scene = pygeojs_adapter.show(*data_objects, **options)
         return scene
 
     # (else)

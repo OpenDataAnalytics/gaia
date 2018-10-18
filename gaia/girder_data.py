@@ -25,7 +25,7 @@ class GirderDataObject(GaiaDataObject):
             self._metadata = metadata
         return self._metadata
 
-    def _get_tile_url(self):
+    def _get_tiles_url(self):
         """Constructs url for large_image display
 
         Returns None for non-raster datasets
