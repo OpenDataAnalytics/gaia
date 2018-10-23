@@ -29,9 +29,6 @@ def show(data_objects, **options):
     :return: pygeojs.scene instance if running Jupyter;
         otherwise returns data_objects for default display
     """
-    if not data_objects:
-        return None
-
     if not is_loaded():
         return data_objects
 
@@ -42,6 +39,11 @@ def show(data_objects, **options):
     #print(data_objects)
     scene = pygeojs.scene(**options)
     scene.createLayer('osm')
+
+    if not data_objects:
+        print('No data objects')
+        return scene
+
     # feature_layer = scene.createLayer('feature')
     feature_layer = None
 
@@ -112,7 +114,7 @@ def show(data_objects, **options):
             if feature_layer is None:
                 feature_layer = scene.createLayer('feature')
 
-            feature = feature_layer.create_feature(
+            feature = feature_layer.createFeature(
                 'geojson', geojson_collection, **options)
         #elif isinstance(data_object, GirderDataObject) and \
         elif data_object.__class__.__name__ == 'GirderDataObject' and \
@@ -121,17 +123,22 @@ def show(data_objects, **options):
             #print(data_object._getdatatype(), data_object._getdataformat())
             tiles_url = data_object._get_tiles_url()
             print('tiles_url', tiles_url)
-            tile_layer = scene.createLayer('tile', url=tiles_url)
+            opacity = data_object.opacity
+            tile_layer = scene.createLayer('osm', url=tiles_url, keepLower=False, opacity=opacity)
 
-    #print(combined_bounds)
     corners = [
         [combined_bounds[0], combined_bounds[1]],
         [combined_bounds[2], combined_bounds[1]],
         [combined_bounds[2], combined_bounds[3]],
         [combined_bounds[0], combined_bounds[3]]
     ]
-    scene.set_zoom_and_center(corners=corners)
-    #display(scene)
+    # Todo add background comm to call geojs.map.setZoomAndCenter():
+    # scene.set_zoom_and_center(corners=corners)
+    # For now, we'll have to settle for centering
+    scene.center = {
+        'x': 0.5 * (combined_bounds[0] + combined_bounds[2]),
+        'y': 0.5 * (combined_bounds[3] + combined_bounds[3])
+    }
     return scene
 
 

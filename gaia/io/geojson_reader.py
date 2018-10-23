@@ -75,7 +75,26 @@ class GaiaGeoJSONReader(GaiaReader):
 
         # do the actual reading and set both data and metadata
         # on the dataObject parameter
-        dataObject.set_metadata({})
+
+        # Initialize metadata
+        metadata = dict()
+
+        # Calculate bounds
+        feature_bounds = data.bounds
+        minx = feature_bounds['minx'].min()
+        miny = feature_bounds['miny'].min()
+        maxx = feature_bounds['maxx'].max()
+        maxy = feature_bounds['maxy'].max()
+
+        # Hack format to match resonant geodata (geojson polygon)
+        coords = [[
+            [minx, miny], [], [maxx, maxy], []
+        ]]
+        metadata['bounds'] = dict(coordinates=coords)
+
+        dataObject.set_metadata(metadata)
+
+
         dataObject.set_data(data)
         epsgString = data.crs['init']
         m = self.epsgRegex.search(epsgString)
