@@ -3,10 +3,13 @@ from builtins import (
     bytes, str, open, super, range, zip, round, input, int, pow, object
 )
 
-from gaia import GaiaException
-
-
 sqlengines = {}
+
+class GaiaException(Exception):
+    """
+    Base Gaia exception class
+    """
+    pass
 
 
 class MissingParameterError(GaiaException):

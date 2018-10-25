@@ -24,6 +24,7 @@ import pkg_resources as pr
 import logging
 
 from .display import pygeojs_adapter
+from .util import GaiaException
 
 #: Global version number for the package
 __version__ = '0.0.1a1'
@@ -44,13 +45,6 @@ sqlengines = {}
 
 #: Holder for Gaia settings
 config = {}
-
-
-class GaiaException(Exception):
-    """
-    Base Gaia exception class
-    """
-    pass
 
 
 def connect(girder_url='http://localhost:8989', username=None, password=None, apikey=None):

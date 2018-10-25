@@ -27,8 +27,11 @@ import gdal
 import shapely
 import rasterio
 import rasterio.features
-from gaia import GaiaException
-from gaia.util import get_uri_extension, UnsupportedFormatException
+from gaia.util import (
+    GaiaException,
+    UnsupportedFormatException,
+    get_uri_extension
+)
 try:
     import gdalnumeric
 except ImportError:

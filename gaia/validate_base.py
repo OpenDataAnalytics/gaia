@@ -3,8 +3,8 @@ from builtins import (
     bytes, str, open, super, range, zip, round, input, int, pow, object
 )
 
-from gaia import GaiaException
 from gaia import formats
+from gaia.util import GaiaException
 import gaia.types as types
 
 

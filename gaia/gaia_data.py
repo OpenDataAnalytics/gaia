@@ -14,7 +14,7 @@ except ImportError:
 
 from gaia.filters import filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
-from gaia.util import sqlengines
+from gaia.util import GaiaException, sqlengines
 
 
 class GaiaDataObject(object):
@@ -94,7 +94,7 @@ class GDALDataObject(GaiaDataObject):
                 self.epsg = int(data_crs.GetAttrValue('AUTHORITY', 1))
                 self._epsgComputed = True
             except KeyError:
-                raise Exception("EPSG code coud not be determined")
+                raise GaiaException("EPSG code coud not be determined")
 
         return self.epsg
 
@@ -230,7 +230,7 @@ class PostgisDataObject(GaiaDataObject):
         """
         for col in self._columns:
             if col not in self._table_obj.columns.keys():
-                raise Exception('{} column not found in {}'.format(
+                raise GaiaException('{} column not found in {}'.format(
                     col, self._table_obj))
 
     def get_connection_string(self):

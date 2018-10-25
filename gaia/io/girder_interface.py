@@ -3,7 +3,7 @@ from future.standard_library import install_aliases
 
 import girder_client
 
-from gaia.util import MissingParameterError
+from gaia.util import GaiaException, MissingParameterError
 
 
 class GirderInterface(object):
@@ -18,7 +18,7 @@ class GirderInterface(object):
         """Applies crude singleton pattern (raise exception if called twice)
         """
         if GirderInterface.instance:
-            raise Exception('GirderInterface already exists -- use get_instance() class method')
+            raise GaiaException('GirderInterface already exists -- use get_instance() class method')
 
         GirderInterface.instance = self
         self.girder_url = None
