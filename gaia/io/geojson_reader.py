@@ -94,7 +94,6 @@ class GaiaGeoJSONReader(GaiaReader):
 
         dataObject.set_metadata(metadata)
 
-
         dataObject.set_data(data)
         epsgString = data.crs['init']
         m = self.epsgRegex.search(epsgString)

@@ -18,7 +18,9 @@ class GirderInterface(object):
         """Applies crude singleton pattern (raise exception if called twice)
         """
         if GirderInterface.instance:
-            raise GaiaException('GirderInterface already exists -- use get_instance() class method')
+            msg = """GirderInterface already exists \
+            -- use get_instance() class method"""
+            raise GaiaException(msg)
 
         GirderInterface.instance = self
         self.girder_url = None
@@ -57,15 +59,16 @@ class GirderInterface(object):
         :apikey: An api key, which can be used instead of username & password.
         """
         if self.__class__.is_initialized():
-            raise GaiaException('GirderInterface already initialized -- cannot initialize twice')
+            msg = """GirderInterface already initialized -- \
+                cannot initialize twice"""
+            raise GaiaException(msg)
 
         self.girder_url = girder_url
         # Check that we have credentials
 
         api_url = '{}/api/v1'.format(girder_url)
-        #print('api_url: {}'.format(api_url))
+        # print('api_url: {}'.format(api_url))
         gc = girder_client.GirderClient(apiUrl=api_url)
-        #gc = girder_client.GirderClient(apiUrl='https://data.kitware.com/api/v1')
 
         if username is not None and password is not None:
             gc.authenticate(username=username, password=password)
@@ -108,8 +111,6 @@ class GirderInterface(object):
             print('Created gaia/default folder')
 
         # print('default_folder:', self.default_folder)
-
-
         self.gc = gc
 
     def lookup_url(self, path, test=False):
@@ -128,8 +129,6 @@ class GirderInterface(object):
         gaia_url = 'girder://{}/{}'.format(resource_type, resource_id)
         return gaia_url
 
-
-
     def lookup_resource(self, path, test=True):
         """Does lookup of resource at specified path
 
@@ -138,9 +137,9 @@ class GirderInterface(object):
         """
         gc = self.__class__._get_girder_client()
         girder_path = 'user/{}/{}'.format(self.user['login'], path)
-        resource = gc.get('resource/lookup', parameters={'path': girder_path, 'test': test})
+        resource = gc.get(
+            'resource/lookup', parameters={'path': girder_path, 'test': test})
         return resource
-
 
     @classmethod
     def _get_default_folder_id(cls):
@@ -153,7 +152,6 @@ class GirderInterface(object):
             return None
         # (else)
         return instance.default_folder.get('_id')
-
 
     @classmethod
     def _get_girder_client(cls):
@@ -168,4 +166,3 @@ class GirderInterface(object):
             raise GaiaException('GirderClient not initialized')
 
         return cls.instance.gc
-

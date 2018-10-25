@@ -23,11 +23,11 @@ class GirderReader(GaiaReader):
         if isinstance(data_source, str):
             self.url = data_source
         elif isinstance(data_source, tuple):
-            self.girder_source = girder_source
+            self.girder_source = data_source
 
     @staticmethod
     def can_read(source, *args, **kwargs):
-        # For now, supporting either url (string) or tuple (GirderInterface,path)
+        # For now, support either url (string) or tuple (GirderInterface,path)
         if isinstance(source, str):
             girder_scheme = 'girder://'
             if source is not None and source.startswith(girder_scheme):
@@ -44,7 +44,7 @@ class GirderReader(GaiaReader):
             if not isinstance(source, tuple) and not len(source) == 2:
                 return False
 
-            gint,path = source
+            gint, path = source
             if not isinstance(gint, GirderInterface):
                 return False
 
@@ -52,8 +52,9 @@ class GirderReader(GaiaReader):
                 raise GaiaException('Second tuple element is not a string')
 
             if not gint.is_initialized():
-                raise GaiaException('Cannot read girder object; must first call gaia.connect()')
-
+                msg = """Cannot read girder object; \
+                    must first call gaia.connect()"""
+                raise GaiaException(msg)
 
         # (else)
         return True
@@ -72,20 +73,23 @@ class GirderReader(GaiaReader):
             if parsed_result is None:
                 raise GaiaException('Internal error - not a girder url')
 
-            resource_type,resource_id = parsed_result
+            resource_type, resource_id = parsed_result
             return GirderDataObject(self, resource_type, resource_id)
 
         elif self.girder_source:
-            gint,path = self.girder_source
+            gint, path = self.girder_source
             resource = gint.lookup_resource(path)
             if resource is None:
-                raise GaiaException('File not found on Girder at specified path ({})'.format(path))
+                template = 'File not found on Girder at specified path ({})'
+                msg = template.format(path)
+                raise GaiaException(msg)
 
             resource_type = resource['_modelType']
             resource_id = resource['_id']
             return GirderDataObject(self, resource_type, resource_id)
 
-        raise GaiaException('Internal error - should never reach end of GirderReader.read()')
+        raise GaiaException(
+            'Internal error - should never reach end of GirderReader.read()')
         return None
 
     def load_metadata(self, dataObject):
@@ -109,12 +113,14 @@ class GirderReader(GaiaReader):
         start_index = len(girder_scheme)
         path_string = url[start_index:]
         path_list = path_string.split('/')
-        #print('path_list: ', path_list)
+        # print('path_list: ', path_list)
         if (len(path_list) != 2):
             raise GaiaException('Invalid girder url; path must be length 2')
 
         resource_type, resource_id = path_list
         if (resource_type not in ['item', 'folder']):
-            raise GaiaException('Invalid girder url; path must start with either "item/" or "folder/"')
+            msg = """Invalid girder url; path must start with either \
+                \"item/\" or \"folder/\""""
+            raise GaiaException(msg)
 
-        return resource_type,resource_id
+        return resource_type, resource_id

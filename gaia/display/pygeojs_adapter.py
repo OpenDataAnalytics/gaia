@@ -8,7 +8,7 @@ try:
     from IPython.display import display
     import pygeojs
     IS_PYGEOJS_LOADED = True
-except ImportError as err:
+except ImportError:
     IS_PYGEOJS_LOADED = False
 
 
@@ -36,7 +36,7 @@ def show(data_objects, **options):
     if not hasattr(data_objects, '__iter__'):
         data_objects = [data_objects]
 
-    #print(data_objects)
+    # print(data_objects)
     scene = pygeojs.scene(**options)
     scene.createLayer('osm')
 
@@ -51,7 +51,7 @@ def show(data_objects, **options):
     # Reverse order so that first item ends on top
     for data_object in reversed(data_objects):
         # Create map feature
-        #print(data_object._getdatatype(), data_object._getdataformat())
+        # print(data_object._getdatatype(), data_object._getdataformat())
         # type is vector, format is [.json, .geojson, .shp, pandas]
         """
         data = data_object.get_data()
@@ -67,9 +67,9 @@ def show(data_objects, **options):
         bounds = geometry.total_bounds
         """
         meta = data_object.get_metadata()
-        #print(meta)
+        # print(meta)
         meta_bounds = meta.get('bounds').get('coordinates')[0]
-        #print(meta_bounds)
+        # print(meta_bounds)
         assert meta_bounds, 'data_object missing bounds'
 
         # Bounds format is [xmin, ymin, xmax, ymax]
@@ -78,7 +78,7 @@ def show(data_objects, **options):
             meta_bounds[2][0], meta_bounds[2][1]
         ]
 
-        #print(bounds)
+        # print(bounds)
         if combined_bounds is None:
             combined_bounds = bounds
         else:
@@ -114,24 +114,18 @@ def show(data_objects, **options):
             if feature_layer is None:
                 feature_layer = scene.createLayer('feature')
 
-            feature = feature_layer.createFeature(
+            feature_layer.createFeature(
                 'geojson', geojson_collection, **options)
-        #elif isinstance(data_object, GirderDataObject) and \
-        elif data_object.__class__.__name__ == 'GirderDataObject' and \
-            data_object._getdatatype() == 'raster':
-            # Use large-image display - only admin can tell if it is installed
-            #print(data_object._getdatatype(), data_object._getdataformat())
+
+        elif (data_object.__class__.__name__ == 'GirderDataObject' and
+                data_object._getdatatype() == 'raster'):
+            # Use large-image display
+            # Todo - verify that it is installed
             tiles_url = data_object._get_tiles_url()
             print('tiles_url', tiles_url)
             opacity = data_object.opacity
-            tile_layer = scene.createLayer('osm', url=tiles_url, keepLower=False, opacity=opacity)
-
-    corners = [
-        [combined_bounds[0], combined_bounds[1]],
-        [combined_bounds[2], combined_bounds[1]],
-        [combined_bounds[2], combined_bounds[3]],
-        [combined_bounds[0], combined_bounds[3]]
-    ]
+            scene.createLayer(
+                'osm', url=tiles_url, keepLower=False, opacity=opacity)
 
     # Send custom message to (javascript) client to set zoom & center
     rpc = {'method': 'set_zoom_and_center', 'params': combined_bounds}
@@ -150,4 +144,4 @@ def _is_jupyter():
         return False
 
     # If jupyter, ipy is zmq shell
-    return isinstance(ipy, ipkernel.zmqshell.ZMQInteractiveShell)
+    return ipy.__class__.__name__ == 'ZMQInteractiveShell'

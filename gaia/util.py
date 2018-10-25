@@ -5,6 +5,7 @@ from builtins import (
 
 sqlengines = {}
 
+
 class GaiaException(Exception):
     """
     Base Gaia exception class

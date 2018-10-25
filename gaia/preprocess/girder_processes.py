@@ -45,7 +45,6 @@ def compute_subset_girder(inputs=[], args=[]):
     return outputDataObject
 
 
-
 @register_process('crop2')
 @validate_girder
 def compute_girder_crop2(inputs=[], args_dict={}):
@@ -54,8 +53,9 @@ def compute_girder_crop2(inputs=[], args_dict={}):
     """
     datasets = inputs[0]
     if isinstance(inputs[1], GaiaDataObject):
-        #geometry = inputs[1].get_geometry()
-        raise GaiaException('Sorry - dont have logic to extract geometry from GaiaDataObject')
+        # geometry = inputs[1].get_geometry()
+        raise GaiaException(
+            'Sorry - dont have logic to extract geometry from GaiaDataObject')
     else:
         geometry = inputs[1]
     # print('datasets: ', datasets)
@@ -65,14 +65,10 @@ def compute_girder_crop2(inputs=[], args_dict={}):
     # if not isinstance(input, collections.Iterable):
     #     datasets = [datasets]
 
-    # # Verify that all datasets are girder objects
-    # for dataset in datasets:
-    #     assert isinstance(dataset,GirderDataObject), 'Some input datasets are NOT girder objects'
-
     # Current support is single dataset
 
     filename = args_dict.get('name', 'crop2_output.tif')
-    #print(filename)
+    # print(filename)
 
     from gaia.io.girder_interface import GirderInterface
     gc = GirderInterface._get_girder_client()
@@ -85,7 +81,7 @@ def compute_girder_crop2(inputs=[], args_dict={}):
         item_path = 'item/{}'.format(item['_id'])
         print('Deleting existing (item {})'.format(filename, item_path))
         del_result = gc.delete(item_path)
-        # print(del_result)
+        print(del_result)
 
     # Run the clip operation
     path = 'raster/clip'
