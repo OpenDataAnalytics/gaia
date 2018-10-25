@@ -216,7 +216,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         Converts a Python Imaging Library array to a
         gdalnumeric image.
         """
-        a = gdalnumeric.numpy.fromstring(i.tobytes(), 'b')
+        a = gdalnumeric.numpy.frombuffer(i.tobytes(), dtype='b')
         a.shape = i.im.size[1], i.im.size[0]
         return a
 

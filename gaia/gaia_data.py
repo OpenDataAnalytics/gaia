@@ -54,7 +54,8 @@ class GaiaDataObject(object):
     def _getdatatype(self):
         if not self._datatype:
             self.get_metadata()
-            self._datatype = self._metadata.get('type_', 'unknown')
+            if not self._datatype:
+                self._datatype = self._metadata.get('type_', 'unknown')
 
         return self._datatype
 

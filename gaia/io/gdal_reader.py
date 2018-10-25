@@ -107,8 +107,8 @@ class GaiaGDALReader(GaiaReader):
             dataObject.reproject(self.epsg)
 
         dataObject.set_metadata({})
-        dataObject.datatype = types.RASTER
-        dataObject.dataformat = formats.RASTER
+        dataObject._datatype = types.RASTER
+        dataObject._dataformat = formats.RASTER
 
         if self.as_numpy_array:
             raise UnhandledOperationException('Convert GDAL dataset to numpy')

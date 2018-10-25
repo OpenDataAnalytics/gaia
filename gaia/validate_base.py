@@ -31,7 +31,7 @@ def validate_base(inputs, args, required_inputs=[], required_args=[],
     errors = []
 
     for procInput in inputs:
-        inputDataType = procInput.datatype
+        inputDataType = procInput._getdatatype()
         if inputDataType == types.PROCESS:
             for t in [i for i in dir(types) if not i.startswith("__")]:
                 if any((True for x in procInput.default_output if x in getattr(

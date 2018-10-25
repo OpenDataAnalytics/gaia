@@ -10,12 +10,31 @@ from urllib.parse import urlencode
 import collections
 import json
 
+import gaia.validators as validators
 from gaia import GaiaException
+from gaia.gaia_data import GaiaDataObject
 from gaia.girder_data import GirderDataObject
 from gaia.process_registry import register_process
 
 
+def validate_girder(v):
+    """
+    Verify that inputs are all girder objects
+    """
+    def validator(inputs=[], args={}):
+        # First object must be GirderDataObject
+        if (type(inputs[0]) is not GirderDataObject):
+            raise GaiaException('girder process requires GirderDataObject')
+
+        # Otherwise call up the chain to let parent do common validation
+        return v(inputs, args)
+
+    return validator
+
+
 @register_process('crop')
+@validators.validate_within
+@validate_girder
 def compute_subset_girder(inputs=[], args=[]):
     """
     Runs the subset computation on girder
@@ -23,21 +42,24 @@ def compute_subset_girder(inputs=[], args=[]):
     print('inputs: ', inputs)
     print('args:', args)
 
-    # Verify that all inputs are girder objects
-    for dataset in inputs:
-        assert isinstance(dataset,GirderDataObject), 'Some input datasets are NOT girder objects'
-
-
-    outputDataObject = GirderDataObject(None, 'type_undefined', 'id_undefinded')
+    outputDataObject = GirderDataObject(None, 'type_undefined', 'id_undefined')
     return outputDataObject
 
+
+
 @register_process('crop2')
-def compute_crop2(inputs=[], args_dict={}):
+@validators.validate_within
+@validate_girder
+def compute_girder_crop2(inputs=[], args_dict={}):
     """
     Runs the subset computation on girder
     """
     datasets = inputs[0]
-    geometry = inputs[1]
+    if isinstance(inputs[1], GaiaDataObject):
+        #geometry = inputs[1].get_geometry()
+        raise GaiaException('Sorry - dont have logic to extract geometry from GaiaDataObject')
+    else:
+        geometry = inputs[1]
     # print('datasets: ', datasets)
     # print('geometry:', geometry)
     # print('args_dict:', args_dict)
@@ -50,7 +72,6 @@ def compute_crop2(inputs=[], args_dict={}):
     #     assert isinstance(dataset,GirderDataObject), 'Some input datasets are NOT girder objects'
 
     # Current support is single dataset
-    assert isinstance(datasets,GirderDataObject), 'Input dataset is NOT a single GaiaDataObject'
 
     filename = args_dict.get('name', 'crop2_output.tif')
     #print(filename)

@@ -46,7 +46,7 @@ def crop_pandas(inputs=[], args={}):
     first_within = first_df[first_df.geometry.within(
         second_df.geometry.unary_union)]
 
-    outputDataObject = GaiaDataObject()
+    outputDataObject = GaiaDataObject(first._reader)
     outputDataObject.set_data(first_within)
     return outputDataObject
 

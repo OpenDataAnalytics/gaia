@@ -41,9 +41,9 @@ class TestCreateAPI(unittest.TestCase):
         path1 = os.path.join(testfile_path, 'iraq_hospitals.geojson')
         path2 = os.path.join(testfile_path, 'baghdad_districts.geojson')
 
-        data1 = gaia.create(uri=path1)
-        data2 = gaia.create(uri=path2)
+        data1 = gaia.create(path1)
+        data2 = gaia.create(path2)
 
         output = crop(data1, data2)
 
-        self.assertEquals(len(output.get_data()), 19)
+        self.assertEqual(len(output.get_data()), 19)

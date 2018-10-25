@@ -37,8 +37,8 @@ class GaiaPostGISReader(GaiaReader):
                 print('  Setting property %s to %s' % (key, self._kwargs[key]))
                 setattr(dataObject, key, self._kwargs[key])
         dataObject.initialize_engine()
-        dataObject.datatype = types.VECTOR
-        dataObject.dataformat = formats.VECTOR
+        dataObject._datatype = types.VECTOR
+        dataObject._dataformat = formats.VECTOR
 
     @staticmethod
     def can_read(*args, **kwargs):

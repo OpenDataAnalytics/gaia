@@ -100,5 +100,5 @@ class GaiaGeoJSONReader(GaiaReader):
         m = self.epsgRegex.search(epsgString)
         if m:
             dataObject._epsg = int(m.group(1))
-        dataObject.datatype = types.VECTOR
-        dataObject.dataformat = formats.VECTOR
+        dataObject._datatype = types.VECTOR
+        dataObject._dataformat = formats.VECTOR
