@@ -5,7 +5,6 @@ from builtins import (
 import json
 import urllib
 
-#from gaia import GaiaException
 from gaia.gaia_data import GaiaDataObject
 from gaia.io.girder_interface import GirderInterface
 
@@ -57,7 +56,8 @@ class GirderDataObject(GaiaDataObject):
 
         # (else)
         girder_url = GirderInterface.get_instance().girder_url
-        base_url = '{}/api/v1/item/{}/tiles/zxy/{{z}}/{{x}}/{{y}}'.format(girder_url, self.resource_id)
+        base_url = '{}/api/v1/item/{}/tiles/zxy/{{z}}/{{x}}/{{y}}'.format(
+            girder_url, self.resource_id)
         mapnik_string = ''
         if self.mapnik_style:
             if isinstance(self.mapnik_style, str):
@@ -66,7 +66,8 @@ class GirderDataObject(GaiaDataObject):
                 style_string = json.dumps(self.mapnik_style)
             encoded_string = urllib.parse.quote_plus(style_string)
             mapnik_string = '&style={}'.format(encoded_string)
-        tiles_url = '{}?encoding=PNG&projection=EPSG:3857{}'.format(base_url, mapnik_string)
+        tiles_url = '{}?encoding=PNG&projection=EPSG:3857{}'.format(
+            base_url, mapnik_string)
 
-        #print('Using tiles_url:', tiles_url)
+        # print('Using tiles_url:', tiles_url)
         return tiles_url

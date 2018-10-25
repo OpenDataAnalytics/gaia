@@ -149,8 +149,8 @@ def _is_jupyter():
     """
     try:
         ipy = get_ipython()
-    except NameError as err:
+    except NameError:
         return False
 
     # If jupyter, ipy is zmq shell
-    return is_instance(ipy, ipkernel.zmqshell.ZMQInteractiveShell)
+    return isinstance(ipy, ipkernel.zmqshell.ZMQInteractiveShell)
