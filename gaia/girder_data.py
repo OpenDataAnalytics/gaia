@@ -18,7 +18,6 @@ class GirderDataObject(GaiaDataObject):
         self._reader = reader
         self.resource_type = resource_type
         self.resource_id = resource_id
-        self.opacity = 1.0
         self.mapnik_style = None
 
     def get_metadata(self, force=False):
@@ -42,9 +41,6 @@ class GirderDataObject(GaiaDataObject):
 
         """
         self.mapnik_style = style
-
-    def set_opacity(self, opacity):
-        self.opacity = opacity
 
     def _get_tiles_url(self):
         """Constructs url for large_image display

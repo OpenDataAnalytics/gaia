@@ -11,7 +11,7 @@ import collections
 import json
 
 import gaia.validators as validators
-from gaia import GaiaException
+from gaia.util import GaiaException
 from gaia.gaia_data import GaiaDataObject
 from gaia.girder_data import GirderDataObject
 from gaia.process_registry import register_process
@@ -33,7 +33,6 @@ def validate_girder(v):
 
 
 @register_process('crop')
-@validators.validate_within
 @validate_girder
 def compute_subset_girder(inputs=[], args=[]):
     """
@@ -48,7 +47,6 @@ def compute_subset_girder(inputs=[], args=[]):
 
 
 @register_process('crop2')
-@validators.validate_within
 @validate_girder
 def compute_girder_crop2(inputs=[], args_dict={}):
     """

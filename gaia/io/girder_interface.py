@@ -79,7 +79,10 @@ class GirderInterface(object):
 
         # Get or intialize Private/gaia/default folder
         private_list = gc.listFolder(
-            self.user['_id'], parentFolderType='user', name='Private')
+            # self.user['_id'], parentFolderType='user', name='Private')
+            # HACK FOR DEMO - use public folder until we set up
+            # mechanism to send girder token to js client
+            self.user['_id'], parentFolderType='user', name='Public')
         try:
             private_folder = next(private_list)
         except StopIteration:

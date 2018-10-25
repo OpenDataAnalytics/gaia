@@ -132,13 +132,10 @@ def show(data_objects, **options):
         [combined_bounds[2], combined_bounds[3]],
         [combined_bounds[0], combined_bounds[3]]
     ]
-    # Todo add background comm to call geojs.map.setZoomAndCenter():
-    # scene.set_zoom_and_center(corners=corners)
-    # For now, we'll have to settle for centering
-    scene.center = {
-        'x': 0.5 * (combined_bounds[0] + combined_bounds[2]),
-        'y': 0.5 * (combined_bounds[3] + combined_bounds[3])
-    }
+
+    # Send custom message to (javascript) client to set zoom & center
+    rpc = {'method': 'set_zoom_and_center', 'params': combined_bounds}
+    scene.send(rpc)
     return scene
 
 
