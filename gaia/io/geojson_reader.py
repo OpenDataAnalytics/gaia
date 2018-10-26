@@ -17,6 +17,7 @@ from gaia.util import (
 )
 import gaia.formats as formats
 import gaia.types as types
+from six import string_types
 
 
 class GaiaGeoJSONReader(GaiaReader):
@@ -34,7 +35,7 @@ class GaiaGeoJSONReader(GaiaReader):
     @staticmethod
     def can_read(url, *args, **kwargs):
         # Todo update for girder-hosted files
-        if not isinstance(url, str):
+        if not isinstance(url, string_types):
             return False
 
         extension = get_uri_extension(url)
