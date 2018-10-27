@@ -8,16 +8,13 @@ from gaia.process_registry import compute
 
 # def crop (inputs=[], args={}):
 def crop (*args, **kwargs):
-    return compute('crop', inputs=list(args), args=kwargs)
-
-def crop2(*args, **kwargs):
     """Crop dataset(s) to specified geometry
 
     :param datasets: list of datasets to crop
     :param geometry: crop geometry in GeoJSON format
     :param name: optional name for resulting dataset
     """
-    return compute('crop2', inputs=list(args), args=kwargs)
+    return compute('crop', inputs=list(args), args=kwargs)
 
 # def centroid(inputs=[], args={}):
 #     return compute('centroid', inputs=inputs, args=args)

@@ -4,6 +4,7 @@ from builtins import (
 )
 
 import re
+from six import string_types
 import geopandas
 
 from gaia.io.readers import GaiaReader

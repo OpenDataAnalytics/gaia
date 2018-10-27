@@ -83,7 +83,7 @@ print(crop_geom)
 sys.exit(0)
 # Perform crop operation
 from gaia import preprocess
-cropped_dataset = preprocess.crop2(dataset, crop_geom, name='crop100m.tif')
+cropped_dataset = preprocess.crop(dataset, crop_geom, name='crop100m.tif')
 print()
 cropped_meta = cropped_dataset.get_metadata()
 print('Cropped dataset width {}, height {}'.format(

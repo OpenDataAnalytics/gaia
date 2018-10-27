@@ -10,6 +10,7 @@ from urllib.parse import urlencode
 import collections
 import json
 
+import gaia.types
 import gaia.validators as validators
 from gaia.util import GaiaException
 from gaia.gaia_data import GaiaDataObject
@@ -26,6 +27,17 @@ def validate_girder(v):
         if (type(inputs[0]) is not GirderDataObject):
             raise GaiaException('girder process requires GirderDataObject')
 
+        # Second object must have vector geometry
+        if (isinstance(inputs[1], GaiaDataObject) and
+                inputs[1].get_datatype() != gaia.types.VECTOR):
+            template = """girder process cannot use datatype \"{}\"" \
+                for crop geometry"""
+            raise GaiaException(template.format(inputs[1].get_datatype()))
+
+        # For now, second object/geometry must be on local filesystem
+        if isinstance(inputs[1], GirderDataObject):
+            raise GaiaException('crop geometry on girder not supported')
+
         # Otherwise call up the chain to let parent do common validation
         return v(inputs, args)
 
@@ -34,28 +46,13 @@ def validate_girder(v):
 
 @register_process('crop')
 @validate_girder
-def compute_subset_girder(inputs=[], args=[]):
-    """
-    Runs the subset computation on girder
-    """
-    print('inputs: ', inputs)
-    print('args:', args)
-
-    outputDataObject = GirderDataObject(None, 'type_undefined', 'id_undefined')
-    return outputDataObject
-
-
-@register_process('crop2')
-@validate_girder
-def compute_girder_crop2(inputs=[], args_dict={}):
+def compute_girder_crop(inputs=[], args_dict={}):
     """
     Runs the subset computation on girder
     """
     datasets = inputs[0]
     if isinstance(inputs[1], GaiaDataObject):
-        # geometry = inputs[1].get_geometry()
-        raise GaiaException(
-            'Sorry - dont have logic to extract geometry from GaiaDataObject')
+        geometry = inputs[1].get_data()
     else:
         geometry = inputs[1]
     # print('datasets: ', datasets)
