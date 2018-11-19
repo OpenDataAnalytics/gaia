@@ -11,6 +11,9 @@ try:
 except ImportError:
     IS_PYGEOJS_LOADED = False
 
+import gaia.types
+from gaia.util import GaiaException
+
 
 def is_loaded():
     """Returns boolean indicating if pygeojs is loaded
@@ -50,22 +53,7 @@ def show(data_objects, **options):
     combined_bounds = None
     # Reverse order so that first item ends on top
     for data_object in reversed(data_objects):
-        # Create map feature
-        # print(data_object._getdatatype(), data_object._getdataformat())
-        # type is vector, format is [.json, .geojson, .shp, pandas]
-        """
-        data = data_object.get_data()
-
-        # Can only seem to get json *string*; so parse into json *object*
-        json_string = data.to_json()
-        json_object = json.loads(json_string)
-        feature = feature_layer.create_feature('geojson', json_object)
-        #print(json_object)
-        feature.enableToolTip = True  # dont work
-
-        geometry = data['geometry']
-        bounds = geometry.total_bounds
-        """
+        # Get bounds, in order to compute overall bounds
         meta = data_object.get_metadata()
         # print(meta)
         meta_bounds = meta.get('bounds').get('coordinates')[0]
@@ -117,15 +105,34 @@ def show(data_objects, **options):
             feature_layer.createFeature(
                 'geojson', geojson_collection, **options)
 
-        elif (data_object.__class__.__name__ == 'GirderDataObject' and
-                data_object._getdatatype() == 'raster'):
-            # Use large-image display
-            # Todo - verify that it is installed
-            tiles_url = data_object._get_tiles_url()
-            print('tiles_url', tiles_url)
-            opacity = data_object.opacity
-            scene.createLayer(
-                'osm', url=tiles_url, keepLower=False, opacity=opacity)
+        elif data_object.__class__.__name__ == 'GirderDataObject':
+            if data_object._getdatatype() == 'raster':
+                # Use large-image display
+                # Todo - verify that it is installed
+                tiles_url = data_object._get_tiles_url()
+                print('tiles_url', tiles_url)
+                opacity = data_object.opacity
+                scene.createLayer(
+                    'osm', url=tiles_url, keepLower=False, opacity=opacity)
+            else:
+                raise GaiaException(
+                    'Cannot display GirderDataObject with data type {}'.format(
+                        data_object._getdatatype()))
+
+        elif data_object._getdatatype() == gaia.types.VECTOR:
+            # print('Adding vector object')
+            if feature_layer is None:
+                feature_layer = scene.createLayer('feature')
+
+            # Use get_data() to get the GeoPandas object
+            data = data_object.get_data()
+            # Then use __geo_interface__ to get the geojson
+            feature_layer.readGeoJSON(data.__geo_interface__)
+
+        else:
+            msg = 'Cannot display dataobject, type {}'.format(
+                data_object.__class__.__name__)
+            raise GaiaException(msg)
 
     # Send custom message to (javascript) client to set zoom & center
     rpc = {'method': 'set_zoom_and_center', 'params': combined_bounds}

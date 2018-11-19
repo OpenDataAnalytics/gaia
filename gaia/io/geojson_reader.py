@@ -18,7 +18,6 @@ from gaia.util import (
 )
 import gaia.formats as formats
 import gaia.types as types
-from six import string_types
 
 
 class GaiaGeoJSONReader(GaiaReader):
