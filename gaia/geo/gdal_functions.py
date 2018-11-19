@@ -27,8 +27,11 @@ import gdal
 import shapely
 import rasterio
 import rasterio.features
-from gaia import GaiaException
-from gaia.util import get_uri_extension, UnsupportedFormatException
+from gaia.util import (
+    GaiaException,
+    UnsupportedFormatException,
+    get_uri_extension
+)
 try:
     import gdalnumeric
 except ImportError:
@@ -216,7 +219,7 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         Converts a Python Imaging Library array to a
         gdalnumeric image.
         """
-        a = gdalnumeric.numpy.fromstring(i.tobytes(), 'b')
+        a = gdalnumeric.numpy.frombuffer(i.tobytes(), dtype='b')
         a.shape = i.im.size[1], i.im.size[0]
         return a
 

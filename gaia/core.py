@@ -1,5 +1,5 @@
 import gaia
 from gaia import config
-from gaia import GaiaException
+from gaia.util import GaiaException
 
 # Leave this here for backwards compatibility

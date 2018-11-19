@@ -23,6 +23,9 @@ import os
 import pkg_resources as pr
 import logging
 
+from .display import pygeojs_adapter
+from .util import GaiaException
+
 #: Global version number for the package
 __version__ = '0.0.1a1'
 
@@ -44,20 +47,48 @@ sqlengines = {}
 config = {}
 
 
-class GaiaException(Exception):
-    """
-    Base Gaia exception class
-    """
-    pass
+def connect(girder_url='http://localhost:8989', username=None, password=None, apikey=None):
+    """Initialize a connection to a Girder data management system
 
+    Gaia datasets can be created from girder files and folders using
+    either of these formats:
 
-def create(*args, **kwargs):
+      gaia.create('girder://file/${id}')
+      gaia.create('girder://folder/${id}')
+
+    The datasets are stored in the girder system, and proxied to gaia.
+
+    :param girder_url: The full path to the Girder instance, for example,
+    'http://localhost:80' or 'https://my.girder.com'.
+    :param username: (string) The name for logging into Girder.
+    :param password: (string) The password for logging into Girder.
+    :apikey: (string)An api key, which can be used instead of username & password.
+
+    Note that applications can connect to only ONE girder instance for the
+    entire session.
+    """
+    from gaia.io import GirderInterface
+    gint = GirderInterface.get_instance()
+    if gint.is_initialized():
+        raise GaiaException('GirderInterface already initialized.')
+    gint.initialize(girder_url, username=username, password=password, apikey=apikey)
+    return gint
+
+def create(data_source, *args, **kwargs):
     """
     Convenience method to provide a simpler API for creating
     GaiaDataObject
+
+    :param data_source: the source data for the object. Can be one of:
+      * a path (string) on local filesystem
+      * a web url (string) that Gaia can download from
+      * a python object (numpy array, GeoPandas dataframe, etc.)
+      * TBD a tuple indicating postgis parameters
+      * a 2-tuple specifying a GirderInterface object and path(string) to the file
+    :return: Gaia data obkject
     """
     from gaia.io import readers
-    reader = readers.GaiaReader(*args, **kwargs)
+    reader = readers.GaiaReader(data_source, *args, **kwargs)
     return reader.read()
 
 
@@ -96,6 +127,13 @@ def get_config(config_file=None):
     config = config_dict
     return config_dict
 
+def get_datastore_url(path):
+    """Returns url (string) pointing to resource on remote datastore.
+
+    Returns None if the file is not found at the given path.
+    """
+
+
 
 def get_plugins():
     """
@@ -116,5 +154,28 @@ def get_plugins():
                 traceback.print_exc()))
     return installed_plugins
 
+
+def show(*data_objects, **options):
+    """
+    Displays data objects using available rendering code
+
+    :param data_objects: 1 or more GeoData objects
+    :param options: options to pass to rendering backend
+
+    Note: gaia.show() only renders if it is the
+    last line of code in the cell input.
+    """
+    if not data_objects:
+        print('(no data objects)')
+        return None
+
+    # Is jupyterlab_geojs available?
+    if pygeojs_adapter.is_loaded():
+        scene = pygeojs_adapter.show(*data_objects, **options)
+        return scene
+
+    # (else)
+    print(data_objects)
+    return None
 
 get_config()

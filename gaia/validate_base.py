@@ -3,8 +3,9 @@ from builtins import (
     bytes, str, open, super, range, zip, round, input, int, pow, object
 )
 
-from gaia import GaiaException
 from gaia import formats
+from gaia.gaia_data import GaiaDataObject
+from gaia.util import GaiaException
 import gaia.types as types
 
 
@@ -31,7 +32,10 @@ def validate_base(inputs, args, required_inputs=[], required_args=[],
     errors = []
 
     for procInput in inputs:
-        inputDataType = procInput.datatype
+        if not isinstance(procInput, GaiaDataObject):
+            raise GaiaException('Not a GaiaDataObject')
+
+        inputDataType = procInput._getdatatype()
         if inputDataType == types.PROCESS:
             for t in [i for i in dir(types) if not i.startswith("__")]:
                 if any((True for x in procInput.default_output if x in getattr(

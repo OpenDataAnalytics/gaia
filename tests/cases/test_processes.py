@@ -40,14 +40,14 @@ class TestGaiaProcesses(unittest.TestCase):
         Test cropping (within process) for vector inputs
         """
         reader1 = readers.GaiaReader(
-            uri=os.path.join(testfile_path, 'iraq_hospitals.geojson'))
+            os.path.join(testfile_path, 'iraq_hospitals.geojson'))
 
         reader2 = readers.GaiaReader(
-            uri=os.path.join(testfile_path, 'baghdad_districts.geojson'))
+            os.path.join(testfile_path, 'baghdad_districts.geojson'))
 
         output = crop(reader1.read(), reader2.read())
 
-        self.assertEquals(len(output.get_data()), 19)
+        self.assertEqual(len(output.get_data()), 19)
 
     def test_crop_gdal(self):
         """
@@ -58,16 +58,16 @@ class TestGaiaProcesses(unittest.TestCase):
 
         try:
             reader1 = readers.GaiaReader(
-                uri=os.path.join(testfile_path, 'globalairtemp.tif'))
+                os.path.join(testfile_path, 'globalairtemp.tif'))
             rasterData = reader1.read()
 
             reader2 = readers.GaiaReader(
-                uri=os.path.join(testfile_path, '2states.geojson'))
+                os.path.join(testfile_path, '2states.geojson'))
             vectorData = reader2.read()
 
             output = crop(rasterData, vectorData)
 
-            self.assertEquals(type(output.get_data()).__name__, 'Dataset')
+            self.assertEqual(type(output.get_data()).__name__, 'Dataset')
         finally:
             testfile = os.path.join(testfile_path, '2states.geojson')
             if os.path.exists(testfile):

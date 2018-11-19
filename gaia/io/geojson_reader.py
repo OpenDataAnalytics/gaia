@@ -4,6 +4,7 @@ from builtins import (
 )
 
 import re
+from six import string_types
 import geopandas
 
 from gaia.io.readers import GaiaReader
@@ -25,19 +26,21 @@ class GaiaGeoJSONReader(GaiaReader):
     """
     epsgRegex = re.compile('epsg:([\d]+)')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, url, *args, **kwargs):
         super(GaiaGeoJSONReader, self).__init__(*args, **kwargs)
 
-        if 'uri' in kwargs:
-            self.uri = kwargs['uri']
-            self.ext = '.%s' % get_uri_extension(self.uri)
+        self.uri = url
+        self.ext = '.%s' % get_uri_extension(self.uri)
 
     @staticmethod
-    def can_read(*args, **kwargs):
-        if 'uri' in kwargs:
-            extension = get_uri_extension(kwargs['uri'])
-            if extension == 'geojson':
-                return True
+    def can_read(url, *args, **kwargs):
+        # Todo update for girder-hosted files
+        if not isinstance(url, string_types):
+            return False
+
+        extension = get_uri_extension(url)
+        if extension == 'geojson':
+            return True
         return False
 
     def read(self, format=None, epsg=None):
@@ -73,11 +76,29 @@ class GaiaGeoJSONReader(GaiaReader):
 
         # do the actual reading and set both data and metadata
         # on the dataObject parameter
-        dataObject.set_metadata({})
+
+        # Initialize metadata
+        metadata = dict()
+
+        # Calculate bounds
+        feature_bounds = data.bounds
+        minx = feature_bounds['minx'].min()
+        miny = feature_bounds['miny'].min()
+        maxx = feature_bounds['maxx'].max()
+        maxy = feature_bounds['maxy'].max()
+
+        # Hack format to match resonant geodata (geojson polygon)
+        coords = [[
+            [minx, miny], [], [maxx, maxy], []
+        ]]
+        metadata['bounds'] = dict(coordinates=coords)
+
+        dataObject.set_metadata(metadata)
+
         dataObject.set_data(data)
         epsgString = data.crs['init']
         m = self.epsgRegex.search(epsgString)
         if m:
             dataObject._epsg = int(m.group(1))
-        dataObject.datatype = types.VECTOR
-        dataObject.dataformat = formats.VECTOR
+        dataObject._datatype = types.VECTOR
+        dataObject._dataformat = formats.VECTOR

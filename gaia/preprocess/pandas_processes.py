@@ -3,6 +3,8 @@ from builtins import (
     bytes, str, open, super, range, zip, round, input, int, pow, object
 )
 
+import gaia.formats
+import gaia.types
 import gaia.validators as validators
 from gaia.process_registry import register_process
 from gaia import GaiaException
@@ -46,8 +48,26 @@ def crop_pandas(inputs=[], args={}):
     first_within = first_df[first_df.geometry.within(
         second_df.geometry.unary_union)]
 
-    outputDataObject = GaiaDataObject()
+    # Construct GaiaDataObject manually
+    # Todo consider adding static method to GaiaDataObject
+    outputDataObject = GaiaDataObject(
+        reader=None, dataFormat=gaia.formats.PANDAS, epsg=first.get_epsg())
     outputDataObject.set_data(first_within)
+    outputDataObject._datatype = gaia.types.VECTOR
+
+    # Construct bounds, which uses geojson format
+    geometry = first_within['geometry']
+    geopandas_bounds = geometry.total_bounds
+    xmin, ymin, xmax, ymax = geopandas_bounds
+    coords = [[
+        [xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]
+    ]]
+    metadata = {
+        'bounds': {
+            'coordinates': coords
+        }
+    }
+    outputDataObject.set_metadata(metadata)
     return outputDataObject
 
 

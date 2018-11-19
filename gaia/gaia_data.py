@@ -12,10 +12,9 @@ try:
 except ImportError:
     from osgeo import osr
 
-from gaia import GaiaException
 from gaia.filters import filter_postgis
 from gaia.geo.gdal_functions import gdal_reproject
-from gaia.util import sqlengines
+from gaia.util import GaiaException, sqlengines
 
 
 class GaiaDataObject(object):
@@ -55,6 +54,8 @@ class GaiaDataObject(object):
     def _getdatatype(self):
         if not self._datatype:
             self.get_metadata()
+            if not self._datatype:
+                self._datatype = self._metadata.get('type_', 'unknown')
 
         return self._datatype
 
@@ -229,7 +230,7 @@ class PostgisDataObject(GaiaDataObject):
         """
         for col in self._columns:
             if col not in self._table_obj.columns.keys():
-                raise Exception('{} column not found in {}'.format(
+                raise GaiaException('{} column not found in {}'.format(
                     col, self._table_obj))
 
     def get_connection_string(self):

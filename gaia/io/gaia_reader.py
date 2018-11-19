@@ -5,8 +5,8 @@ from builtins import (
 from future.utils import with_metaclass
 
 from gaia.gaia_data import GaiaDataObject
-from gaia import GaiaException
 from gaia.util import (
+    GaiaException,
     MissingParameterError,
     MissingDataException,
     UnsupportedFormatException,
@@ -87,7 +87,7 @@ class GaiaReader(with_metaclass(GaiaReaderFactoryMetaclass, object)):
     """
     Return a GaiaDataObject
     """
-    def read(self, format=None, epsg=None):
+    def read(self, data_source, format=None, epsg=None):
         return GaiaDataObject(reader=self)
 
     def load_metadata(self, dataObject):
