@@ -11,6 +11,8 @@ try:
 except ImportError:
     IS_PYGEOJS_LOADED = False
 
+import geopandas
+
 import gaia.types
 from gaia.util import GaiaException
 
@@ -53,12 +55,44 @@ def show(data_objects, **options):
     combined_bounds = None
     # Reverse order so that first item ends on top
     for data_object in reversed(data_objects):
-        # Get bounds, in order to compute overall bounds
-        meta = data_object.get_metadata()
-        # print(meta)
-        meta_bounds = meta.get('bounds').get('coordinates')[0]
-        # print(meta_bounds)
-        assert meta_bounds, 'data_object missing bounds'
+        if data_object._getdatatype() == gaia.types.VECTOR:
+            # print('Adding vector object')
+            # Special handling for vector datasets:
+            # First, make a copy of the geopandas frame
+            df = geopandas.GeoDataFrame.copy(data_object.get_data())
+
+            # Convert to lon-lat if needed
+            epsg = data_object.get_epsg()
+            if epsg != '4236':
+                df[df.geometry.name] = df.geometry.to_crs(epsg='4236')
+
+            # Strip any z coordinates (force to z = 1)
+            df.geometry = df.geometry.scale(zfact=0.0).translate(zoff=1.0)
+            # df.to_file('/home/john/temp/df.pandas')
+            # print(df)
+            # print(df.geometry)
+
+            # Calculate bounds
+            geopandas_bounds = df.geometry.total_bounds
+            xmin, ymin, xmax, ymax = geopandas_bounds
+            meta_bounds = [
+                [xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]
+            ]
+
+            # Add map feature
+            if feature_layer is None:
+                feature_layer = scene.createLayer('feature')
+
+            # Use __geo_interface__ to get the geojson
+            feature_layer.readGeoJSON(df.__geo_interface__)
+            # print(df.__geo_interface__)
+        else:
+            # Get bounds, in order to compute overall bounds
+            meta = data_object.get_metadata()
+            # print(meta)
+            meta_bounds = meta.get('bounds').get('coordinates')[0]
+            # print(meta_bounds)
+            assert meta_bounds, 'data_object missing bounds'
 
         # Bounds format is [xmin, ymin, xmax, ymax]
         bounds = [
@@ -120,15 +154,7 @@ def show(data_objects, **options):
                         data_object._getdatatype()))
 
         elif data_object._getdatatype() == gaia.types.VECTOR:
-            # print('Adding vector object')
-            if feature_layer is None:
-                feature_layer = scene.createLayer('feature')
-
-            # Use get_data() to get the GeoPandas object
-            data = data_object.get_data()
-            # Then use __geo_interface__ to get the geojson
-            feature_layer.readGeoJSON(data.__geo_interface__)
-
+            pass  # vector objects handled above
         else:
             msg = 'Cannot display dataobject, type {}'.format(
                 data_object.__class__.__name__)

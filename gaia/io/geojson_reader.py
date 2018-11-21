@@ -38,8 +38,8 @@ class GaiaGeoJSONReader(GaiaReader):
         if not isinstance(url, string_types):
             return False
 
-        extension = get_uri_extension(url)
-        if extension == 'geojson':
+        extension = '.{}'.format(get_uri_extension(url))
+        if extension in formats.VECTOR:
             return True
         return False
 
