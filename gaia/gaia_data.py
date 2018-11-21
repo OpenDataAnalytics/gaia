@@ -46,10 +46,24 @@ class GaiaDataObject(object):
         return self._epsg
 
     def reproject(self, epsg):
-        repro = geopandas.GeoDataFrame.copy(self._data)
+        repro = geopandas.GeoDataFrame.copy(self.get_data())
         repro[repro.geometry.name] = repro.geometry.to_crs(epsg=epsg)
         repro.crs = fiona.crs.from_epsg(epsg)
         self._data = repro
+        self._epsg = epsg
+
+        # Recompute bounds
+        geometry = repro['geometry']
+        geopandas_bounds = geometry.total_bounds
+        xmin, ymin, xmax, ymax = geopandas_bounds
+        coords = [[
+            [xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]
+        ]]
+        metadata = self.get_metadata()
+        bounds = metadata.get('bounds', {})
+        bounds['coordinates'] = coords
+        metadata['bounds'] = bounds
+        self.set_metadata(metadata)
 
     def _getdatatype(self):
         if not self._datatype:
