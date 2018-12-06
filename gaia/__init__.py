@@ -24,6 +24,7 @@ import pkg_resources as pr
 import logging
 
 from .display import pygeojs_adapter
+from .io import writers
 from .util import GaiaException
 
 #: Global version number for the package
@@ -159,8 +160,9 @@ def show(*data_objects, **options):
     """
     Displays data objects using available rendering code
 
-    :param data_objects: 1 or more GeoData objects
+    :param data_objects: 1 or more Gaia data objects
     :param options: options to pass to rendering backend
+    :return scene object from display backend
 
     Note: gaia.show() only renders if it is the
     last line of code in the cell input.
@@ -177,5 +179,15 @@ def show(*data_objects, **options):
     # (else)
     print(data_objects)
     return None
+
+def save(data_object, filename, **options):
+    """Writes data object to specified file.
+
+    :param data_object: GaiaDataObject instance
+    :param filename: filesystem path
+    :param options: options to pass to writing backend
+    :return boolean indicating success
+    """
+    return writers.write_gaia_object(data_object, filename, **options)
 
 get_config()
