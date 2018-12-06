@@ -19,11 +19,13 @@ class GirderDataObject(GaiaDataObject):
         self.resource_type = resource_type
         self.resource_id = resource_id
         self.mapnik_style = None
+        # print('Created girder object, resource_id: {}'.format(resource_id))
 
     def get_metadata(self, force=False):
-        if force or self._metadata is None:
+        if force or not self._metadata:
             gc = GirderInterface._get_girder_client()
             metadata = gc.get('item/{}/geometa'.format(self.resource_id))
+            # print('returned metadata: {}'.format(metadata))
             self._metadata = metadata
         return self._metadata
 
