@@ -89,6 +89,7 @@ def show(data_objects, **options):
         else:
             # Get bounds, in order to compute overall bounds
             meta = data_object.get_metadata()
+            # print('meta: {}'.format(meta))
             # print(meta)
             meta_bounds = meta.get('bounds').get('coordinates')[0]
             # print(meta_bounds)
@@ -144,7 +145,7 @@ def show(data_objects, **options):
                 # Use large-image display
                 # Todo - verify that it is installed
                 tiles_url = data_object._get_tiles_url()
-                print('tiles_url', tiles_url)
+                # print('tiles_url', tiles_url)
                 opacity = data_object.opacity
                 scene.createLayer(
                     'osm', url=tiles_url, keepLower=False, opacity=opacity)
