@@ -2,8 +2,6 @@ from __future__ import absolute_import, division, print_function
 from builtins import (
     bytes, str, open, super, range, zip, round, input, int, pow, object
 )
-from future.standard_library import install_aliases
-install_aliases()
 import sys
 from urllib.parse import urlencode
 

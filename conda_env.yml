@@ -20,3 +20,4 @@ dependencies:
 - psycopg2
 - geoalchemy2
 - rasterio
+- girder-client
