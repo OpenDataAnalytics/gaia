@@ -30,6 +30,7 @@ GDAL_DRIVERS = {
     '.tif': 'GTiff'
 }
 
+
 def write_gaia_object(gaia_object, filename, **options):
     if gaia_object.__class__.__name__ == 'GirderDataObject':
         raise GaiaException('Writing not supported for GirderDataObject')
@@ -41,6 +42,7 @@ def write_gaia_object(gaia_object, filename, **options):
         return write_raster_object(gaia_object, filename, **options)
     else:
         raise GaiaException('Unsupported data type {}'.format(data_type))
+
 
 def write_vector_object(gaia_object, filename, **options):
     # Delete existing file (if any)
@@ -55,6 +57,7 @@ def write_vector_object(gaia_object, filename, **options):
     if driver is None:
         raise GaiaException('Unsupported file extension {}'.format(ext))
     data.to_file(filename, driver, **options)
+
 
 def write_raster_object(gaia_object, filename, **options):
     # Delete existing file (if any)
@@ -75,4 +78,6 @@ def write_raster_object(gaia_object, filename, **options):
 
     gdal_dataset = gaia_object.get_data()
     output_dataset = driver.CreateCopy(filename, gdal_dataset, strict=0)
-    output_dataset = None  # writes to disk
+    # Setting the dataset to None causes the write to disk
+    # Add # noqa comment to ignore flake8 error that variable isn't used
+    output_dataset = None  # writes to disk  # noqa: F841

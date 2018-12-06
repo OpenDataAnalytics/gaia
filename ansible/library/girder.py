@@ -891,7 +891,7 @@ class Resource(object):
             try:
                 # If we can't create the item,  try and return
                 # The item with the same name
-                ret = self.resource_by_name[args['name']]
+                ret = self.resource_by_name[args['name']]  # noqa: F999
             except KeyError:
                 raise htErr
         return ret
@@ -946,8 +946,8 @@ class AccessMixin(object):
 
         return self.client.put("{}/{}/access"
                                .format(self.resource_type, _id),
-                               dict(access=json.dumps(access),
-                                    public="true" if public else "false"))
+                               dict(access=json.dumps(access),  # noqa: F999
+                                    public="true" if public else "false"))  # noqa: F999
 
 
 class CollectionResource(AccessMixin, Resource):
@@ -1108,10 +1108,10 @@ class GirderClientModule(GirderClient):
 
             file_dict = {f['name']: f for f in files}
 
-            source_dict = {os.path.basename(s): {
+            source_dict = {os.path.basename(s): {  # noqa: F999
                 "path": s,
-                "name": os.path.basename(s),
-                "size": os.path.getsize(s)} for s in sources}
+                "name": os.path.basename(s),  # noqa: F999
+                "size": os.path.getsize(s)} for s in sources}  # noqa: F999
 
             source_names = set([(s['name'], s['size'])
                                 for s in source_dict.values()])
@@ -1725,7 +1725,7 @@ def main():
     for method in gcm.required_one_of:
         argument_spec[method] = dict()
 
-    module = AnsibleModule(
+    module = AnsibleModule(    # noqa: F999
         argument_spec=argument_spec,
         required_one_of=[gcm.required_one_of,
                          ["token", "username", "user"]],

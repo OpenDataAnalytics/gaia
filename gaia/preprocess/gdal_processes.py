@@ -45,13 +45,12 @@ def compute_subset_gdal(inputs=[], args=[]):
     outputDataObject.set_data(output_dataset)
     outputDataObject._datatype = gaia.types.RASTER
 
-
     # print('input meta: {}'.format(raster.get_metadata()))
 
     # Get corner points
     gt = output_dataset.GetGeoTransform()
     if gt is None:
-        raise Exception('Cannot compute corners -- dataset has no geo transform')
+        raise Exception('Cannot compute corners - dataset has no geo transform')
     num_cols = output_dataset.RasterXSize
     num_rows = output_dataset.RasterYSize
     corners = list()
