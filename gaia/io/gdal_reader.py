@@ -87,7 +87,45 @@ class GaiaGDALReader(GaiaReader):
         return o
 
     def load_metadata(self, dataObject):
-        self.__read_internal(dataObject)
+        #self.__read_internal(dataObject)
+        data = dataObject.get_data()
+
+        # Get corner points
+        gt = data.GetGeoTransform()
+        if gt is None:
+            raise Exception('Cannot compute corners - dataset has no geo transform')
+        num_cols = data.RasterXSize
+        num_rows = data.RasterYSize
+        corners = list()
+        for px in [0, num_cols]:
+            for py in [0, num_rows]:
+                x = gt[0] + px*gt[1] + py*gt[2]
+                y = gt[3] + px*gt[4] + py*gt[5]
+                corners.append([x, y])
+
+        # if as_lonlat:
+        #     spatial_ref = osr.SpatialReference()
+        #     spatial_ref.ImportFromWkt(self.get_wkt_string())
+        #     corners = self._convert_to_lonlat(corners, spatial_ref)
+
+        xvals = [c[0] for c in corners]
+        yvals = [c[1] for c in corners]
+        xmin = min(xvals)
+        ymin = min(yvals)
+        xmax = max(xvals)
+        ymax = max(yvals)
+        coords = [[
+            [xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]
+        ]]
+        metadata = {
+            'bounds': {
+                'coordinates': coords
+            },
+            'height': data.RasterYSize,
+            'width': data.RasterXSize
+        }
+        print('metadata: {}'.format(metadata))
+        dataObject.set_metadata(metadata)
 
     def load_data(self, dataObject):
         self.__read_internal(dataObject)
