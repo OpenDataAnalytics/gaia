@@ -10,7 +10,7 @@ from gaia.util import GaiaException, MissingParameterError
 class GirderInterface(object):
     """An internal class that provides a thin encapsulation of girder_client.
 
-    This class must be sued as a singleton.
+    This class must be used as a singleton.
     """
 
     instance = None  # singleton

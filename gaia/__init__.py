@@ -191,7 +191,7 @@ def save(data_object, filename, **options):
     """
     return writers.write_gaia_object(data_object, filename, **options)
 
-def submit_crop(data_object, geomtry_object):
+def submit_crop(data_object, geometry_object):
     """Submits processing job to NERSC HPC machine
 
     Current support is (only) for girder-hosted datasets
@@ -201,11 +201,9 @@ def submit_crop(data_object, geomtry_object):
     :return job_id (string) that can be used for tracking and creating
       new GaiaDataObject when job is complete.
     """
-    from gaia.io.girder_interface import GirderInterface
-    girder_interface = GirderInterface.get_instance()
-    if not girder_interface.is_nersc_enabled:
-        raise GaiaProcessError('Girder was not connected with NEWT session id')
-
-    return 'no job id yet'
+    # Hand off to cumulus interface
+    from gaia.io.cumulus_interface import CumulusInterface
+    cumulus_interface = CumulusInterface()
+    cumulus_interface.submit_crop(data_object, geometry_object)
 
 get_config()
