@@ -40,7 +40,6 @@ class GaiaGeoJSONReader(GaiaReader):
         elif isinstance(data_source, geojson.GeoJSON):
             self.geojson_object = data_source
 
-
     @staticmethod
     def can_read(data_source, *args, **kwargs):
         if isinstance(data_source, string_types):
@@ -68,11 +67,9 @@ class GaiaGeoJSONReader(GaiaReader):
 
         if self.uri:
             if self.ext not in formats.VECTOR:
-                raise UnsupportedFormatException(
-                    "Only the following vector formats are supported: {}".format(
-                        ','.join(formats.VECTOR)
-                    )
-                )
+                tpl = "Only the following vector formats are supported: {}"
+                msg = tpl.format(','.join(formats.VECTOR))
+                raise UnsupportedFormatException(msg)
             data = geopandas.read_file(self.uri)
 
         elif self.geojson_object:
@@ -80,14 +77,14 @@ class GaiaGeoJSONReader(GaiaReader):
                 feature = geojson.Feature(geometry=self.geojson_object)
                 features = geojson.FeatureCollection([feature])
             elif isinstance(self.geojson_object, geojson.Feature):
-                features = geojson.Feature([self.geojson_object])
-            elif isinstance(self.geojson_object, goejson.FeatureCollection):
+                features = geojson.FeatureCollection([self.geojson_object])
+            elif isinstance(self.geojson_object, geojson.FeatureCollection):
                 features = self.geojson_object
             else:
                 raise UnsupportedFormatException(
                     'Unrecognized geojson object {}'.self.geojson_object)
 
-            # For now, hard code crs to lat-lon crs
+            # For now, hard code crs to lat-lon
             data = geopandas.GeoDataFrame.from_features(
                 features, crs=dict(init='epsg:4326'))
 

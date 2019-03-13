@@ -12,7 +12,6 @@ from gaia.io.gdal_reader import GaiaGDALReader
 import gaia.types
 
 
-
 def validate_gdal(v):
     """
     Rely on the base validate method for the bulk of the work, just make
@@ -50,6 +49,6 @@ def compute_subset_gdal(inputs=[], args=[]):
 
     # Instantiate temporary reader to (only) parse metadata
     reader = GaiaGDALReader('internal.tif')
-    meta = reader.load_metadata(outputDataObject)
+    reader.load_metadata(outputDataObject)
 
     return outputDataObject

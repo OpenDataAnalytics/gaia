@@ -92,9 +92,10 @@ class TestGaiaProcesses(unittest.TestCase):
         dx = 0.12 * (bounds[2][0] - bounds[0][0])
         dy = 0.16 * (bounds[2][1] - bounds[0][1])
         poly = [[
-            [x,y], [x+dx,y+dy], [x-dx,y+dy], [x-dx,y-dy], [x+dx,y-dy]
+            [x, y], [x+dx, y+dy], [x-dx, y+dy], [x-dx, y-dy], [x+dx, y-dy]
         ]]
         geometry = geojson.Polygon(poly)
         crop_geom = gaia.create(geometry)
 
         cropped_raster = crop(input_raster, crop_geom)
+        self.assertIsNotNone(cropped_raster)

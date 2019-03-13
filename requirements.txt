@@ -26,3 +26,4 @@ geoalchemy2>=0.2.6
 rasterio>=0.36.0
 pyOpenSSL>=17.0.0
 girder-client>=2.4.0
+geojson>=2.0.0
