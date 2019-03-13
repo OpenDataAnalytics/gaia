@@ -5,6 +5,7 @@ from builtins import (
 
 import re
 from six import string_types
+import geojson
 import geopandas
 
 from gaia.io.readers import GaiaReader
@@ -26,22 +27,30 @@ class GaiaGeoJSONReader(GaiaReader):
     """
     epsgRegex = re.compile('epsg:([\d]+)')
 
-    def __init__(self, url, *args, **kwargs):
+    def __init__(self, data_source, *args, **kwargs):
         super(GaiaGeoJSONReader, self).__init__(*args, **kwargs)
 
-        self.uri = url
-        self.ext = '.%s' % get_uri_extension(self.uri)
+        self.geojson_object = None
+        self.uri = None
+        self.ext = None
+
+        if isinstance(data_source, string_types):
+            self.uri = data_source
+            self.ext = '.%s' % get_uri_extension(self.uri)
+        elif isinstance(data_source, geojson.GeoJSON):
+            self.geojson_object = data_source
+
 
     @staticmethod
-    def can_read(url, *args, **kwargs):
-        # Todo update for girder-hosted files
-        if not isinstance(url, string_types):
+    def can_read(data_source, *args, **kwargs):
+        if isinstance(data_source, string_types):
+            # Check string for a supported filename/url
+            extension = '.{}'.format(get_uri_extension(data_source))
+            if extension in formats.VECTOR:
+                return True
             return False
-
-        extension = '.{}'.format(get_uri_extension(url))
-        if extension in formats.VECTOR:
+        elif isinstance(data_source, geojson.GeoJSON):
             return True
-        return False
 
     def read(self, format=None, epsg=None):
         return super().read(format, epsg)
@@ -57,15 +66,35 @@ class GaiaGeoJSONReader(GaiaReader):
         # if not self.format:
         #     self.format = self.default_output
 
-        # FIXME: Should this check actually go into the can_read method?
-        if self.ext not in formats.VECTOR:
-            raise UnsupportedFormatException(
-                "Only the following vector formats are supported: {}".format(
-                    ','.join(formats.VECTOR)
+        if self.uri:
+            if self.ext not in formats.VECTOR:
+                raise UnsupportedFormatException(
+                    "Only the following vector formats are supported: {}".format(
+                        ','.join(formats.VECTOR)
+                    )
                 )
-            )
+            data = geopandas.read_file(self.uri)
 
-        data = geopandas.read_file(self.uri)
+        elif self.geojson_object:
+            if isinstance(self.geojson_object, geojson.geometry.Geometry):
+                feature = geojson.Feature(geometry=self.geojson_object)
+                features = geojson.FeatureCollection([feature])
+            elif isinstance(self.geojson_object, geojson.Feature):
+                features = geojson.Feature([self.geojson_object])
+            elif isinstance(self.geojson_object, goejson.FeatureCollection):
+                features = self.geojson_object
+            else:
+                raise UnsupportedFormatException(
+                    'Unrecognized geojson object {}'.self.geojson_object)
+
+            # If crs not specified, use lat-lon
+            if features.get('crs') is None:
+                features['crs'] = {
+                    'type': 'name',
+                    'properties': {'name': 'urn:ogc:def:crs:OGC:1.3:CRS84'}
+                    }
+
+            data = geopandas.GeoDataFrame.from_features(features)
 
         # FIXME: still need to handle filtering
         # if self.filters:
@@ -73,9 +102,6 @@ class GaiaGeoJSONReader(GaiaReader):
 
         # FIXME: skipped the transformation step for now
         # return self.transform_data(format, epsg)
-
-        # do the actual reading and set both data and metadata
-        # on the dataObject parameter
 
         # Initialize metadata
         metadata = dict()
@@ -97,6 +123,7 @@ class GaiaGeoJSONReader(GaiaReader):
 
         dataObject.set_data(data)
         epsgString = data.crs['init']
+
         m = self.epsgRegex.search(epsgString)
         if m:
             dataObject._epsg = int(m.group(1))
