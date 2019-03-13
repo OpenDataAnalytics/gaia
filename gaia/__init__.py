@@ -136,13 +136,6 @@ def get_config(config_file=None):
     config = config_dict
     return config_dict
 
-def get_datastore_url(path):
-    """Returns url (string) pointing to resource on remote datastore.
-
-    Returns None if the file is not found at the given path.
-    """
-
-
 
 def get_plugins():
     """
@@ -197,5 +190,22 @@ def save(data_object, filename, **options):
     :return boolean indicating success
     """
     return writers.write_gaia_object(data_object, filename, **options)
+
+def submit_crop(data_object, geomtry_object):
+    """Submits processing job to NERSC HPC machine
+
+    Current support is (only) for girder-hosted datasets
+
+    :param data_object: GirderDataObject to be cropped
+    :param geometry_object: GaiaDataObject specifying the crop geometry
+    :return job_id (string) that can be used for tracking and creating
+      new GaiaDataObject when job is complete.
+    """
+    from gaia.io.girder_interface import GirderInterface
+    girder_interface = GirderInterface.get_instance()
+    if not girder_interface.is_nersc_enabled:
+        raise GaiaProcessError('Girder was not connected with NEWT session id')
+
+    return 'no job id yet'
 
 get_config()

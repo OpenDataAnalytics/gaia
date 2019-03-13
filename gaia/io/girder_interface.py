@@ -30,6 +30,7 @@ class GirderInterface(object):
         self.gaia_folder = None
         self.default_folder = None
         self.requests_session = None  # use for NERSC interface
+        self.is_nersc_enabled = False # ditto
 
     @classmethod
     def get_instance(cls):
@@ -77,27 +78,28 @@ class GirderInterface(object):
 
         api_url = '{}/api/v1'.format(girder_url)
         # print('api_url: {}'.format(api_url))
-        gc = girder_client.GirderClient(apiUrl=api_url)
+        self.gc = girder_client.GirderClient(apiUrl=api_url)
 
         if username is not None and password is not None:
-            gc.authenticate(username=username, password=password)
+            self.gc.authenticate(username=username, password=password)
         elif apikey is not None:
-            gc.authenticate(apiKey=apikey)
+            self.gc.authenticate(apiKey=apikey)
         elif newt_sessionid is not None:
             self.requests_session = requests.Session()
             url = '{}/newt/authenticate/{}'.format(api_url, newt_sessionid)
             r = self.requests_session.put(url)
             r.raise_for_status()
 
-            gc.token = self.requests_session.cookies['girderToken']
+            self.gc.token = self.requests_session.cookies['girderToken']
+            self.is_nersc_enabled = True
         else:
             raise MissingParameterError('No girder credentials provided.')
 
         # Get user info
-        self.user = gc.getUser('me')
+        self.user = self.gc.getUser('me')
 
         # Get or intialize Private/gaia/default folder
-        private_list = gc.listFolder(
+        private_list = self.gc.listFolder(
             # self.user['_id'], parentFolderType='user', name='Private')
             # HACK FOR DEMO - use public folder until we set up
             # mechanism to send girder token to js client
@@ -107,27 +109,25 @@ class GirderInterface(object):
         except StopIteration:
             raise GaiaException('User/Private folder not found')
 
-        gaia_list = gc.listFolder(
+        gaia_list = self.gc.listFolder(
             private_folder['_id'], parentFolderType='folder', name='gaia')
         try:
             self.gaia_folder = next(gaia_list)
         except StopIteration:
             description = 'Created by Gaia'
-            self.gaia_folder = gc.createFolder(
+            self.gaia_folder = self.gc.createFolder(
                 private_folder['_id'], 'gaia', description=description)
 
-        default_list = gc.listFolder(
+        default_list = self.gc.listFolder(
             self.gaia_folder['_id'], parentFolderType='folder', name='default')
         try:
             self.default_folder = next(default_list)
         except StopIteration:
             description = 'Created by Gaia'
-            self.default_folder = gc.createFolder(
+            self.default_folder = self.gc.createFolder(
                 self.gaia_folder['_id'], 'default', description=description)
             print('Created gaia/default folder')
 
-        # print('default_folder:', self.default_folder)
-        self.gc = gc
 
     def lookup_url(self, path, test=False):
         """Returns internal url for resource at specified path
@@ -156,7 +156,7 @@ class GirderInterface(object):
             girder_path = path
         else:
             girder_path = 'user/{}/{}'.format(self.user['login'], path)
-        resource = gc.get(
+        resource = self.gc.get(
             'resource/lookup', parameters={'path': girder_path, 'test': test})
         return resource
 
@@ -179,7 +179,7 @@ class GirderInterface(object):
         For internal use only
         """
         if cls.instance is None:
-            raise GaiaException('GirderClient not initialized')
+            raise GaiaException('GirderInterface not initialized')
 
         if cls.instance.gc is None:
             raise GaiaException('GirderClient not initialized')
