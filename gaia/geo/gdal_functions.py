@@ -231,8 +231,9 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
         ulX = geoMatrix[0]
         ulY = geoMatrix[3]
         xDist = geoMatrix[1]
+        yDist = geoMatrix[5]
         pixel = int((x - ulX) / xDist)
-        line = int((ulY - y) / xDist)
+        line = int((y - ulY) / yDist)
         return (pixel, line)
 
     src_image = get_dataset(raster_input)
@@ -264,7 +265,10 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     px_width = int(lr_x - ul_x)
     px_height = int(lr_y - ul_y)
 
-    clip = src_array[ul_y:lr_y, ul_x:lr_x]
+    if raster_input.RasterCount == 1:
+        clip = src_array[ul_y:lr_y, ul_x:lr_x]
+    else:
+        clip = src_array[:, ul_y:lr_y, ul_x:lr_x]
 
     # create pixel offset to pass to new image Projection info
     xoffset = ul_x
@@ -295,14 +299,19 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     mask = image_to_array(raster_poly)
 
     # Clip the image using the mask
-    clip = gdalnumeric.numpy.choose(
-        mask, (clip, nodata_value)).astype(src_dtype)
+    if raster_input.RasterCount == 1:
+        clip = gdalnumeric.numpy.choose(
+            mask, (clip, nodata_value)).astype(src_dtype)
+    else:
+        for i in range(raster_input.RasterCount):
+            clip[i] = gdalnumeric.numpy.choose(
+                mask, (clip[i], nodata_value)).astype(src_dtype)
 
     # create output raster
     raster_band = raster_input.GetRasterBand(1)
     output_driver = gdal.GetDriverByName('MEM')
     output_dataset = output_driver.Create(
-        '', clip.shape[1], clip.shape[0],
+        '', clip.shape[-1], clip.shape[-2],
         raster_input.RasterCount, raster_band.DataType)
     output_dataset.SetGeoTransform(geo_trans)
     output_dataset.SetProjection(raster_input.GetProjection())

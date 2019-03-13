@@ -87,14 +87,9 @@ class GaiaGeoJSONReader(GaiaReader):
                 raise UnsupportedFormatException(
                     'Unrecognized geojson object {}'.self.geojson_object)
 
-            # If crs not specified, use lat-lon
-            if features.get('crs') is None:
-                features['crs'] = {
-                    'type': 'name',
-                    'properties': {'name': 'urn:ogc:def:crs:OGC:1.3:CRS84'}
-                    }
-
-            data = geopandas.GeoDataFrame.from_features(features)
+            # For now, hard code crs to lat-lon crs
+            data = geopandas.GeoDataFrame.from_features(
+                features, crs=dict(init='epsg:4326'))
 
         # FIXME: still need to handle filtering
         # if self.filters:
