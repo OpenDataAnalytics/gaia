@@ -41,7 +41,7 @@ class GirderReader(GaiaReader):
             # (else)
             return False
         else:
-            if not isinstance(source, tuple) and not len(source) == 2:
+            if not isinstance(source, tuple) or not len(source) == 2:
                 return False
 
             gint, path = source

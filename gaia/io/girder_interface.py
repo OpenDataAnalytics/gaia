@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import requests
+
 import girder_client
 
 from gaia.util import GaiaException, MissingParameterError
@@ -27,6 +29,7 @@ class GirderInterface(object):
         self.user = None  # girder user object
         self.gaia_folder = None
         self.default_folder = None
+        self.requests_session = None  # use for NERSC interface
 
     @classmethod
     def get_instance(cls):
@@ -48,7 +51,12 @@ class GirderInterface(object):
         # (else)
         return True
 
-    def initialize(self, girder_url, username=None, password=None, apikey=None):
+    def initialize(self,
+            girder_url,
+            username=None,
+            password=None,
+            apikey=None,
+            newt_sessionid=None):
         """Connect to girder server and authenticate with input credentials
 
         :param girder_url: The full path to the Girder instance, for example,
@@ -56,6 +64,8 @@ class GirderInterface(object):
         :param username: The name for logging into Girder.
         :param password: The password for logging into Girder.
         :apikey: An api key, which can be used instead of username & password.
+        :newt_sessionid: (string) Session token from NEWT web service at NERSC.
+           (Girder must be connected to NEWT service to authenicate.)
         """
         if self.__class__.is_initialized():
             msg = """GirderInterface already initialized -- \
@@ -73,6 +83,13 @@ class GirderInterface(object):
             gc.authenticate(username=username, password=password)
         elif apikey is not None:
             gc.authenticate(apiKey=apikey)
+        elif newt_sessionid is not None:
+            self.requests_session = requests.Session()
+            url = '{}/newt/authenticate/{}'.format(api_url, newt_sessionid)
+            r = self.requests_session.put(url)
+            r.raise_for_status()
+
+            gc.token = self.requests_session.cookies['girderToken']
         else:
             raise MissingParameterError('No girder credentials provided.')
 
@@ -135,7 +152,10 @@ class GirderInterface(object):
         :param test: (boolean) if True, raise exception if resource not found
         """
         gc = self.__class__._get_girder_client()
-        girder_path = 'user/{}/{}'.format(self.user['login'], path)
+        if path.startswith('/'):
+            girder_path = path
+        else:
+            girder_path = 'user/{}/{}'.format(self.user['login'], path)
         resource = gc.get(
             'resource/lookup', parameters={'path': girder_path, 'test': test})
         return resource

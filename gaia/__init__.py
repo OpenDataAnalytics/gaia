@@ -48,7 +48,12 @@ sqlengines = {}
 config = {}
 
 
-def connect(girder_url='http://localhost:8989', username=None, password=None, apikey=None):
+def connect(
+    girder_url='http://localhost:8989',
+    username=None,
+    password=None,
+    apikey=None,
+    newt_sessionid=None):
     """Initialize a connection to a Girder data management system
 
     Gaia datasets can be created from girder files and folders using
@@ -63,7 +68,9 @@ def connect(girder_url='http://localhost:8989', username=None, password=None, ap
     'http://localhost:80' or 'https://my.girder.com'.
     :param username: (string) The name for logging into Girder.
     :param password: (string) The password for logging into Girder.
-    :apikey: (string)An api key, which can be used instead of username & password.
+    :apikey: (string) An api key, which can be used instead of username & password.
+    :newt_sessionid: (string) Session token from NEWT web service at NERSC.
+       (Girder must be connected to NEWT service to authenicate.)
 
     Note that applications can connect to only ONE girder instance for the
     entire session.
@@ -72,7 +79,8 @@ def connect(girder_url='http://localhost:8989', username=None, password=None, ap
     gint = GirderInterface.get_instance()
     if gint.is_initialized():
         raise GaiaException('GirderInterface already initialized.')
-    gint.initialize(girder_url, username=username, password=password, apikey=apikey)
+    gint.initialize(girder_url, username=username, password=password,
+        apikey=apikey, newt_sessionid=newt_sessionid)
     return gint
 
 def create(data_source, *args, **kwargs):
