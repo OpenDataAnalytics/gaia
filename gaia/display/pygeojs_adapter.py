@@ -91,9 +91,17 @@ def show(data_objects, **options):
             meta = data_object.get_metadata()
             # print('meta: {}'.format(meta))
             # print(meta)
-            meta_bounds = meta.get('bounds').get('coordinates')[0]
+            raster_bounds = meta.get('bounds').get('coordinates')[0]
             # print(meta_bounds)
-            assert meta_bounds, 'data_object missing bounds'
+            assert raster_bounds, 'data_object missing bounds'
+
+            # meta bounds inconsistent between sources, so compute brute force
+            xvals, yvals = zip(*raster_bounds)
+            xmin = min(xvals); ymin = min(yvals)
+            xmax = max(xvals); ymax = max(yvals)
+            meta_bounds = [
+                [xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]
+            ]
 
         # Bounds format is [xmin, ymin, xmax, ymax]
         bounds = [
@@ -146,7 +154,9 @@ def show(data_objects, **options):
                 # Todo - verify that it is installed
                 tiles_url = data_object._get_tiles_url()
                 # print('tiles_url', tiles_url)
-                opacity = data_object.opacity
+                opacity = 1.0
+                if hasattr(data_object, 'opacity'):
+                    opacity = data_object.opacity
                 scene.createLayer(
                     'osm', url=tiles_url, keepLower=False, opacity=opacity)
             else:
