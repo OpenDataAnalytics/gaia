@@ -20,6 +20,9 @@ import os
 import json
 import unittest
 from zipfile import ZipFile
+
+import geojson
+
 import gaia
 from gaia.preprocess import crop
 from gaia.io import readers
@@ -72,3 +75,27 @@ class TestGaiaProcesses(unittest.TestCase):
             testfile = os.path.join(testfile_path, '2states.geojson')
             if os.path.exists(testfile):
                 os.remove(testfile)
+
+    def test_crop_rgb(self):
+        """
+        Test cropping raster data with RGB bands
+        """
+        input_path = os.path.join(testfile_path, 'simplergb.tif')
+        input_raster = gaia.create(input_path)
+
+        # Generate crop geometry from raster bounds
+        bounds = input_raster.get_metadata().get('bounds').get('coordinates')
+        bounds = bounds[0]
+        x = (bounds[0][0] + bounds[2][0]) / 2.0
+        y = (bounds[0][1] + bounds[2][1]) / 2.0
+
+        dx = 0.12 * (bounds[2][0] - bounds[0][0])
+        dy = 0.16 * (bounds[2][1] - bounds[0][1])
+        poly = [[
+            [x, y], [x+dx, y+dy], [x-dx, y+dy], [x-dx, y-dy], [x+dx, y-dy]
+        ]]
+        geometry = geojson.Polygon(poly)
+        crop_geom = gaia.create(geometry)
+
+        cropped_raster = crop(input_raster, crop_geom)
+        self.assertIsNotNone(cropped_raster)
