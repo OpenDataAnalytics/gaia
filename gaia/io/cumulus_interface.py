@@ -9,24 +9,34 @@
 #  PURPOSE.  See the above copyright notice for more information.
 #
 # =============================================================================
-from girder_client import GirderClient, HttpError
-import girder_client
-import requests
-import uuid
-import time
-import sys
-import os
+import datetime
+import io
 import json
+import os
+import time
+import uuid
 
+import requests
+
+import gaia
 from gaia.io.girder_interface import GirderInterface
 from gaia.util import GaiaException
+
+NERSC_URL = 'https://newt.nersc.gov/newt'
+
+# Some hard-coded constants for now
+MACHINE = 'cori'
+JOHNT_PATH = '/global/homes/j/johnt'
+CONDA_ENV_PATH = '{}/.conda/envs/py3'.format(JOHNT_PATH)
+GAIA_PATH  = '{}/project/git/gaia'.format(JOHNT_PATH)
 
 
 class CumulusInterface():
     """An internal class that submits jobs to NERSC via girder/cumulus
 
     This class uses the girder client owned by GirderInterface, which must be
-    authenticated with NERSC (NEWT api).
+    authenticated with NERSC (NEWT api). Note that this version is hard-coded
+    to the Cori machine.
     """
 
     # ---------------------------------------------------------------------
@@ -34,6 +44,7 @@ class CumulusInterface():
         """Recommend using separate instance for each job submission.
         """
         self._girder_client = None
+        self._nersc_scratch_folder = None
         self._private_folder_id = None
 
         # Internal, job-specific ids
@@ -45,15 +56,27 @@ class CumulusInterface():
         self._script_id = None
 
         girder_interface = GirderInterface.get_instance()
-        if not girder_interface.is_nersc_enabled:
+        if girder_interface.nersc_requests is None:
             msg = """GirderInterface is not configured for NERSC job submission -- \
 must authenticate with NEWT session id."""
             raise GaiaException(msg)
 
+        # Get user's scratch directory
+        data = {
+          'executable': 'echo $SCRATCH',
+          'loginenv': 'true'
+        }
+        machine = 'cori'
+        url = '%s/command/%s' % (NERSC_URL, machine)
+        r = girder_interface.nersc_requests.post(url, data=data)
+        r.raise_for_status()
+        js = r.json()
+        self._nersc_scratch_folder = js.get('output')
+
         # Get Girder client
         self._girder_client = girder_interface.gc
 
-        # Get id for user's private folder
+        # Get id for user's private girder folder
         user = self._girder_client.get('user/me')
         print('user', user)
         user_id = user['_id']
@@ -65,18 +88,63 @@ must authenticate with NEWT session id."""
         except Exception as ex:
             # But just in case
             self._private_folder_id = r[0]['_id']
-        print('private_folder_id', self._private_folder_id)
+        # print('private_folder_id', self._private_folder_id)
 
     # ---------------------------------------------------------------------
-    def submit_crop(self, input_object, crop_object):
-        pass
-        # Note: the methods must be called in a specific order!
+    def submit_crop(self, input_object, crop_object, nersc_repository, job_name='geolib'):
+        """
+        """
+        assert(self._girder_client is not None)
+        # Todo validate inputs?
+        if not crop_object._getdatatype() == gaia.types.VECTOR:
+            raise GaiaException('Crop object not type VECTOR')
+
+        # Call internal methods in this order
         #   create_cluster()
         #   create_slurm_script()
         #   create_job()
         #   upload_inputs()
         #   submit_job()
         #   ? download_results()
+        print('Creating cluster on {}'.format(MACHINE))
+        self.create_cluster(MACHINE)
+
+        # Create SLURM commands
+        print('Creating SLURM script {}'.format(job_name))
+        command_list = list()
+        command_list.append('ulimit -s unlimited')  # stack size
+        command_list.append('module load python/3.6-anaconda-4.4')
+        command_list.append('source activate {}'.format(CONDA_ENV_PATH))
+        command_list.append('export PYTHONPATH={}'.format(GAIA_PATH))
+
+        # Last command is the python script itself
+        py_script = '{}/nersc/crop.py'.format(GAIA_PATH)
+        input_path = '{}/{}'.format(JOHNT_PATH, 'project/data/SFBay_grayscale.tif')
+        geometry_filename = 'crop_geometry.geojson'
+        output_filename = 'output.tif'
+        py_command = 'python {} {} {} {}'.format(
+            py_script, input_path, geometry_filename, output_filename)
+
+        command_list.append('srun -n 1 -c 1 {}'.format(py_command))
+        self.create_slurm_script('metadata', command_list)
+
+        print('Creating job {}'.format(job_name))
+        self.create_job(job_name)
+
+        print('Uploading geometry file')
+        name = geometry_filename
+        geom_string = crop_object.get_data().to_json()
+        size = len(geom_string)
+        # print('geom_string:', geom_string)
+        geom_stream = io.StringIO(geom_string)
+        self._girder_client.uploadFile(
+            self._input_folder_id, geom_stream, name, size, parentType='folder')
+
+        print('Submitting job')
+        datecode = datetime.datetime.now().strftime('%y%m%d')
+        output_dir = '{}/{}/{}'.format(self._nersc_scratch_folder, datecode, job_name)
+        self.submit_job(MACHINE, nersc_repository, output_dir)
+
 
     # ---------------------------------------------------------------------
     def create_cluster(self, machine_name, cluster_name=None):
@@ -113,7 +181,7 @@ must authenticate with NEWT session id."""
             'status': 'created'
         }
         r = self._girder_client.patch('clusters/%s' %
-                               self._cluster_id, data=json.dumps(body))
+            self._cluster_id, data=json.dumps(body))
 
         # Now test the connection
         r = self._girder_client.put('clusters/%s/start' % self._cluster_id)
@@ -121,6 +189,7 @@ must authenticate with NEWT session id."""
         while True:
             time.sleep(1)
             r = self._girder_client.get('clusters/%s/status' % self._cluster_id)
+            # print('status', r['status'])
 
             if r['status'] == 'running':
                 break
@@ -223,7 +292,7 @@ must authenticate with NEWT session id."""
                    machine,
                    project_account,
                    job_output_dir,
-                   timeout_minutes,
+                   timeout_minutes=5,
                    queue='debug',
                    qos=None,
                    number_of_nodes=1):

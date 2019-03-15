@@ -29,8 +29,7 @@ class GirderInterface(object):
         self.user = None  # girder user object
         self.gaia_folder = None
         self.default_folder = None
-        self.requests_session = None  # use for NERSC interface
-        self.is_nersc_enabled = False # ditto
+        self.nersc_requests = None  # requests session
 
     @classmethod
     def get_instance(cls):
@@ -85,13 +84,13 @@ class GirderInterface(object):
         elif apikey is not None:
             self.gc.authenticate(apiKey=apikey)
         elif newt_sessionid is not None:
-            self.requests_session = requests.Session()
+            self.nersc_requests = requests.Session()
             url = '{}/newt/authenticate/{}'.format(api_url, newt_sessionid)
-            r = self.requests_session.put(url)
+            r = self.nersc_requests.put(url)
             r.raise_for_status()
+            self.nersc_requests.cookies.update(dict(newt_sessionid=newt_sessionid))
 
-            self.gc.token = self.requests_session.cookies['girderToken']
-            self.is_nersc_enabled = True
+            self.gc.token = self.nersc_requests.cookies['girderToken']
         else:
             raise MissingParameterError('No girder credentials provided.')
 

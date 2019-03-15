@@ -191,19 +191,20 @@ def save(data_object, filename, **options):
     """
     return writers.write_gaia_object(data_object, filename, **options)
 
-def submit_crop(data_object, geometry_object):
+def submit_crop(data_object, geometry_object, nersc_repository):
     """Submits processing job to NERSC HPC machine
 
     Current support is (only) for girder-hosted datasets
 
     :param data_object: GirderDataObject to be cropped
     :param geometry_object: GaiaDataObject specifying the crop geometry
+    :param nersc_repository: (string) accounting repository (e.g., m1234)
     :return job_id (string) that can be used for tracking and creating
       new GaiaDataObject when job is complete.
     """
     # Hand off to cumulus interface
     from gaia.io.cumulus_interface import CumulusInterface
     cumulus_interface = CumulusInterface()
-    cumulus_interface.submit_crop(data_object, geometry_object)
+    cumulus_interface.submit_crop(data_object, geometry_object, nersc_repository)
 
 get_config()
