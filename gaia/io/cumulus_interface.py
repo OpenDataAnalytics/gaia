@@ -19,6 +19,7 @@ import uuid
 import requests
 
 import gaia
+from gaia.girder_data import GirderDataObject
 from gaia.io.girder_interface import GirderInterface
 from gaia.util import GaiaException
 
@@ -94,8 +95,11 @@ must authenticate with NEWT session id."""
     def submit_crop(self, input_object, crop_object, nersc_repository, job_name='geolib'):
         """
         """
-        assert(self._girder_client is not None)
         # Todo validate inputs?
+        if not isinstance(input_object, GirderDataObject):
+            print('input object type', type(input_object))
+            raise GaiaException("""submit_crop() currently only supports \
+GirderDataObject input""")
         if not crop_object._getdatatype() == gaia.types.VECTOR:
             raise GaiaException('Crop object not type VECTOR')
 
@@ -125,11 +129,34 @@ must authenticate with NEWT session id."""
         py_command = 'python {} {} {} {}'.format(
             py_script, input_path, geometry_filename, output_filename)
 
-        command_list.append('srun -n 1 -c 1 {}'.format(py_command))
+        # Arguments
+        # -n number of nodes
+        # -c number of cpus per allocated process
+        # -u unbuffered (don't buffer terminal output)
+        command_list.append('srun -n 1 -c 1 -u {}'.format(py_command))
         self.create_slurm_script('metadata', command_list)
 
         print('Creating job {}'.format(job_name))
         self.create_job(job_name)
+
+
+        # Set job metadata - keywords used by smtk job panel
+        job_metadata = dict()
+        # job_metadata['solver'] = solver
+        job_metadata['notes'] = ''
+        number_of_nodes = 1
+        job_metadata['numberOfNodes'] = number_of_nodes
+        # Total number of cores (1 core per task times number of nodes)
+        number_of_tasks = 1
+        job_metadata['numberOfCores'] = number_of_nodes * number_of_tasks
+
+        # Time stamp (seconds since epoci)
+        job_metadata['startTimeStamp'] = time.time()
+
+        # Plus one specific to our job
+        job_metadata['outputFilename'] = output_filename
+        self.set_job_metadata(job_metadata)
+
 
         print('Uploading geometry file')
         name = geometry_filename
@@ -142,8 +169,9 @@ must authenticate with NEWT session id."""
 
         print('Submitting job')
         datecode = datetime.datetime.now().strftime('%y%m%d')
-        output_dir = '{}/{}/{}'.format(self._nersc_scratch_folder, datecode, job_name)
-        self.submit_job(MACHINE, nersc_repository, output_dir)
+        output_dir = '{}/geolib/{}/{}'.format(
+            self._nersc_scratch_folder, datecode, job_name)
+        return self.submit_job(MACHINE, nersc_repository, output_dir)
 
 
     # ---------------------------------------------------------------------
@@ -310,7 +338,7 @@ must authenticate with NEWT session id."""
             'queue': queue,
         }
         if 'cori' == machine:
-            body['constraint'] = 'haswell'
+            body['constraint'] = 'knl'
 
         if qos:
             body['qualityOfService'] = qos
@@ -321,6 +349,7 @@ must authenticate with NEWT session id."""
         url = 'clusters/%s/job/%s/submit' % (self._cluster_id, self._job_id)
         self._girder_client.put(url, data=json.dumps(body))
         print('Submitted job', self._job_id)
+        return self._job_id
 
     # ---------------------------------------------------------------------
     def set_job_metadata(self, meta):

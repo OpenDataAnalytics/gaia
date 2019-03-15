@@ -205,6 +205,6 @@ def submit_crop(data_object, geometry_object, nersc_repository):
     # Hand off to cumulus interface
     from gaia.io.cumulus_interface import CumulusInterface
     cumulus_interface = CumulusInterface()
-    cumulus_interface.submit_crop(data_object, geometry_object, nersc_repository)
+    return cumulus_interface.submit_crop(data_object, geometry_object, nersc_repository)
 
 get_config()

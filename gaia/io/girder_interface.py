@@ -128,21 +128,60 @@ class GirderInterface(object):
             print('Created gaia/default folder')
 
 
-    def lookup_url(self, path, test=False):
+    def lookup_url(self, path=None, job_id=None, test=False):
         """Returns internal url for resource at specified path
 
         :param path: (string) Girder path, from user's root to resource
+        :param job_id: (string) Girder job id, represents processing job
+            submitted to remote machine
         :param test: (boolean) if True, raise exception if resource not found
-        """
-        resource = self.lookup_resource(path, test)
-        if resource is None:
-            return None
 
-        # (else) construct "gaia" url
-        resource_type = resource['_modelType']
-        resource_id = resource['_id']
-        gaia_url = 'girder://{}/{}'.format(resource_type, resource_id)
-        return gaia_url
+        Either path or job_id must be specified (but not both!)
+        """
+        if path:
+            resource = self.lookup_resource(path, test)
+            if resource is None:
+                return None
+
+            # (else) construct "gaia" url
+            resource_type = resource['_modelType']
+            resource_id = resource['_id']
+            gaia_url = 'girder://{}/{}'.format(resource_type, resource_id)
+            return gaia_url
+        elif job_id:
+            job_endpoint = 'jobs/{}'.format(job_id)
+            job_info = self.gc.get(job_endpoint)
+            if not job_info:
+                raise GaiaException('Job not found on girder')
+
+            status = job_info.get('status')
+            if status != 'complete':
+                print('job_info:\n', job_info)
+                raise GaiaException('Job status not complete ({})'.format(status))
+
+            output_folder_id = job_info.get('output',[])[0].get('folderId')
+            # print('output_folder_id', output_folder_id)
+
+            # Output filename is stored in metadata
+            default_filename = 'output.tif'
+            output_filename = job_info.get('metadata',{}).get('outputFilename',default_filename)
+
+            # Get item id
+            params = dict(folderId=output_folder_id, name=output_filename, limit=1)
+            output_list = self.gc.get('item', parameters=params)
+            #print(output_list)
+            if output_list:
+                output_info = output_list[0]
+                output_item_id = output_info.get('_id', 'missing')
+                # print('Output file {} is item id {}'.format(output_filename, output_item_id))
+            else:
+                raise GaiaException('Output file {} not found'.format(output_filename))
+
+            # Create gaia object for output
+            gaia_url = 'girder://item/{}'.format(output_item_id)
+            return gaia_url
+        else:
+            raise MissingParameterError('Must specify either path or job_id argument')
 
     def lookup_resource(self, path, test=True):
         """Does lookup of resource at specified path
@@ -150,7 +189,6 @@ class GirderInterface(object):
         :param path: (string) Girder path, from user's root to resource
         :param test: (boolean) if True, raise exception if resource not found
         """
-        gc = self.__class__._get_girder_client()
         if path.startswith('/'):
             girder_path = path
         else:
