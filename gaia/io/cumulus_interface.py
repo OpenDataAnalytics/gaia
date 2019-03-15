@@ -16,6 +16,7 @@ import os
 import time
 import uuid
 
+from girder_client import HttpError
 import requests
 
 import gaia
@@ -29,7 +30,7 @@ NERSC_URL = 'https://newt.nersc.gov/newt'
 MACHINE = 'cori'
 JOHNT_PATH = '/global/homes/j/johnt'
 CONDA_ENV_PATH = '{}/.conda/envs/py3'.format(JOHNT_PATH)
-GAIA_PATH  = '{}/project/git/gaia'.format(JOHNT_PATH)
+GAIA_PATH = '{}/project/git/gaia'.format(JOHNT_PATH)
 
 
 class CumulusInterface():
@@ -64,8 +65,8 @@ must authenticate with NEWT session id."""
 
         # Get user's scratch directory
         data = {
-          'executable': 'echo $SCRATCH',
-          'loginenv': 'true'
+            'executable': 'echo $SCRATCH',
+            'loginenv': 'true'
         }
         machine = 'cori'
         url = '%s/command/%s' % (NERSC_URL, machine)
@@ -86,13 +87,18 @@ must authenticate with NEWT session id."""
         # I *think* it is a generator
         try:
             self._private_folder_id = next(r)['_id']
-        except Exception as ex:
+        except Exception:
             # But just in case
             self._private_folder_id = r[0]['_id']
         # print('private_folder_id', self._private_folder_id)
 
     # ---------------------------------------------------------------------
-    def submit_crop(self, input_object, crop_object, nersc_repository, job_name='geolib'):
+    def submit_crop(
+            self,
+            input_object,
+            crop_object,
+            nersc_repository,
+            job_name='geolib'):
         """
         """
         # Todo validate inputs?
@@ -123,7 +129,8 @@ GirderDataObject input""")
 
         # Last command is the python script itself
         py_script = '{}/nersc/crop.py'.format(GAIA_PATH)
-        input_path = '{}/{}'.format(JOHNT_PATH, 'project/data/SFBay_grayscale.tif')
+        input_path = '{}/{}'.format(
+            JOHNT_PATH, 'project/data/SFBay_grayscale.tif')
         geometry_filename = 'crop_geometry.geojson'
         output_filename = 'output.tif'
         py_command = 'python {} {} {} {}'.format(
@@ -138,7 +145,6 @@ GirderDataObject input""")
 
         print('Creating job {}'.format(job_name))
         self.create_job(job_name)
-
 
         # Set job metadata - keywords used by smtk job panel
         job_metadata = dict()
@@ -157,7 +163,6 @@ GirderDataObject input""")
         job_metadata['outputFilename'] = output_filename
         self.set_job_metadata(job_metadata)
 
-
         print('Uploading geometry file')
         name = geometry_filename
         geom_string = crop_object.get_data().to_json()
@@ -172,7 +177,6 @@ GirderDataObject input""")
         output_dir = '{}/geolib/{}/{}'.format(
             self._nersc_scratch_folder, datecode, job_name)
         return self.submit_job(MACHINE, nersc_repository, output_dir)
-
 
     # ---------------------------------------------------------------------
     def create_cluster(self, machine_name, cluster_name=None):
@@ -208,8 +212,8 @@ GirderDataObject input""")
         body = {
             'status': 'created'
         }
-        r = self._girder_client.patch('clusters/%s' %
-            self._cluster_id, data=json.dumps(body))
+        endpoint = 'clusters/%s' % self._cluster_id
+        r = self._girder_client.patch(endpoint, data=json.dumps(body))
 
         # Now test the connection
         r = self._girder_client.put('clusters/%s/start' % self._cluster_id)
@@ -222,7 +226,8 @@ GirderDataObject input""")
             if r['status'] == 'running':
                 break
             elif r['status'] == 'error':
-                r = self._girder_client.get('clusters/%s/log' % self._cluster_id)
+                r = self._girder_client.get(
+                    'clusters/%s/log' % self._cluster_id)
                 print(r)
                 raise Exception('ERROR creating cluster')
 
@@ -357,7 +362,8 @@ GirderDataObject input""")
         '''
         body = dict()
         body['metadata'] = meta
-        r = self._girder_client.patch('jobs/%s' % self._job_id, data=json.dumps(body))
+        self._girder_client.patch(
+            'jobs/%s' % self._job_id, data=json.dumps(body))
 
     # ---------------------------------------------------------------------
     def download_results(self, destination_folder):

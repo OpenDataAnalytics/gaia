@@ -97,8 +97,8 @@ def show(data_objects, **options):
 
             # meta bounds inconsistent between sources, so compute brute force
             xvals, yvals = zip(*raster_bounds)
-            xmin = min(xvals); ymin = min(yvals)
-            xmax = max(xvals); ymax = max(yvals)
+            xmin, xmax = min(xvals), max(xvals)
+            ymin, ymax = min(yvals), max(yvals)
             meta_bounds = [
                 [xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]
             ]

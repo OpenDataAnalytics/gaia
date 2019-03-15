@@ -51,7 +51,8 @@ class GirderInterface(object):
         # (else)
         return True
 
-    def initialize(self,
+    def initialize(
+            self,
             girder_url,
             username=None,
             password=None,
@@ -88,7 +89,8 @@ class GirderInterface(object):
             url = '{}/newt/authenticate/{}'.format(api_url, newt_sessionid)
             r = self.nersc_requests.put(url)
             r.raise_for_status()
-            self.nersc_requests.cookies.update(dict(newt_sessionid=newt_sessionid))
+            self.nersc_requests.cookies.update(dict(
+                newt_sessionid=newt_sessionid))
 
             self.gc.token = self.nersc_requests.cookies['girderToken']
         else:
@@ -127,7 +129,6 @@ class GirderInterface(object):
                 self.gaia_folder['_id'], 'default', description=description)
             print('Created gaia/default folder')
 
-
     def lookup_url(self, path=None, job_id=None, test=False):
         """Returns internal url for resource at specified path
 
@@ -157,31 +158,37 @@ class GirderInterface(object):
             status = job_info.get('status')
             if status != 'complete':
                 print('job_info:\n', job_info)
-                raise GaiaException('Job status not complete ({})'.format(status))
+                raise GaiaException(
+                    'Job status not complete ({})'.format(status))
 
-            output_folder_id = job_info.get('output',[])[0].get('folderId')
+            output_folder_id = job_info.get('output', [])[0].get('folderId')
             # print('output_folder_id', output_folder_id)
 
             # Output filename is stored in metadata
             default_filename = 'output.tif'
-            output_filename = job_info.get('metadata',{}).get('outputFilename',default_filename)
+            metadata = job_info.get('metadata', {})
+            output_filename = metadata.get('outputFilename', default_filename)
 
             # Get item id
-            params = dict(folderId=output_folder_id, name=output_filename, limit=1)
+            params = dict(
+                folderId=output_folder_id, name=output_filename, limit=1)
             output_list = self.gc.get('item', parameters=params)
-            #print(output_list)
+            # print(output_list)
             if output_list:
                 output_info = output_list[0]
                 output_item_id = output_info.get('_id', 'missing')
-                # print('Output file {} is item id {}'.format(output_filename, output_item_id))
+                # print('Output file {} is item id {}'.format(
+                #     output_filename, output_item_id))
             else:
-                raise GaiaException('Output file {} not found'.format(output_filename))
+                raise GaiaException(
+                    'Output file {} not found'.format(output_filename))
 
             # Create gaia object for output
             gaia_url = 'girder://item/{}'.format(output_item_id)
             return gaia_url
         else:
-            raise MissingParameterError('Must specify either path or job_id argument')
+            raise MissingParameterError(
+                'Must specify either path or job_id argument')
 
     def lookup_resource(self, path, test=True):
         """Does lookup of resource at specified path
