@@ -15,10 +15,16 @@ class GirderDataObject(GaiaDataObject):
     """
     def __init__(self, reader, resource_type, resource_id, **kwargs):
         super(GirderDataObject, self).__init__(**kwargs)
+        """
+
+        Optional bounds input provided because some girder assetstores
+        are not configured for geometa
+        """
         self._reader = reader
         self.resource_type = resource_type
         self.resource_id = resource_id
         self.mapnik_style = None
+        self.bounds = kwargs.get('bounds')
         # print('Created girder object, resource_id: {}'.format(resource_id))
 
     def get_metadata(self, force=False):
@@ -27,6 +33,10 @@ class GirderDataObject(GaiaDataObject):
             metadata = gc.get('item/{}/geometa'.format(self.resource_id))
             # print('returned metadata: {}'.format(metadata))
             self._metadata = metadata
+
+            if self.bounds:
+                geom = self._bounds_to_geom(self.bounds)
+                self._metadata['bounds'] = geom
         return self._metadata
 
     def set_mapnik_style(self, style):
@@ -69,3 +79,21 @@ class GirderDataObject(GaiaDataObject):
 
         # print('Using tiles_url:', tiles_url)
         return tiles_url
+
+    def _bounds_to_geom(self, bounds):
+        """Converts bounds as [xmin,ymin,xmax,ymax] to geojson polygon
+
+        :bounds: list of doubles xmin, ymin, xmax, ymax
+
+        For internal use. Needed for certain assetstores which either don't
+        provide bounds or provide incorrect bounds data.
+        """
+        xmin, ymin, xmax, ymax = bounds
+        coords = [[
+            [xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]
+        ]]
+        geom = {
+            'coordinates': coords,
+            'type': 'Polygon'
+        }
+        return geom
