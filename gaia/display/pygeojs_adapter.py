@@ -63,8 +63,9 @@ def show(data_objects, **options):
 
             # Convert to lon-lat if needed
             epsg = data_object.get_epsg()
-            if epsg != '4236':
-                df[df.geometry.name] = df.geometry.to_crs(epsg='4236')
+            if epsg and str(epsg) != '4326':
+                print('Converting crs')
+                df[df.geometry.name] = df.geometry.to_crs(epsg='4326')
 
             # Strip any z coordinates (force to z = 1)
             df.geometry = df.geometry.scale(zfact=0.0).translate(zoff=1.0)

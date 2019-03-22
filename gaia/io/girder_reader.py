@@ -19,6 +19,8 @@ class GirderReader(GaiaReader):
         super(GirderReader, self).__init__(*args, **kwargs)
         self.girder_source = data_source
         self.url = None
+        # Bounds can be pass in optionally
+        self.bounds = kwargs.get('bounds')
 
         if isinstance(data_source, str):
             self.url = data_source
@@ -74,7 +76,8 @@ class GirderReader(GaiaReader):
                 raise GaiaException('Internal error - not a girder url')
 
             resource_type, resource_id = parsed_result
-            return GirderDataObject(self, resource_type, resource_id)
+            return GirderDataObject(
+                self, resource_type, resource_id, bounds=self.bounds)
 
         elif self.girder_source:
             gint, path = self.girder_source
@@ -86,7 +89,8 @@ class GirderReader(GaiaReader):
 
             resource_type = resource['_modelType']
             resource_id = resource['_id']
-            return GirderDataObject(self, resource_type, resource_id)
+            return GirderDataObject(
+                self, resource_type, resource_id, bounds=self.bounds)
 
         raise GaiaException(
             'Internal error - should never reach end of GirderReader.read()')

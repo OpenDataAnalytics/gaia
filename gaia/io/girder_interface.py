@@ -91,6 +91,19 @@ class GirderInterface(object):
             r.raise_for_status()
             self.nersc_requests.cookies.update(dict(
                 newt_sessionid=newt_sessionid))
+            # self.nersc_requests.cookies.set('newt_sessionid', newt_sessionid)
+
+            # Get scratch directory
+            data = {
+                'executable': '/usr/bin/echo $SCRATCH',
+                'loginenv': 'true'
+            }
+            machine = 'cori'
+            NERSC_URL = 'https://newt.nersc.gov/newt'
+            url = '%s/command/%s' % (NERSC_URL, machine)
+            r = self.nersc_requests.post(url, data=data)
+            r.raise_for_status()
+            print(r.json())
 
             self.gc.token = self.nersc_requests.cookies['girderToken']
         else:
@@ -195,6 +208,7 @@ class GirderInterface(object):
 
         :param path: (string) Girder path, from user's root to resource
         :param test: (boolean) if True, raise exception if resource not found
+        :return: (object) resource info including _id, and name
         """
         if path.startswith('/'):
             girder_path = path
@@ -203,6 +217,39 @@ class GirderInterface(object):
         resource = self.gc.get(
             'resource/lookup', parameters={'path': girder_path, 'test': test})
         return resource
+
+    def ls(self, path, text=None, name=None, offset=0, limit=40,
+            formatted=True):
+        """Returns list of files at specified girder path (folder)
+
+        :param formatted: (bool) if true, return abridged, formatted list
+
+        """
+        # Lookup folder id for given path
+        folder_resource = self.lookup_resource(path)
+        folder_id = folder_resource.get('_id')
+
+        # Get items in that folder
+        gen = self.gc.listItem(folder_id)
+        contents = list(gen)
+        if not formatted:
+            return contents
+
+        # (else) generate a list of abridged, formatted items
+        def sizeof_fmt(num, suffix='B'):
+            '''Converts number to human-readable form'''
+            for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+                if abs(num) < 1024.0:
+                    return "%3.1f %s%s" % (num, unit, suffix)
+                num /= 1024.0
+            return "%.1f %s%s" % (num, 'Y', suffix)
+
+        content_list = [None] * len(contents)
+        for i, item in enumerate(contents):
+            sizeof = sizeof_fmt(item.get('size'))
+            content_list[i] = [sizeof, item.get('name')]
+
+        return content_list
 
     @classmethod
     def _get_default_folder_id(cls):

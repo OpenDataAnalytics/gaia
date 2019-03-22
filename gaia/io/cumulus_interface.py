@@ -30,7 +30,8 @@ NERSC_URL = 'https://newt.nersc.gov/newt'
 MACHINE = 'cori'
 JOHNT_PATH = '/global/homes/j/johnt'
 CONDA_ENV_PATH = '{}/.conda/envs/py3'.format(JOHNT_PATH)
-GAIA_PATH = '{}/project/git/gaia'.format(JOHNT_PATH)
+PROJECT_PATH = '{}/project'.format(JOHNT_PATH)
+GAIA_PATH = '{}/git/gaia'.format(PROJECT_PATH)
 
 
 class CumulusInterface():
@@ -82,7 +83,8 @@ must authenticate with NEWT session id."""
         user = self._girder_client.get('user/me')
         print('user', user)
         user_id = user['_id']
-        r = self._girder_client.listFolder(user_id, 'user', name='Private')
+        # r = self._girder_client.listFolder(user_id, 'user', name='Private')
+        r = self._girder_client.listFolder(user_id, 'user', name='Public')
         # Getting mixed signals on what listFolder returns
         # I *think* it is a generator
         try:
@@ -101,7 +103,7 @@ must authenticate with NEWT session id."""
             job_name='geolib'):
         """
         """
-        # Todo validate inputs?
+        # Validate inputs
         if not isinstance(input_object, GirderDataObject):
             print('input object type', type(input_object))
             raise GaiaException("""submit_crop() currently only supports \
@@ -109,13 +111,18 @@ GirderDataObject input""")
         if not crop_object._getdatatype() == gaia.types.VECTOR:
             raise GaiaException('Crop object not type VECTOR')
 
+        # Get input object's filename
+        # For now (March 2019) we are storing a cache of files on cori
+        # for the ESS-DIVE dev server
+        item = self._girder_client.getItem(input_object.resource_id)
+        input_filename = item.get('name')
+
         # Call internal methods in this order
         #   create_cluster()
         #   create_slurm_script()
         #   create_job()
         #   upload_inputs()
         #   submit_job()
-        #   ? download_results()
         print('Creating cluster on {}'.format(MACHINE))
         self.create_cluster(MACHINE)
 
@@ -129,8 +136,9 @@ GirderDataObject input""")
 
         # Last command is the python script itself
         py_script = '{}/nersc/crop.py'.format(GAIA_PATH)
-        input_path = '{}/{}'.format(
-            JOHNT_PATH, 'project/data/SFBay_grayscale.tif')
+
+        # For now, we have chache copies of input files on cori:
+        input_path = '{}/data/{}'.format(PROJECT_PATH, input_filename)
         geometry_filename = 'crop_geometry.geojson'
         output_filename = 'output.tif'
         py_command = 'python {} {} {} {}'.format(
@@ -139,7 +147,7 @@ GirderDataObject input""")
         # Arguments
         # -n number of nodes
         # -c number of cpus per allocated process
-        # -u unbuffered (don't buffer terminal output)
+        # -u unbuffered (don't buffer terminal output - needed by cumulus)
         command_list.append('srun -n 1 -c 1 -u {}'.format(py_command))
         self.create_slurm_script('metadata', command_list)
 
