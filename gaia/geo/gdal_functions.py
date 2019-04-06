@@ -261,9 +261,24 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     ul_x, ul_y = world_to_pixel(geo_trans, min_x, max_y)
     lr_x, lr_y = world_to_pixel(geo_trans, max_x, min_y)
 
+    # Check for null intersection
+    if lr_x < 0 or lr_y < 0 \
+            or ul_x > src_array.shape[-1] \
+            or ul_y > src_array.shape[-2]:
+        return None
+
+    # Clip to the input image bounds
+    ul_x = max(ul_x, 0)
+    ul_y = max(ul_y, 0)
+    lr_x = min(lr_x, src_array.shape[-1])
+    lr_y = min(lr_y, src_array.shape[-2])
+
     # Calculate the pixel size of the new image
     px_width = int(lr_x - ul_x)
     px_height = int(lr_y - ul_y)
+
+    if px_width < 1 or px_height < 1:
+        return None
 
     if raster_input.RasterCount == 1:
         clip = src_array[ul_y:lr_y, ul_x:lr_x]

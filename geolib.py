@@ -1,2 +1,3 @@
-# This provides an alias to "gaia", so that people can start using geolib
+# This provides an alias to "gaia", so that people can start using "geolib"
 from gaia import *
+import gaia.preprocess as preprocess

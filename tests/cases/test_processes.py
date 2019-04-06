@@ -38,6 +38,15 @@ class TestGaiaProcesses(unittest.TestCase):
         config_file = os.path.join(base_dir, '../../gaia/conf/gaia.cfg')
         gaia.get_config(config_file)
 
+        zipfile = ZipFile(os.path.join(testfile_path, '2states.zip'), 'r')
+        zipfile.extract('2states.geojson', testfile_path)
+
+    @classmethod
+    def tearDownClass(cls):
+        twostates_path = os.path.join(testfile_path, '2states.geojson')
+        if os.path.exists(twostates_path):
+            os.remove(twostates_path)
+
     def test_crop_pandas(self):
         """
         Test cropping (within process) for vector inputs
@@ -52,13 +61,21 @@ class TestGaiaProcesses(unittest.TestCase):
 
         self.assertEqual(len(output.get_data()), 19)
 
+    def test_crop_vector_null(self):
+        """Test case where vector intersection is null"""
+        source_path = os.path.join(testfile_path, '2states.geojson')
+        source = gaia.create(source_path)
+
+        tool_path = os.path.join(testfile_path, 'iraq_hospitals.geojson')
+        tool = gaia.create(tool_path)
+
+        cropped = crop(source, tool)
+        self.assertIsNone(cropped)
+
     def test_crop_gdal(self):
         """
         Test cropping (subset process) for vector & raster inputs
         """
-        zipfile = ZipFile(os.path.join(testfile_path, '2states.zip'), 'r')
-        zipfile.extract('2states.geojson', testfile_path)
-
         try:
             reader1 = readers.GaiaReader(
                 os.path.join(testfile_path, 'globalairtemp.tif'))
@@ -71,10 +88,8 @@ class TestGaiaProcesses(unittest.TestCase):
             output = crop(rasterData, vectorData)
 
             self.assertEqual(type(output.get_data()).__name__, 'Dataset')
-        finally:
-            testfile = os.path.join(testfile_path, '2states.geojson')
-            if os.path.exists(testfile):
-                os.remove(testfile)
+        except Exception:
+            raise
 
     def test_crop_rgb(self):
         """
@@ -93,6 +108,38 @@ class TestGaiaProcesses(unittest.TestCase):
         dy = 0.16 * (bounds[2][1] - bounds[0][1])
         poly = [[
             [x, y], [x+dx, y+dy], [x-dx, y+dy], [x-dx, y-dy], [x+dx, y-dy]
+        ]]
+        geometry = geojson.Polygon(poly)
+        crop_geom = gaia.create(geometry)
+
+        cropped_raster = crop(input_raster, crop_geom)
+        self.assertIsNotNone(cropped_raster)
+
+    def test_crop_rgb_null(self):
+        """Test with geometry that does not intersect"""
+        input_path = os.path.join(testfile_path, 'simplergb.tif')
+        input_raster = gaia.create(input_path)
+
+        input_path = os.path.join(testfile_path, 'iraq_hospitals.geojson')
+        input_vector = gaia.create(input_path)
+
+        cropped = crop(input_raster, input_vector)
+        self.assertIsNone(cropped)
+
+    def test_crop_rgb_bigger(self):
+        """Test with geometry partially outside raster bounds"""
+        input_path = os.path.join(testfile_path, 'simplergb.tif')
+        input_raster = gaia.create(input_path)
+
+        bounds = input_raster.get_metadata().get('bounds').get('coordinates')
+        bounds = bounds[0]
+        x = (bounds[0][0] + bounds[2][0]) / 2.0
+        y = (bounds[0][1] + bounds[2][1]) / 2.0
+
+        dx = 1.0 * (bounds[2][0] - bounds[0][0])
+        dy = 1.0 * (bounds[2][1] - bounds[0][1])
+        poly = [[
+            [x, y], [x, y-dy], [x+dx, y-dy], [x+dx, y]
         ]]
         geometry = geojson.Polygon(poly)
         crop_geom = gaia.create(geometry)
