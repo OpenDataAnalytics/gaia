@@ -13,6 +13,7 @@ def crop (*args, **kwargs):
     :param datasets: list of datasets to crop
     :param geometry: crop geometry in GeoJSON format
     :param name: optional name for resulting dataset
+    :return: dataset or None if no intersection
     """
     return compute('crop', inputs=list(args), args=kwargs)
 

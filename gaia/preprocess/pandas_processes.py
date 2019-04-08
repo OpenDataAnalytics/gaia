@@ -39,7 +39,8 @@ def crop_pandas(inputs=[], args={}):
     """
     Calculate the within process using pandas GeoDataFrames
 
-    :return: within result as a GeoDataFrame
+    :return: within result as a GaiaDataObject,
+             or None if no intersection
     """
     first, second = inputs[0], inputs[1]
     if first.get_epsg() != second.get_epsg():
@@ -47,6 +48,9 @@ def crop_pandas(inputs=[], args={}):
     first_df, second_df = first.get_data(), second.get_data()
     first_within = first_df[first_df.geometry.within(
         second_df.geometry.unary_union)]
+
+    if first_within.empty:
+        return None
 
     # Construct GaiaDataObject manually
     # Todo consider adding static method to GaiaDataObject

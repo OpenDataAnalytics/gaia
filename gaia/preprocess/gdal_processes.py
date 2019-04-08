@@ -41,6 +41,8 @@ def compute_subset_gdal(inputs=[], args=[]):
     # Passing "None" as second arg instead of a file path.  This tells gdal_clip
     # not to write the output dataset to a tiff file on disk
     output_dataset = gdal_clip(raster_img, None, clip_json)
+    if output_dataset is None:
+        return None
 
     # Copy data to new GDALDataObject
     outputDataObject = GDALDataObject()

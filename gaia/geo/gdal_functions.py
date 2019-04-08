@@ -261,12 +261,28 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     ul_x, ul_y = world_to_pixel(geo_trans, min_x, max_y)
     lr_x, lr_y = world_to_pixel(geo_trans, max_x, min_y)
 
+    # Check for null intersection
+    if lr_x < 0 or lr_y < 0 \
+            or ul_x > src_array.shape[-1] \
+            or ul_y > src_array.shape[-2]:
+        return None
+
+    # Clip to the input image bounds
+    ul_x = max(ul_x, 0)
+    ul_y = max(ul_y, 0)
+    lr_x = min(lr_x, src_array.shape[-1])
+    lr_y = min(lr_y, src_array.shape[-2])
+
     # Calculate the pixel size of the new image
     px_width = int(lr_x - ul_x)
     px_height = int(lr_y - ul_y)
 
+    if px_width < 1 or px_height < 1:
+        return None
+
     if raster_input.RasterCount == 1:
-        clip = src_array[ul_y:lr_y, ul_x:lr_x]
+        clip2d = src_array[ul_y:lr_y, ul_x:lr_x]
+        clip = np.expand_dims(clip2d, axis=0)
     else:
         clip = src_array[:, ul_y:lr_y, ul_x:lr_x]
 
@@ -299,13 +315,9 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     mask = image_to_array(raster_poly)
 
     # Clip the image using the mask
-    if raster_input.RasterCount == 1:
-        clip = gdalnumeric.numpy.choose(
-            mask, (clip, nodata_value)).astype(src_dtype)
-    else:
-        for i in range(raster_input.RasterCount):
-            clip[i] = gdalnumeric.numpy.choose(
-                mask, (clip[i], nodata_value)).astype(src_dtype)
+    for i in range(raster_input.RasterCount):
+        clip[i] = gdalnumeric.numpy.choose(
+            mask, (clip[i], nodata_value)).astype(src_dtype)
 
     # create output raster
     raster_band = raster_input.GetRasterBand(1)
@@ -318,15 +330,13 @@ def gdal_clip(raster_input, raster_output, polygon_json, nodata=0):
     gdalnumeric.CopyDatasetInfo(raster_input, output_dataset,
                                 xoff=xoffset, yoff=yoffset)
     bands = raster_input.RasterCount
-    if bands > 1:
-        for i in range(bands):
-            outBand = output_dataset.GetRasterBand(i + 1)
-            outBand.SetNoDataValue(nodata_values[i])
-            outBand.WriteArray(clip[i])
-    else:
-        outBand = output_dataset.GetRasterBand(1)
-        outBand.SetNoDataValue(nodata_values[0])
-        outBand.WriteArray(clip)
+    for i in range(bands):
+        inband = raster_input.GetRasterBand(i + 1)
+
+        outBand = output_dataset.GetRasterBand(i + 1)
+        outBand.SetColorInterpretation(inband.GetColorInterpretation())
+        outBand.SetNoDataValue(nodata_values[i])
+        outBand.WriteArray(clip[i])
 
     if raster_output:
         output_driver = gdal.GetDriverByName('GTiff')
